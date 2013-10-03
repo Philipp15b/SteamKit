@@ -83,7 +83,9 @@
     <Compile Include="Base\Generated\ContentManifest.cs" />
     <Compile Include="Base\Generated\GC\CSGO\MsgGC.cs" />
     <Compile Include="Base\Generated\GC\Dota\MatchmakerCommon.cs" />
-    <Compile Include="Base\Generated\GC\Dota\MsgGC.cs" />
+    <Compile Include="Base\Generated\GC\Dota\MsgGCClient.cs" />
+    <Compile Include="Base\Generated\GC\Dota\MsgGCCommon.cs" />
+    <Compile Include="Base\Generated\GC\Dota\MsgGCServer.cs" />
     <Compile Include="Base\Generated\GC\SteamMsgBase.cs" />
     <Compile Include="Base\Generated\GC\SteamMsgGC.cs" />
     <Compile Include="Base\Generated\GC\SteamMsgGCEcon.cs" />
@@ -142,9 +144,7 @@
     <Compile Include="Types\KeyValue.cs" />
     <Compile Include="Types\Manifest.cs" />
     <Compile Include="Util\DebugLog.cs" />
-    <Compile Include="Util\Utils.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Util\Utils.cs" />
     <Compile Include="Steam\Handlers\SteamFriends\SteamFriends.cs" />
     <Compile Include="Util\ScheduledFunction.cs" />
     <Compile Include="Steam\Handlers\SteamUser\SteamUser.cs" />

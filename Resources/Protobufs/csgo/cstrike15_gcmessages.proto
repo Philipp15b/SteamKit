@@ -26,7 +26,7 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_ClientReportResponse = 9122;
 	k_EMsgGCCStrike15_v2_ClientCommendPlayerQuery = 9123;
 	k_EMsgGCCStrike15_v2_ClientCommendPlayerQueryResponse = 9124;
-	k_EMsgGCCStrike15_v2_ClientRequestWatchInfoFriends = 9125;
+	k_EMsgGCCStrike15_v2_ClientRequestWatchInfoFriends_Obsolete = 9125;
 	k_EMsgGCCStrike15_v2_WatchInfoUsers = 9126;
 	k_EMsgGCCStrike15_v2_ClientRequestPlayersProfile = 9127;
 	k_EMsgGCCStrike15_v2_PlayersProfile = 9128;
@@ -39,6 +39,7 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_Client2GCTextMsg = 9135;
 	k_EMsgGCCStrike15_v2_MatchEndRunRewardDrops = 9136;
 	k_EMsgGCCStrike15_v2_MatchEndRewardDropsNotification = 9137;
+	k_EMsgGCCStrike15_v2_ClientRequestWatchInfoFriends2 = 9138;
 }
 
 message GameServerPing {
@@ -52,7 +53,6 @@ message GameServerPing {
 message DetailedSearchStatistic {
 	optional uint32 game_type = 1;
 	optional uint32 search_time_avg = 2;
-	optional uint32 legacy___players_searching___obsolete = 3;
 	optional uint32 players_searching = 4;
 }
 
@@ -214,6 +214,13 @@ message CMsgGCCStrike15_v2_MatchmakingServerRoundStats {
 	repeated int32 team_scores = 12;
 	optional .CMsgGCCStrike15_v2_MatchmakingGC2ServerConfirm confirm = 13;
 	optional int32 reservation_stage = 14;
+	optional int32 match_duration = 15;
+	repeated int32 enemy_kills = 16;
+	repeated int32 enemy_headshots = 17;
+	repeated int32 enemy_3ks = 18;
+	repeated int32 enemy_4ks = 19;
+	repeated int32 enemy_5ks = 20;
+	repeated int32 mvps = 21;
 }
 
 message CMsgGCCStrike15_v2_MatchmakingServerMatchEnd {
@@ -409,6 +416,7 @@ message CEconItemPreviewDataBlock {
 	optional uint32 paintseed = 8;
 	optional uint32 killeaterscoretype = 9;
 	optional uint32 killeatervalue = 10;
+	optional string customname = 11;
 }
 
 message CMsgGCCStrike15_v2_MatchEndRewardDropsNotification {

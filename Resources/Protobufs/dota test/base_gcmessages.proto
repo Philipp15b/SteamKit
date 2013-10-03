@@ -15,6 +15,7 @@ enum EGCBaseMsg {
 	k_EMsgGCGameServerInfo = 4508;
 	k_EMsgGCError = 4509;
 	k_EMsgGCReplay_UploadedToYouTube = 4510;
+	k_EMsgGCLANServerAvailable = 4511;
 }
 
 enum EGCBaseProtoObjectTypes {
@@ -90,6 +91,10 @@ message CMsgLeaveParty {
 message CMsgServerAvailable {
 }
 
+message CMsgLANServerAvailable {
+	optional fixed64 lobby_id = 1;
+}
+
 message CSOEconGameAccountClient {
 	optional uint32 additional_backpack_slots = 1 [default = 0];
 	optional bool trial_account = 2 [default = false];
@@ -118,7 +123,6 @@ message CSOItemCriteria {
 	optional bool item_quality_set = 4;
 	optional uint32 initial_inventory = 5;
 	optional uint32 initial_quantity = 6;
-	optional bool forced_quality_match = 7;
 	optional bool ignore_enabled_flag = 8;
 	repeated .CSOItemCriteriaCondition conditions = 9;
 	optional bool recent_only = 10;
@@ -439,6 +443,16 @@ message CMsgGCBannedWordListRequest {
 	optional uint32 word_id = 2;
 }
 
+message CMsgGCRequestAnnouncements {
+}
+
+message CMsgGCRequestAnnouncementsResponse {
+	optional string announcement_title = 1;
+	optional string announcement = 2;
+	optional string nextmatch_title = 3;
+	optional string nextmatch = 4;
+}
+
 message CMsgGCBannedWord {
 	optional uint32 word_id = 1;
 	optional .GC_BannedWordType word_type = 2 [default = GC_BANNED_WORD_DISABLE_WORD];
@@ -486,5 +500,26 @@ message CMsgGCToGCIsTrustedServer {
 
 message CMsgGCToGCIsTrustedServerResponse {
 	optional bool is_trusted = 1;
+}
+
+message CMsgGCToGCBroadcastConsoleCommand {
+	optional string con_command = 1;
+}
+
+message CMsgGCServerVersionUpdated {
+	optional uint32 server_version = 1;
+}
+
+message CMsgGCClientVersionUpdated {
+	optional uint32 client_version = 1;
+}
+
+message CMsgGCToGCWebAPIAccountChanged {
+}
+
+message CMsgGCToGCRequestPassportItemGrant {
+	optional fixed64 steam_id = 1;
+	optional uint32 league_id = 2;
+	optional int32 reward_flag = 3;
 }
 
