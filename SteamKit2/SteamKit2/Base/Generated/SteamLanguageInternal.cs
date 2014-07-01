@@ -662,7 +662,7 @@ namespace SteamKit2.Internal
 		public EMsg GetEMsg() { return EMsg.ClientLogon; }
 
 		public static readonly uint ObfuscationMask = 0xBAADF00D;
-		public static readonly uint CurrentProtocol = 65575;
+		public static readonly uint CurrentProtocol = 65579;
 		public static readonly uint ProtocolVerMajorMask = 0xFFFF0000;
 		public static readonly uint ProtocolVerMinorMask = 0xFFFF;
 		public static readonly ushort ProtocolVerMinorMinGameServers = 4;
@@ -683,6 +683,7 @@ namespace SteamKit2.Internal
 		public static readonly ushort ProtocolVerMinorMinForMachineAuth = 33;
 		public static readonly ushort ProtocolVerMinorMinForSessionIDLastAnon = 36;
 		public static readonly ushort ProtocolVerMinorMinForEnhancedAppList = 40;
+		public static readonly ushort ProtocolVerMinorMinForGzipMultiMessages = 43;
 
 		public MsgClientLogon()
 		{
@@ -2195,6 +2196,39 @@ namespace SteamKit2.Internal
 			steamIdChat = br.ReadUInt64();
 			ChatRoomType = (EChatRoomType)br.ReadInt32();
 			steamIdFriendChat = br.ReadUInt64();
+		}
+	}
+
+	public class MsgClientMarketingMessageUpdate2 : ISteamSerializableMessage
+	{
+		public EMsg GetEMsg() { return EMsg.ClientMarketingMessageUpdate2; }
+
+		// Static size: 4
+		public uint MarketingMessageUpdateTime { get; set; }
+		// Static size: 4
+		public uint Count { get; set; }
+
+		public MsgClientMarketingMessageUpdate2()
+		{
+			MarketingMessageUpdateTime = 0;
+			Count = 0;
+		}
+
+		public void Serialize(Stream stream)
+		{
+			BinaryWriter bw = new BinaryWriter( stream );
+
+			bw.Write( MarketingMessageUpdateTime );
+			bw.Write( Count );
+
+		}
+
+		public void Deserialize( Stream stream )
+		{
+			BinaryReader br = new BinaryReader( stream );
+
+			MarketingMessageUpdateTime = br.ReadUInt32();
+			Count = br.ReadUInt32();
 		}
 	}
 

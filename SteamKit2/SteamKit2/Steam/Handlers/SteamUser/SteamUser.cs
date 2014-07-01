@@ -104,7 +104,7 @@ namespace SteamKit2
 
             /// <summary>
             /// Gets or sets the target Job ID for the request.
-            /// This is provided in the <see cref="SteamClient.JobCallback&lt;T&gt;"/> for a <see cref="UpdateMachineAuthCallback"/>.
+            /// This is provided in the <see cref="Callback&lt;T&gt;"/> for a <see cref="UpdateMachineAuthCallback"/>.
             /// </summary>
             /// <value>The Job ID.</value>
             public JobID JobID { get; set; }
@@ -199,6 +199,11 @@ namespace SteamKit2
             {
                 throw new ArgumentException( "LogOn requires a username and password to be set in 'details'." );
             }
+            if ( !this.Client.IsConnected )
+            {
+                this.Client.PostCallback( new LoggedOnCallback( EResult.NoConnection ) );
+                return;
+            }
 
             var logon = new ClientMsgProtobuf<CMsgClientLogon>( EMsg.ClientLogon );
 
@@ -244,6 +249,12 @@ namespace SteamKit2
         /// </summary>
         public void LogOnAnonymous()
         {
+            if ( !this.Client.IsConnected )
+            {
+                this.Client.PostCallback( new LoggedOnCallback( EResult.NoConnection ) );
+                return;
+            }
+
             var logon = new ClientMsgProtobuf<CMsgClientLogon>( EMsg.ClientLogon );
 
             SteamID auId = new SteamID( 0, 0, Client.ConnectedUniverse, EAccountType.AnonUser );
@@ -303,6 +314,21 @@ namespace SteamKit2
 
         }
 
+        /// <summary>
+        /// Requests a new WebAPI authentication user nonce. This is used if initial loginkey authentication fails.
+        /// Results are returned in a <see cref="WebAPIUserNonceCallback"/>.
+        /// </summary>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="WebAPIUserNonceCallback"/>.</returns>
+        public JobID RequestWebAPIUserNonce()
+        {
+            var reqMsg = new ClientMsgProtobuf<CMsgClientRequestWebAPIAuthenticateUserNonce>( EMsg.ClientRequestWebAPIAuthenticateUserNonce );
+            reqMsg.SourceJobID = Client.GetNextJobID();
+
+            this.Client.Send( reqMsg );
+
+            return reqMsg.SourceJobID;
+        }
+
 
         /// <summary>
         /// Handles a client message. This should not be called directly.
@@ -339,6 +365,14 @@ namespace SteamKit2
                 case EMsg.ClientWalletInfoUpdate:
                     HandleWalletInfo( packetMsg );
                     break;
+
+                case EMsg.ClientRequestWebAPIAuthenticateUserNonceResponse:
+                    HandleWebAPIUserNonce( packetMsg );
+                    break;
+
+                case EMsg.ClientMarketingMessageUpdate2:
+                    HandleMarketingMessageUpdate( packetMsg );
+                    break;
             }
         }
 
@@ -365,8 +399,7 @@ namespace SteamKit2
         {
             var machineAuth = new ClientMsgProtobuf<CMsgClientUpdateMachineAuth>( packetMsg );
 
-            var innerCallback = new UpdateMachineAuthCallback( machineAuth.Body );
-            var callback = new SteamClient.JobCallback<UpdateMachineAuthCallback>( packetMsg.SourceJobID, innerCallback );
+            var callback = new UpdateMachineAuthCallback(packetMsg.SourceJobID, machineAuth.Body);
             Client.PostCallback( callback );
         }
         void HandleSessionToken( IPacketMsg packetMsg )
@@ -417,6 +450,22 @@ namespace SteamKit2
             var walletInfo = new ClientMsgProtobuf<CMsgClientWalletInfoUpdate>( packetMsg );
 
             var callback = new WalletInfoCallback( walletInfo.Body );
+            this.Client.PostCallback( callback );
+        }
+        void HandleWebAPIUserNonce( IPacketMsg packetMsg )
+        {
+            var userNonce = new ClientMsgProtobuf<CMsgClientRequestWebAPIAuthenticateUserNonceResponse>( packetMsg );
+
+            var callback = new WebAPIUserNonceCallback(userNonce.TargetJobID, userNonce.Body);
+            this.Client.PostCallback( callback );
+        }
+        void HandleMarketingMessageUpdate( IPacketMsg packetMsg )
+        {
+            var marketingMessage = new ClientMsg<MsgClientMarketingMessageUpdate2>( packetMsg );
+
+            byte[] payload = marketingMessage.Payload.ToArray();
+
+            var callback = new MarketingMessageCallback( marketingMessage.Body, payload );
             this.Client.PostCallback( callback );
         }
         #endregion

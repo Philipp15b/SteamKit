@@ -86,27 +86,6 @@ message CMsgSOCacheVersion {
 	optional fixed64 version = 1;
 }
 
-message CMsgAccountDetails {
-	optional bool valid = 1;
-	optional string account_name = 2;
-	optional bool public_profile = 4;
-	optional bool public_inventory = 5;
-	optional bool vac_banned = 6;
-	optional bool cyber_cafe = 7;
-	optional bool school_account = 8;
-	optional bool free_trial_account = 9;
-	optional bool subscribed = 10;
-	optional bool low_violence = 11;
-	optional bool limited = 12;
-	optional bool trusted = 13;
-	optional uint32 package = 14;
-	optional fixed32 time_cached = 15;
-	optional bool account_locked = 16;
-	optional bool community_banned = 17;
-	optional bool trade_banned = 18;
-	optional bool eligible_for_community_market = 19;
-}
-
 message CMsgGCMultiplexMessage {
 	optional uint32 msgtype = 1;
 	optional bytes payload = 2;
@@ -114,8 +93,15 @@ message CMsgGCMultiplexMessage {
 }
 
 message CGCToGCMsgMasterAck {
+	message Process {
+		optional uint32 dir_index = 1;
+		repeated uint32 type_instances = 2;
+	}
+
 	optional uint32 dir_index = 1;
-	optional uint32 gc_type = 2;
+	optional string machine_name = 3;
+	optional string process_name = 4;
+	repeated .CGCToGCMsgMasterAck.Process directory = 6;
 }
 
 message CGCToGCMsgMasterAck_Response {
@@ -123,6 +109,12 @@ message CGCToGCMsgMasterAck_Response {
 }
 
 message CGCToGCMsgMasterStartupComplete {
+	message GCInfo {
+		optional uint32 dir_index = 1;
+		optional string machine_name = 2;
+	}
+
+	repeated .CGCToGCMsgMasterStartupComplete.GCInfo gc_info = 1;
 }
 
 message CGCToGCMsgRouted {
@@ -136,23 +128,30 @@ message CGCToGCMsgRoutedReply {
 	optional bytes net_message = 2;
 }
 
-message CMsgGCUpdateSessionIP {
-	optional fixed64 steamid = 1;
-	optional fixed32 ip = 2;
+message CMsgGCUpdateSubGCSessionInfo {
+	message CMsgUpdate {
+		optional fixed64 steamid = 1;
+		optional fixed32 ip = 2;
+		optional bool trusted = 3;
+	}
+
+	repeated .CMsgGCUpdateSubGCSessionInfo.CMsgUpdate updates = 1;
 }
 
-message CMsgGCRequestSessionIP {
+message CMsgGCRequestSubGCSessionInfo {
 	optional fixed64 steamid = 1;
 }
 
-message CMsgGCRequestSessionIPResponse {
+message CMsgGCRequestSubGCSessionInfoResponse {
 	optional fixed32 ip = 1;
+	optional bool trusted = 2;
 }
 
 message CMsgSOCacheHaveVersion {
 	optional .CMsgSOIDOwner soid = 1;
 	optional fixed64 version = 2;
 	optional uint32 service_id = 3;
+	optional uint32 cached_file_version = 4;
 }
 
 message CMsgClientHello {
@@ -175,6 +174,7 @@ message CMsgClientWelcome {
 	repeated .CMsgSOCacheSubscribed outofdate_subscribed_caches = 3;
 	repeated .CMsgSOCacheSubscriptionCheck uptodate_subscribed_caches = 4;
 	optional .CMsgClientWelcome.Location location = 5;
+	optional bytes save_game_key = 6;
 }
 
 message CMsgConnectionStatus {
@@ -201,5 +201,45 @@ message CMsgGCToGCSOCacheSubscribe {
 message CMsgGCToGCSOCacheUnsubscribe {
 	optional fixed64 subscriber = 1;
 	optional fixed64 unsubscribe_from = 2;
+}
+
+message CMsgGCClientPing {
+}
+
+message CMsgGCToGCLoadSessionSOCache {
+	optional uint32 account_id = 1;
+}
+
+message CMsgGCToGCLoadSessionSOCacheResponse {
+}
+
+message CMsgGCToGCUpdateSessionStats {
+	optional uint32 user_sessions = 1;
+	optional uint32 server_sessions = 2;
+	optional bool in_logon_surge = 3;
+}
+
+message CWorkshop_PopulateItemDescriptions_Request {
+	message SingleItemDescription {
+		optional uint32 gameitemid = 1;
+		optional string item_description = 2;
+	}
+
+	message ItemDescriptionsLanguageBlock {
+		optional string language = 1;
+		repeated .CWorkshop_PopulateItemDescriptions_Request.SingleItemDescription descriptions = 2;
+	}
+
+	optional uint32 appid = 1;
+	repeated .CWorkshop_PopulateItemDescriptions_Request.ItemDescriptionsLanguageBlock languages = 2;
+}
+
+message CWorkshop_GetContributors_Request {
+	optional uint32 appid = 1;
+	optional uint32 gameitemid = 2;
+}
+
+message CWorkshop_GetContributors_Response {
+	repeated fixed64 contributors = 1;
 }
 

@@ -11,12 +11,12 @@
 // Generated from: matchmaker_common.proto
 namespace SteamKit2.GC.Dota.Internal
 {
-    [global::ProtoBuf.ProtoContract(Name=@"MatchType")]
+    [global::ProtoBuf.ProtoContract(Name=@"MatchType", EnumPassthru=true)]
     public enum MatchType
     {
             
-      [global::ProtoBuf.ProtoEnum(Name=@"MATCH_TYPE_RANKED", Value=0)]
-      MATCH_TYPE_RANKED = 0,
+      [global::ProtoBuf.ProtoEnum(Name=@"MATCH_TYPE_CASUAL", Value=0)]
+      MATCH_TYPE_CASUAL = 0,
             
       [global::ProtoBuf.ProtoEnum(Name=@"MATCH_TYPE_COOP_BOTS", Value=1)]
       MATCH_TYPE_COOP_BOTS = 1,
@@ -24,11 +24,20 @@ namespace SteamKit2.GC.Dota.Internal
       [global::ProtoBuf.ProtoEnum(Name=@"MATCH_TYPE_TEAM_RANKED", Value=2)]
       MATCH_TYPE_TEAM_RANKED = 2,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"MATCH_TYPE_SOLO_QUEUE", Value=3)]
-      MATCH_TYPE_SOLO_QUEUE = 3
+      [global::ProtoBuf.ProtoEnum(Name=@"MATCH_TYPE_LEGACY_SOLO_QUEUE", Value=3)]
+      MATCH_TYPE_LEGACY_SOLO_QUEUE = 3,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MATCH_TYPE_COMPETITIVE", Value=4)]
+      MATCH_TYPE_COMPETITIVE = 4,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MATCH_TYPE_WEEKEND_TOURNEY", Value=5)]
+      MATCH_TYPE_WEEKEND_TOURNEY = 5,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MATCH_TYPE_CASUAL_1V1", Value=6)]
+      MATCH_TYPE_CASUAL_1V1 = 6
     }
   
-    [global::ProtoBuf.ProtoContract(Name=@"DOTABotDifficulty")]
+    [global::ProtoBuf.ProtoContract(Name=@"DOTABotDifficulty", EnumPassthru=true)]
     public enum DOTABotDifficulty
     {
             
@@ -48,12 +57,24 @@ namespace SteamKit2.GC.Dota.Internal
       BOT_DIFFICULTY_UNFAIR = 4,
             
       [global::ProtoBuf.ProtoEnum(Name=@"BOT_DIFFICULTY_INVALID", Value=5)]
-      BOT_DIFFICULTY_INVALID = 5
+      BOT_DIFFICULTY_INVALID = 5,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"BOT_DIFFICULTY_EXTRA1", Value=6)]
+      BOT_DIFFICULTY_EXTRA1 = 6,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"BOT_DIFFICULTY_EXTRA2", Value=7)]
+      BOT_DIFFICULTY_EXTRA2 = 7,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"BOT_DIFFICULTY_EXTRA3", Value=8)]
+      BOT_DIFFICULTY_EXTRA3 = 8
     }
   
-    [global::ProtoBuf.ProtoContract(Name=@"MatchLanguages")]
+    [global::ProtoBuf.ProtoContract(Name=@"MatchLanguages", EnumPassthru=true)]
     public enum MatchLanguages
     {
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MATCH_LANGUAGE_INVALID", Value=0)]
+      MATCH_LANGUAGE_INVALID = 0,
             
       [global::ProtoBuf.ProtoEnum(Name=@"MATCH_LANGUAGE_ENGLISH", Value=1)]
       MATCH_LANGUAGE_ENGLISH = 1,

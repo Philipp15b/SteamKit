@@ -158,8 +158,8 @@ namespace SteamKit2
 
                 this.AvatarHash = friend.avatar_hash;
 
-                this.LastLogOff = Utils.DateTimeFromUnixTime( friend.last_logoff );
-                this.LastLogOn = Utils.DateTimeFromUnixTime( friend.last_logon );
+                this.LastLogOff = DateUtils.DateTimeFromUnixTime( friend.last_logoff );
+                this.LastLogOn = DateUtils.DateTimeFromUnixTime( friend.last_logon );
 
                 this.ClanRank = friend.clan_rank;
                 this.ClanTag = friend.clan_tag;
@@ -210,7 +210,7 @@ namespace SteamKit2
                 {
                     ID = clanEvent.gid;
 
-                    EventTime = Utils.DateTimeFromUnixTime( clanEvent.event_time );
+                    EventTime = DateUtils.DateTimeFromUnixTime( clanEvent.event_time );
                     Headline = clanEvent.headline;
                     GameID = clanEvent.game_id;
 
@@ -704,8 +704,10 @@ namespace SteamKit2
             public EResult Result { get; private set; }
 
 
-            internal IgnoreFriendCallback( MsgClientSetIgnoreFriendResponse response )
+            internal IgnoreFriendCallback( JobID jobID, MsgClientSetIgnoreFriendResponse response )
             {
+                this.JobID = jobID;
+
                 this.Result = response.Result;
             }
         }
@@ -758,19 +760,16 @@ namespace SteamKit2
             /// </summary>
             public string Summary { get; private set; }
 
-            /// <summary>
-            /// Gets the recent playtime.
-            /// </summary>
-            public TimeSpan RecentPlaytime { get; private set; }
 
-
-            internal ProfileInfoCallback( CMsgClientFriendProfileInfoResponse response )
+            internal ProfileInfoCallback( JobID jobID, CMsgClientFriendProfileInfoResponse response )
             {
+                JobID = jobID;
+
                 Result = ( EResult )response.eresult;
 
                 SteamID = response.steamid_friend;
 
-                TimeCreated = Utils.DateTimeFromUnixTime( response.time_created );
+                TimeCreated = DateUtils.DateTimeFromUnixTime( response.time_created );
 
                 RealName = response.real_name;
 
@@ -781,8 +780,6 @@ namespace SteamKit2
                 Headline = response.headline;
 
                 Summary = response.summary;
-
-                RecentPlaytime = TimeSpan.FromMinutes( ( uint )response.recent_playtime );
             }
         }
     }

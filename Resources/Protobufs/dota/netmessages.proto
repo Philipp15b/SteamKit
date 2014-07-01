@@ -1,5 +1,6 @@
 import "google/protobuf/descriptor.proto";
 import "networkbasetypes.proto";
+import "network_connection.proto";
 
 enum NET_Messages {
 	net_NOP = 0;
@@ -56,6 +57,7 @@ enum SVC_Messages {
 	svc_GameEventList = 30;
 	svc_GetCvarValue = 31;
 	svc_PacketReliable = 32;
+	svc_FullFrameSplit = 33;
 }
 
 enum ESplitScreenMessageType {
@@ -76,7 +78,7 @@ message CNETMsg_NOP {
 }
 
 message CNETMsg_Disconnect {
-	optional string text = 1;
+	optional .ENetworkDisconnectionReason reason = 2 [default = NETWORK_DISCONNECT_INVALID];
 }
 
 message CNETMsg_File {
@@ -92,8 +94,9 @@ message CNETMsg_SplitScreenUser {
 
 message CNETMsg_Tick {
 	optional uint32 tick = 1;
-	optional uint32 host_frametime = 2;
-	optional uint32 host_frametime_std_deviation = 3;
+	optional uint32 host_computationtime = 4;
+	optional uint32 host_computationtime_std_deviation = 5;
+	optional uint32 host_framestarttime_std_deviation = 6;
 }
 
 message CNETMsg_StringCmd {
@@ -189,6 +192,7 @@ message CSVCMsg_ServerInfo {
 	optional string map_name = 15;
 	optional string sky_name = 16;
 	optional string host_name = 17;
+	optional string addon_name = 18;
 }
 
 message CSVCMsg_ClassInfo {
@@ -361,5 +365,12 @@ message CSVCMsg_VoiceData {
 message CSVCMsg_PacketReliable {
 	optional int32 tick = 1;
 	optional int32 messagessize = 2;
+}
+
+message CSVCMsg_FullFrameSplit {
+	optional int32 tick = 1;
+	optional int32 section = 2;
+	optional int32 total = 3;
+	optional bytes data = 4;
 }
 

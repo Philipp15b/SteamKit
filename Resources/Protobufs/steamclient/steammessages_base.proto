@@ -12,12 +12,13 @@ message CMsgProtoBufHeader {
 	optional fixed64 jobid_source = 10 [default = 18446744073709551615];
 	optional fixed64 jobid_target = 11 [default = 18446744073709551615];
 	optional string target_job_name = 12;
+	optional int32 seq_num = 24;
 	optional int32 eresult = 13 [default = 2];
 	optional string error_message = 14;
 	optional uint32 ip = 15;
 	optional uint32 auth_account_flags = 16;
 	optional uint32 token_source = 22;
-	optional bool admin_spoofing_user = 24;
+	optional bool admin_spoofing_user = 23;
 	optional int32 transport_error = 17 [default = 1];
 	optional uint64 messageid = 18 [default = 18446744073709551615];
 	optional uint32 publisher_group_id = 19;
@@ -56,6 +57,7 @@ message CCDDBAppDetailCommon {
 	optional bool community_visible_stats = 9;
 	optional string friendly_name = 10;
 	optional string propagation = 11;
+	optional bool has_adult_content = 12;
 }
 
 message CMsgAppRights {

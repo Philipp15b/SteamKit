@@ -21,7 +21,7 @@ namespace SteamKit2
     {
         /// <summary>
         /// Gets the connected universe of this client.
-        /// This value will be <see cref="EUniverse.Invalid"/> if the client is logged off of Steam.
+        /// This value will be <see cref="EUniverse.Invalid"/> if the client is not connected to Steam.
         /// </summary>
         /// <value>The universe.</value>
         public EUniverse ConnectedUniverse { get; private set; }
@@ -141,12 +141,12 @@ namespace SteamKit2
             public byte[] FileData { get; set; }
 
             /// <summary>
-            /// Gets or sets the JobID of this file upload. This value should be assigned from <see cref="UploadFileResponseCallback.JobID"/>.
+            /// Gets or sets the JobID of this file upload. This value should be assigned from <see cref="UploadFileResponseCallback.RemoteJobID"/>.
             /// </summary>
             /// <value>
             /// The job ID.
             /// </value>
-            public JobID JobID { get; set; }
+            public JobID RemoteJobID { get; set; }
         }
 
         /// <summary>
@@ -155,11 +155,20 @@ namespace SteamKit2
         /// Results are returned in a <see cref="LoggedOnCallback"/>.
         /// </summary>
         /// <param name="appIds">The AppIDs to authorize when connecting to the UFS.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="LoggedOnCallback"/>.</returns>
         public JobID Logon( IEnumerable<uint> appIds )
         {
+            var jobId = steamClient.GetNextJobID();
+
+            if ( !steamClient.IsConnected )
+            {
+                var callback = new LoggedOnCallback( jobId, EResult.NoConnection );
+                steamClient.PostCallback( callback );
+                return jobId;
+            }
+
             var loginReq = new ClientMsgProtobuf<CMsgClientUFSLoginRequest>( EMsg.ClientUFSLoginRequest );
-            loginReq.SourceJobID = steamClient.GetNextJobID();
+            loginReq.SourceJobID = jobId;
 
             loginReq.Body.apps.AddRange( appIds );
             loginReq.Body.protocol_version = MsgClientLogon.CurrentProtocol;
@@ -176,7 +185,7 @@ namespace SteamKit2
         /// Results are returned in a <see cref="UploadFileResponseCallback"/>.
         /// </summary>
         /// <param name="details">The details to use for uploading the file.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="UploadFileResponseCallback"/>.</returns>
         public JobID RequestFileUpload( UploadDetails details )
         {
             byte[] compressedData = ZipUtil.Compress( details.FileData );
@@ -190,7 +199,7 @@ namespace SteamKit2
             msg.Body.file_size = ( uint )compressedData.Length;
             msg.Body.raw_file_size = ( uint )details.FileData.Length;
             msg.Body.sha_file = CryptoHelper.SHAHash( details.FileData );
-            msg.Body.time_stamp = Utils.DateTimeToUnixTime( DateTime.UtcNow );
+            msg.Body.time_stamp = DateUtils.DateTimeToUnixTime( DateTime.UtcNow );
 
             Send( msg );
 
@@ -203,7 +212,7 @@ namespace SteamKit2
         /// Results are returned in a <see cref="UploadFileFinishedCallback"/>.
         /// </summary>
         /// <param name="details">The details to use for uploading the file.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="UploadFileFinishedCallback"/>.</returns>
         public void UploadFile( UploadDetails details )
         {
             const uint MaxBytesPerChunk = 10240;
@@ -218,7 +227,7 @@ namespace SteamKit2
                 for ( long readIndex = 0; readIndex < ms.Length; readIndex += buffer.Length )
                 {
                     var msg = new ClientMsgProtobuf<CMsgClientUFSFileChunk>( EMsg.ClientUFSUploadFileChunk );
-                    msg.TargetJobID = details.JobID;
+                    msg.TargetJobID = details.RemoteJobID;
 
                     var bytesRead = ms.Read( buffer, 0, buffer.Length );
 
@@ -358,24 +367,21 @@ namespace SteamKit2
         {
             var loginResp = new ClientMsgProtobuf<CMsgClientUFSLoginResponse>( packetMsg );
 
-            var innerCallback = new LoggedOnCallback( loginResp.Body );
-            var callback = new SteamClient.JobCallback<LoggedOnCallback>( loginResp.TargetJobID, innerCallback );
+            var callback = new LoggedOnCallback( loginResp.TargetJobID, loginResp.Body);
             steamClient.PostCallback( callback );
         }
         void HandleUploadFileResponse( IPacketMsg packetMsg )
         {
             var uploadResp = new ClientMsgProtobuf<CMsgClientUFSUploadFileResponse>( packetMsg );
 
-            var innerCallback = new UploadFileResponseCallback( uploadResp.Body, uploadResp.SourceJobID );
-            var callback = new SteamClient.JobCallback<UploadFileResponseCallback>( uploadResp.TargetJobID, innerCallback );
+            var callback = new UploadFileResponseCallback( uploadResp.TargetJobID, uploadResp.Body, uploadResp.SourceJobID );
             steamClient.PostCallback( callback );
         }
         void HandleUploadFileFinished( IPacketMsg packetMsg )
         {
             var uploadFin = new ClientMsgProtobuf<CMsgClientUFSUploadFileFinished>( packetMsg );
             
-            var innerCallback = new UploadFileFinishedCallback(uploadFin.Body);
-            var callback = new SteamClient.JobCallback<UploadFileFinishedCallback>( uploadFin.TargetJobID, innerCallback );
+            var callback = new UploadFileFinishedCallback( uploadFin.TargetJobID, uploadFin.Body );
             steamClient.PostCallback( callback );
         }
         #endregion

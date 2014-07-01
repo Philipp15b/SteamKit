@@ -42,7 +42,7 @@ namespace SteamKit2
             /// </summary>
             public string RpcName
             {
-                get { return MethodName.Substring( ServiceName.Length ).Split( '#' )[0]; }
+                get { return MethodName.Substring( ServiceName.Length + 1 ).Split( '#' )[0]; }
             }
 
             /// <summary>
@@ -51,8 +51,10 @@ namespace SteamKit2
             public string MethodName { get; private set; }
 
 
-            internal ServiceMethodResponse( EResult result, CMsgClientServiceMethodResponse resp )
+            internal ServiceMethodResponse( JobID jobID, EResult result, CMsgClientServiceMethodResponse resp )
             {
+                JobID = jobID;
+
                 Result = result;
                 ResponseRaw = resp.serialized_method_response;
                 MethodName = resp.method_name ?? string.Empty;

@@ -59,6 +59,8 @@ enum EGCSystemMsg {
 	k_EGCMsgMemCachedDelete = 203;
 	k_EGCMsgMemCachedStats = 204;
 	k_EGCMsgMemCachedStatsResponse = 205;
+	k_EGCMsgSQLStats = 210;
+	k_EGCMsgSQLStatsResponse = 211;
 	k_EGCMsgMasterSetDirectory = 220;
 	k_EGCMsgMasterSetDirectoryResponse = 221;
 	k_EGCMsgMasterSetWebAPIRouting = 222;
@@ -74,6 +76,11 @@ enum EGCSystemMsg {
 	k_EGCMsgGCAccountVacStatusChange = 504;
 	k_EGCMsgCheckFriendship = 505;
 	k_EGCMsgCheckFriendshipResponse = 506;
+	k_EGCMsgGetPartnerAccountLink = 507;
+	k_EGCMsgGetPartnerAccountLinkResponse = 508;
+	k_EGCMsgVSReportedSuspiciousActivity = 509;
+	k_EGCMsgDPPartnerMicroTxns = 512;
+	k_EGCMsgDPPartnerMicroTxnsResponse = 513;
 }
 
 enum ESOMsg {
@@ -88,6 +95,8 @@ enum ESOMsg {
 }
 
 enum EGCBaseClientMsg {
+	k_EMsgGCPingRequest = 3001;
+	k_EMsgGCPingResponse = 3002;
 	k_EMsgGCClientWelcome = 4004;
 	k_EMsgGCServerWelcome = 4005;
 	k_EMsgGCClientHello = 4006;
@@ -101,11 +110,14 @@ enum EGCToGCMsg {
 	k_EGCToGCMsgMasterAckResponse = 151;
 	k_EGCToGCMsgRouted = 152;
 	k_EGCToGCMsgRoutedReply = 153;
-	k_EMsgUpdateSessionIP = 154;
-	k_EMsgRequestSessionIP = 155;
-	k_EMsgRequestSessionIPResponse = 156;
+	k_EMsgGCUpdateSubGCSessionInfo = 154;
+	k_EMsgGCRequestSubGCSessionInfo = 155;
+	k_EMsgGCRequestSubGCSessionInfoResponse = 156;
 	k_EGCToGCMsgMasterStartupComplete = 157;
 	k_EMsgGCToGCSOCacheSubscribe = 158;
 	k_EMsgGCToGCSOCacheUnsubscribe = 159;
+	k_EMsgGCToGCLoadSessionSOCache = 160;
+	k_EMsgGCToGCLoadSessionSOCacheResponse = 161;
+	k_EMsgGCToGCUpdateSessionStats = 162;
 }
 

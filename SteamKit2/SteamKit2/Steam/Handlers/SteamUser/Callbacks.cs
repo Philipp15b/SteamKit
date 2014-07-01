@@ -6,6 +6,10 @@
 
 using System;
 using System.Net;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Collections.Generic;
+using System.Text;
 using SteamKit2.Internal;
 
 namespace SteamKit2
@@ -95,6 +99,20 @@ namespace SteamKit2
             /// </summary>
             public string IPCountryCode { get; private set; }
 
+            /// <summary>
+            /// Gets the vanity URL.
+            /// </summary>
+            public string VanityURL { get; private set; }
+
+            /// <summary>
+            /// Gets the threshold for login failures before Steam wants the client to migrate to a new CM.
+            /// </summary>
+            public int NumLoginFailuresToMigrate { get; private set; }
+            /// <summary>
+            /// Gets the threshold for disconnects before Steam wants the client to migrate to a new CM.
+            /// </summary>
+            public int NumDisconnectsToMigrate { get; private set; }
+
 
             internal LoggedOnCallback( CMsgClientLogonResponse resp )
             {
@@ -106,7 +124,7 @@ namespace SteamKit2
 
                 this.PublicIP = NetHelpers.GetIPAddress( resp.public_ip );
 
-                this.ServerTime = Utils.DateTimeFromUnixTime( resp.rtime32_server_time );
+                this.ServerTime = DateUtils.DateTimeFromUnixTime( resp.rtime32_server_time );
 
                 this.AccountFlags = ( EAccountFlags )resp.account_flags;
 
@@ -124,6 +142,11 @@ namespace SteamKit2
                 this.WebAPIUserNonce = resp.webapi_authenticate_user_nonce;
 
                 this.UsePICS = resp.use_pics;
+
+                this.VanityURL = resp.vanity_url;
+
+                this.NumLoginFailuresToMigrate = resp.count_loginfailures_to_migrate;
+                this.NumDisconnectsToMigrate = resp.count_disconnects_to_migrate;
             }
 
 
@@ -136,9 +159,15 @@ namespace SteamKit2
 
                 this.PublicIP = NetHelpers.GetIPAddress( resp.IpPublic );
 
-                this.ServerTime = Utils.DateTimeFromUnixTime( resp.ServerRealTime );
+                this.ServerTime = DateUtils.DateTimeFromUnixTime( resp.ServerRealTime );
 
                 this.ClientSteamID = resp.ClientSuppliedSteamId;
+            }
+
+
+            internal LoggedOnCallback( EResult result )
+            {
+                this.Result = result;
             }
         }
 
@@ -202,7 +231,7 @@ namespace SteamKit2
         }
 
         /// <summary>
-        /// This callback is recieved when account information is recieved from the network.
+        /// This callback is received when account information is recieved from the network.
         /// This generally happens after logon.
         /// </summary>
         public sealed class AccountInfoCallback : CallbackMsg
@@ -271,7 +300,7 @@ namespace SteamKit2
         }
 
         /// <summary>
-        /// This callback is recieved when wallet info is recieved from the network.
+        /// This callback is received when wallet info is recieved from the network.
         /// </summary>
         public sealed class WalletInfoCallback : CallbackMsg
         {
@@ -303,7 +332,7 @@ namespace SteamKit2
         }
 
         /// <summary>
-        /// This callback is recieved when the backend wants the client to update it's local machine authentication data.
+        /// This callback is received when the backend wants the client to update it's local machine authentication data.
         /// </summary>
         public sealed class UpdateMachineAuthCallback : CallbackMsg
         {
@@ -370,8 +399,10 @@ namespace SteamKit2
             public OTPDetails OneTimePassword { get; private set; }
 
 
-            internal UpdateMachineAuthCallback( CMsgClientUpdateMachineAuth msg )
+            internal UpdateMachineAuthCallback( JobID jobID, CMsgClientUpdateMachineAuth msg )
             {
+                JobID = jobID;
+
                 Data = msg.bytes;
 
                 BytesToWrite = ( int )msg.cubtowrite;
@@ -386,6 +417,103 @@ namespace SteamKit2
                     SharedSecret = msg.otp_sharedsecret,
                     TimeDrift = msg.otp_timedrift,
                 };
+            }
+        }
+
+        /// <summary>
+        /// This callback is received when requesting a new WebAPI authentication user nonce.
+        /// </summary>
+        public sealed class WebAPIUserNonceCallback : CallbackMsg
+        {
+            /// <summary>
+            /// Gets the result of the request.
+            /// </summary>
+            public EResult Result { get; private set; }
+
+            /// <summary>
+            /// Gets the authentication nonce.
+            /// </summary>
+            public string Nonce { get; private set; }
+
+
+            internal WebAPIUserNonceCallback( JobID jobID, CMsgClientRequestWebAPIAuthenticateUserNonceResponse body )
+            {
+                this.JobID = jobID;
+
+                this.Result = ( EResult )body.eresult;
+                this.Nonce = body.webapi_authenticate_user_nonce;
+            }
+        }
+
+        /// <summary>
+        /// This callback is fired when the client receives a marketing message update.
+        /// </summary>
+        public sealed class MarketingMessageCallback : CallbackMsg
+        {
+            /// <summary>
+            /// Represents a single marketing message.
+            /// </summary>
+            public sealed class Message
+            {
+                /// <summary>
+                /// Gets the unique identifier for this marketing message.
+                /// </summary>
+                public GlobalID ID { get; private set; }
+
+                /// <summary>
+                /// Gets the URL for this marketing message.
+                /// </summary>
+                public string URL { get; private set; }
+
+                /// <summary>
+                /// Gets the marketing message flags.
+                /// </summary>
+                public EMarketingMessageFlags Flags { get; private set; }
+
+
+                internal Message( byte[] data )
+                {
+                    using ( var ms = new MemoryStream( data ) )
+                    using ( var br = new BinaryReader( ms ) )
+                    {
+                        ID = br.ReadUInt64();
+                        URL = br.BaseStream.ReadNullTermString( Encoding.UTF8 );
+                        Flags = ( EMarketingMessageFlags )br.ReadUInt32();
+                    }
+                }
+            }
+
+
+            /// <summary>
+            /// Gets the time of this marketing message update.
+            /// </summary>
+            public DateTime UpdateTime { get; private set; }
+
+            /// <summary>
+            /// Gets the messages.
+            /// </summary>
+            public ReadOnlyCollection<Message> Messages { get; private set; }
+
+
+            internal MarketingMessageCallback( MsgClientMarketingMessageUpdate2 body, byte[] payload )
+            {
+                UpdateTime = DateUtils.DateTimeFromUnixTime( body.MarketingMessageUpdateTime );
+
+                var msgList = new List<Message>();
+
+                using ( var ms = new MemoryStream( payload ) )
+                using ( var br = new BinaryReader( ms ) )
+                {
+                    for ( int x = 0 ; x < body.Count ; ++x )
+                    {
+                        int dataLen = br.ReadInt32() - 4; // total length includes the 4 byte length
+                        byte[] messageData = br.ReadBytes( dataLen );
+
+                        msgList.Add( new Message( messageData ) );
+                    }
+                }
+
+                Messages = new ReadOnlyCollection<Message>( msgList );
             }
         }
     }

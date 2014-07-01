@@ -65,8 +65,8 @@ namespace SteamKit2
 
                 Flags = (EDepotFileFlag)ds.ReadUInt32();
 
-                HashFileName = ds.ReadBytes( 20 );
                 HashContent = ds.ReadBytes( 20 );
+                HashFileName = ds.ReadBytes( 20 );
 
                 NumChunks = ds.ReadUInt32();
 
@@ -146,7 +146,7 @@ namespace SteamKit2
             DepotID = ds.ReadUInt32();
 
             ManifestGID = ds.ReadUInt64();
-            CreationTime = Utils.DateTimeFromUnixTime(ds.ReadUInt32());
+            CreationTime = DateUtils.DateTimeFromUnixTime( ds.ReadUInt32() );
 
             AreFileNamesEncrypted = ds.ReadUInt32() != 0;
 

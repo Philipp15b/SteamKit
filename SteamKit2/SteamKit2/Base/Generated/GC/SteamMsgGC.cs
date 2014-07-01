@@ -53,6 +53,15 @@ namespace SteamKit2.GC.Internal
       get { return _purchase_type; }
       set { _purchase_type = value; }
     }
+
+    private ulong _source_reference_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"source_reference_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong source_reference_id
+    {
+      get { return _source_reference_id; }
+      set { _source_reference_id = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -255,6 +264,15 @@ namespace SteamKit2.GC.Internal
       get { return _team_id; }
       set { _team_id = value; }
     }
+
+    private bool _as_coach = default(bool);
+    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"as_coach", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool as_coach
+    {
+      get { return _as_coach; }
+      set { _as_coach = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -328,6 +346,33 @@ namespace SteamKit2.GC.Internal
     {
       get { return _team_id; }
       set { _team_id = value; }
+    }
+
+    private bool _as_coach = default(bool);
+    [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"as_coach", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool as_coach
+    {
+      get { return _as_coach; }
+      set { _as_coach = value; }
+    }
+
+    private uint _game_language_enum = default(uint);
+    [global::ProtoBuf.ProtoMember(6, IsRequired = false, Name=@"game_language_enum", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint game_language_enum
+    {
+      get { return _game_language_enum; }
+      set { _game_language_enum = value; }
+    }
+
+    private string _game_language_name = "";
+    [global::ProtoBuf.ProtoMember(7, IsRequired = false, Name=@"game_language_name", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string game_language_name
+    {
+      get { return _game_language_name; }
+      set { _game_language_name = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
@@ -477,15 +522,6 @@ namespace SteamKit2.GC.Internal
     {
       get { return _made_first_purchase; }
       set { _made_first_purchase = value; }
-    }
-
-    private bool _eligible_for_community_market = default(bool);
-    [global::ProtoBuf.ProtoMember(10, IsRequired = false, Name=@"eligible_for_community_market", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue(default(bool))]
-    public bool eligible_for_community_market
-    {
-      get { return _eligible_for_community_market; }
-      set { _eligible_for_community_market = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
@@ -839,61 +875,6 @@ namespace SteamKit2.GC.Internal
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgIncrementKillCountAttribute")]
-  public partial class CMsgIncrementKillCountAttribute : global::ProtoBuf.IExtensible
-  {
-    public CMsgIncrementKillCountAttribute() {}
-    
-
-    private uint _killer_account_id = default(uint);
-    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"killer_account_id", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint killer_account_id
-    {
-      get { return _killer_account_id; }
-      set { _killer_account_id = value; }
-    }
-
-    private uint _victim_account_id = default(uint);
-    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"victim_account_id", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint victim_account_id
-    {
-      get { return _victim_account_id; }
-      set { _victim_account_id = value; }
-    }
-
-    private ulong _item_id = default(ulong);
-    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(ulong))]
-    public ulong item_id
-    {
-      get { return _item_id; }
-      set { _item_id = value; }
-    }
-
-    private uint _event_type = default(uint);
-    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"event_type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint event_type
-    {
-      get { return _event_type; }
-      set { _event_type = value; }
-    }
-
-    private uint _amount = default(uint);
-    [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"amount", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint amount
-    {
-      get { return _amount; }
-      set { _amount = value; }
-    }
-    private global::ProtoBuf.IExtension extensionObject;
-    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
-  }
-  
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgApplyStrangePart")]
   public partial class CMsgApplyStrangePart : global::ProtoBuf.IExtensible
   {
@@ -1085,27 +1066,27 @@ namespace SteamKit2.GC.Internal
       set { _def_index = value; }
     }
 
-    private uint _quantity = default(uint);
+    private uint _quantity = (uint)1;
     [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"quantity", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
+    [global::System.ComponentModel.DefaultValue((uint)1)]
     public uint quantity
     {
       get { return _quantity; }
       set { _quantity = value; }
     }
 
-    private uint _level = default(uint);
+    private uint _level = (uint)1;
     [global::ProtoBuf.ProtoMember(6, IsRequired = false, Name=@"level", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
+    [global::System.ComponentModel.DefaultValue((uint)1)]
     public uint level
     {
       get { return _level; }
       set { _level = value; }
     }
 
-    private uint _quality = default(uint);
+    private uint _quality = (uint)4;
     [global::ProtoBuf.ProtoMember(7, IsRequired = false, Name=@"quality", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
+    [global::System.ComponentModel.DefaultValue((uint)4)]
     public uint quality
     {
       get { return _quality; }
@@ -1121,31 +1102,13 @@ namespace SteamKit2.GC.Internal
       set { _flags = value; }
     }
 
-    private uint _origin = default(uint);
+    private uint _origin = (uint)0;
     [global::ProtoBuf.ProtoMember(9, IsRequired = false, Name=@"origin", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
+    [global::System.ComponentModel.DefaultValue((uint)0)]
     public uint origin
     {
       get { return _origin; }
       set { _origin = value; }
-    }
-
-    private string _custom_name = "";
-    [global::ProtoBuf.ProtoMember(10, IsRequired = false, Name=@"custom_name", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue("")]
-    public string custom_name
-    {
-      get { return _custom_name; }
-      set { _custom_name = value; }
-    }
-
-    private string _custom_desc = "";
-    [global::ProtoBuf.ProtoMember(11, IsRequired = false, Name=@"custom_desc", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue("")]
-    public string custom_desc
-    {
-      get { return _custom_desc; }
-      set { _custom_desc = value; }
     }
     private readonly global::System.Collections.Generic.List<CSOEconItemAttribute> _attribute = new global::System.Collections.Generic.List<CSOEconItemAttribute>();
     [global::ProtoBuf.ProtoMember(12, Name=@"attribute", DataFormat = global::ProtoBuf.DataFormat.Default)]
@@ -1532,59 +1495,6 @@ namespace SteamKit2.GC.Internal
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgUseItem")]
-  public partial class CMsgUseItem : global::ProtoBuf.IExtensible
-  {
-    public CMsgUseItem() {}
-    
-
-    private ulong _item_id = default(ulong);
-    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(ulong))]
-    public ulong item_id
-    {
-      get { return _item_id; }
-      set { _item_id = value; }
-    }
-
-    private ulong _target_steam_id = default(ulong);
-    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"target_steam_id", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
-    [global::System.ComponentModel.DefaultValue(default(ulong))]
-    public ulong target_steam_id
-    {
-      get { return _target_steam_id; }
-      set { _target_steam_id = value; }
-    }
-    private readonly global::System.Collections.Generic.List<uint> _gift__potential_targets = new global::System.Collections.Generic.List<uint>();
-    [global::ProtoBuf.ProtoMember(3, Name=@"gift__potential_targets", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public global::System.Collections.Generic.List<uint> gift__potential_targets
-    {
-      get { return _gift__potential_targets; }
-    }
-  
-
-    private uint _duel__class_lock = default(uint);
-    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"duel__class_lock", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint duel__class_lock
-    {
-      get { return _duel__class_lock; }
-      set { _duel__class_lock = value; }
-    }
-
-    private ulong _initiator_steam_id = default(ulong);
-    [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"initiator_steam_id", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
-    [global::System.ComponentModel.DefaultValue(default(ulong))]
-    public ulong initiator_steam_id
-    {
-      get { return _initiator_steam_id; }
-      set { _initiator_steam_id = value; }
-    }
-    private global::ProtoBuf.IExtension extensionObject;
-    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
-  }
-  
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgReplayUploadedToYouTube")]
   public partial class CMsgReplayUploadedToYouTube : global::ProtoBuf.IExtensible
   {
@@ -1769,10 +1679,10 @@ namespace SteamKit2.GC.Internal
     public ItemPosition() {}
     
 
-    private uint _item_id = default(uint);
+    private ulong _item_id = default(ulong);
     [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint item_id
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong item_id
     {
       get { return _item_id; }
       set { _item_id = value; }
@@ -2239,6 +2149,24 @@ namespace SteamKit2.GC.Internal
       get { return _def_index; }
       set { _def_index = value; }
     }
+
+    private uint _seconds_left = default(uint);
+    [global::ProtoBuf.ProtoMember(7, IsRequired = false, Name=@"seconds_left", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint seconds_left
+    {
+      get { return _seconds_left; }
+      set { _seconds_left = value; }
+    }
+
+    private uint _booster_type = default(uint);
+    [global::ProtoBuf.ProtoMember(8, IsRequired = false, Name=@"booster_type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint booster_type
+    {
+      get { return _booster_type; }
+      set { _booster_type = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -2268,15 +2196,6 @@ namespace SteamKit2.GC.Internal
       set { _league_id = value; }
     }
 
-    private uint _admin = default(uint);
-    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"admin", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint admin
-    {
-      get { return _admin; }
-      set { _admin = value; }
-    }
-
     private uint _itemindex = default(uint);
     [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"itemindex", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     [global::System.ComponentModel.DefaultValue(default(uint))]
@@ -2284,6 +2203,15 @@ namespace SteamKit2.GC.Internal
     {
       get { return _itemindex; }
       set { _itemindex = value; }
+    }
+
+    private uint _grant_reason = default(uint);
+    [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"grant_reason", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint grant_reason
+    {
+      get { return _grant_reason; }
+      set { _grant_reason = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
@@ -2539,62 +2467,6 @@ namespace SteamKit2.GC.Internal
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCRequestAnnouncements")]
-  public partial class CMsgGCRequestAnnouncements : global::ProtoBuf.IExtensible
-  {
-    public CMsgGCRequestAnnouncements() {}
-    
-    private global::ProtoBuf.IExtension extensionObject;
-    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
-  }
-  
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCRequestAnnouncementsResponse")]
-  public partial class CMsgGCRequestAnnouncementsResponse : global::ProtoBuf.IExtensible
-  {
-    public CMsgGCRequestAnnouncementsResponse() {}
-    
-
-    private string _announcement_title = "";
-    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"announcement_title", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue("")]
-    public string announcement_title
-    {
-      get { return _announcement_title; }
-      set { _announcement_title = value; }
-    }
-
-    private string _announcement = "";
-    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"announcement", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue("")]
-    public string announcement
-    {
-      get { return _announcement; }
-      set { _announcement = value; }
-    }
-
-    private string _nextmatch_title = "";
-    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"nextmatch_title", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue("")]
-    public string nextmatch_title
-    {
-      get { return _nextmatch_title; }
-      set { _nextmatch_title = value; }
-    }
-
-    private string _nextmatch = "";
-    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"nextmatch", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue("")]
-    public string nextmatch
-    {
-      get { return _nextmatch; }
-      set { _nextmatch = value; }
-    }
-    private global::ProtoBuf.IExtension extensionObject;
-    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
-  }
-  
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCBannedWord")]
   public partial class CMsgGCBannedWord : global::ProtoBuf.IExtensible
   {
@@ -2750,6 +2622,53 @@ namespace SteamKit2.GC.Internal
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCToGCApplyLocalizationDiff")]
+  public partial class CMsgGCToGCApplyLocalizationDiff : global::ProtoBuf.IExtensible
+  {
+    public CMsgGCToGCApplyLocalizationDiff() {}
+    
+
+    private uint _language = default(uint);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"language", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint language
+    {
+      get { return _language; }
+      set { _language = value; }
+    }
+
+    private string _packed_diff = "";
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"packed_diff", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string packed_diff
+    {
+      get { return _packed_diff; }
+      set { _packed_diff = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCToGCApplyLocalizationDiffResponse")]
+  public partial class CMsgGCToGCApplyLocalizationDiffResponse : global::ProtoBuf.IExtensible
+  {
+    public CMsgGCToGCApplyLocalizationDiffResponse() {}
+    
+
+    private bool _success = default(bool);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"success", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool success
+    {
+      get { return _success; }
+      set { _success = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCCollectItem")]
   public partial class CMsgGCCollectItem : global::ProtoBuf.IExtensible
   {
@@ -2801,44 +2720,6 @@ namespace SteamKit2.GC.Internal
     {
       get { return _key_name; }
       set { _key_name = value; }
-    }
-    private global::ProtoBuf.IExtension extensionObject;
-    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
-  }
-  
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCToGCIsTrustedServer")]
-  public partial class CMsgGCToGCIsTrustedServer : global::ProtoBuf.IExtensible
-  {
-    public CMsgGCToGCIsTrustedServer() {}
-    
-
-    private ulong _steam_id = default(ulong);
-    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"steam_id", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
-    [global::System.ComponentModel.DefaultValue(default(ulong))]
-    public ulong steam_id
-    {
-      get { return _steam_id; }
-      set { _steam_id = value; }
-    }
-    private global::ProtoBuf.IExtension extensionObject;
-    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
-  }
-  
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCToGCIsTrustedServerResponse")]
-  public partial class CMsgGCToGCIsTrustedServerResponse : global::ProtoBuf.IExtensible
-  {
-    public CMsgGCToGCIsTrustedServerResponse() {}
-    
-
-    private bool _is_trusted = default(bool);
-    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"is_trusted", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue(default(bool))]
-    public bool is_trusted
-    {
-      get { return _is_trusted; }
-      set { _is_trusted = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
@@ -2912,44 +2793,342 @@ namespace SteamKit2.GC.Internal
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCToGCRequestPassportItemGrant")]
-  public partial class CMsgGCToGCRequestPassportItemGrant : global::ProtoBuf.IExtensible
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgRecipeComponent")]
+  public partial class CMsgRecipeComponent : global::ProtoBuf.IExtensible
   {
-    public CMsgGCToGCRequestPassportItemGrant() {}
+    public CMsgRecipeComponent() {}
     
 
-    private ulong _steam_id = default(ulong);
-    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"steam_id", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+    private ulong _subject_item_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"subject_item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     [global::System.ComponentModel.DefaultValue(default(ulong))]
-    public ulong steam_id
+    public ulong subject_item_id
     {
-      get { return _steam_id; }
-      set { _steam_id = value; }
+      get { return _subject_item_id; }
+      set { _subject_item_id = value; }
     }
 
-    private uint _league_id = default(uint);
-    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"league_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint league_id
+    private ulong _attribute_index = default(ulong);
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"attribute_index", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong attribute_index
     {
-      get { return _league_id; }
-      set { _league_id = value; }
-    }
-
-    private int _reward_flag = default(int);
-    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"reward_flag", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(int))]
-    public int reward_flag
-    {
-      get { return _reward_flag; }
-      set { _reward_flag = value; }
+      get { return _attribute_index; }
+      set { _attribute_index = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
-    [global::ProtoBuf.ProtoContract(Name=@"EGCBaseMsg")]
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgFulfillDynamicRecipeComponent")]
+  public partial class CMsgFulfillDynamicRecipeComponent : global::ProtoBuf.IExtensible
+  {
+    public CMsgFulfillDynamicRecipeComponent() {}
+    
+
+    private ulong _tool_item_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"tool_item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong tool_item_id
+    {
+      get { return _tool_item_id; }
+      set { _tool_item_id = value; }
+    }
+    private readonly global::System.Collections.Generic.List<CMsgRecipeComponent> _consumption_components = new global::System.Collections.Generic.List<CMsgRecipeComponent>();
+    [global::ProtoBuf.ProtoMember(2, Name=@"consumption_components", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<CMsgRecipeComponent> consumption_components
+    {
+      get { return _consumption_components; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCClientMarketDataRequest")]
+  public partial class CMsgGCClientMarketDataRequest : global::ProtoBuf.IExtensible
+  {
+    public CMsgGCClientMarketDataRequest() {}
+    
+
+    private uint _user_currency = default(uint);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"user_currency", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint user_currency
+    {
+      get { return _user_currency; }
+      set { _user_currency = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCClientMarketDataEntry")]
+  public partial class CMsgGCClientMarketDataEntry : global::ProtoBuf.IExtensible
+  {
+    public CMsgGCClientMarketDataEntry() {}
+    
+
+    private uint _item_def_index = default(uint);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"item_def_index", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint item_def_index
+    {
+      get { return _item_def_index; }
+      set { _item_def_index = value; }
+    }
+
+    private uint _item_quality = default(uint);
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"item_quality", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint item_quality
+    {
+      get { return _item_quality; }
+      set { _item_quality = value; }
+    }
+
+    private uint _item_sell_listings = default(uint);
+    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"item_sell_listings", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint item_sell_listings
+    {
+      get { return _item_sell_listings; }
+      set { _item_sell_listings = value; }
+    }
+
+    private uint _price_in_local_currency = default(uint);
+    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"price_in_local_currency", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint price_in_local_currency
+    {
+      get { return _price_in_local_currency; }
+      set { _price_in_local_currency = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCClientMarketData")]
+  public partial class CMsgGCClientMarketData : global::ProtoBuf.IExtensible
+  {
+    public CMsgGCClientMarketData() {}
+    
+    private readonly global::System.Collections.Generic.List<CMsgGCClientMarketDataEntry> _entries = new global::System.Collections.Generic.List<CMsgGCClientMarketDataEntry>();
+    [global::ProtoBuf.ProtoMember(1, Name=@"entries", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<CMsgGCClientMarketDataEntry> entries
+    {
+      get { return _entries; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgExtractGems")]
+  public partial class CMsgExtractGems : global::ProtoBuf.IExtensible
+  {
+    public CMsgExtractGems() {}
+    
+
+    private ulong _tool_item_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"tool_item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong tool_item_id
+    {
+      get { return _tool_item_id; }
+      set { _tool_item_id = value; }
+    }
+
+    private ulong _item_item_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"item_item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong item_item_id
+    {
+      get { return _item_item_id; }
+      set { _item_item_id = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgAddSocket")]
+  public partial class CMsgAddSocket : global::ProtoBuf.IExtensible
+  {
+    public CMsgAddSocket() {}
+    
+
+    private ulong _tool_item_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"tool_item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong tool_item_id
+    {
+      get { return _tool_item_id; }
+      set { _tool_item_id = value; }
+    }
+
+    private ulong _item_item_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"item_item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong item_item_id
+    {
+      get { return _item_item_id; }
+      set { _item_item_id = value; }
+    }
+
+    private bool _unusual = default(bool);
+    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"unusual", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool unusual
+    {
+      get { return _unusual; }
+      set { _unusual = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgAddSocketResponse")]
+  public partial class CMsgAddSocketResponse : global::ProtoBuf.IExtensible
+  {
+    public CMsgAddSocketResponse() {}
+    
+
+    private ulong _item_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong item_id
+    {
+      get { return _item_id; }
+      set { _item_id = value; }
+    }
+    private readonly global::System.Collections.Generic.List<uint> _updated_socket_index = new global::System.Collections.Generic.List<uint>();
+    [global::ProtoBuf.ProtoMember(2, Name=@"updated_socket_index", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public global::System.Collections.Generic.List<uint> updated_socket_index
+    {
+      get { return _updated_socket_index; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgAddItemToSocketData")]
+  public partial class CMsgAddItemToSocketData : global::ProtoBuf.IExtensible
+  {
+    public CMsgAddItemToSocketData() {}
+    
+
+    private ulong _gem_item_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"gem_item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong gem_item_id
+    {
+      get { return _gem_item_id; }
+      set { _gem_item_id = value; }
+    }
+
+    private uint _socket_index = default(uint);
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"socket_index", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint socket_index
+    {
+      get { return _socket_index; }
+      set { _socket_index = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgAddItemToSocket")]
+  public partial class CMsgAddItemToSocket : global::ProtoBuf.IExtensible
+  {
+    public CMsgAddItemToSocket() {}
+    
+
+    private ulong _item_item_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"item_item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong item_item_id
+    {
+      get { return _item_item_id; }
+      set { _item_item_id = value; }
+    }
+    private readonly global::System.Collections.Generic.List<CMsgAddItemToSocketData> _gems_to_socket = new global::System.Collections.Generic.List<CMsgAddItemToSocketData>();
+    [global::ProtoBuf.ProtoMember(2, Name=@"gems_to_socket", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<CMsgAddItemToSocketData> gems_to_socket
+    {
+      get { return _gems_to_socket; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgAddItemToSocketResponse")]
+  public partial class CMsgAddItemToSocketResponse : global::ProtoBuf.IExtensible
+  {
+    public CMsgAddItemToSocketResponse() {}
+    
+
+    private ulong _item_item_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"item_item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong item_item_id
+    {
+      get { return _item_item_id; }
+      set { _item_item_id = value; }
+    }
+    private readonly global::System.Collections.Generic.List<uint> _updated_socket_index = new global::System.Collections.Generic.List<uint>();
+    [global::ProtoBuf.ProtoMember(2, Name=@"updated_socket_index", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public global::System.Collections.Generic.List<uint> updated_socket_index
+    {
+      get { return _updated_socket_index; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgResetStrangeGemCount")]
+  public partial class CMsgResetStrangeGemCount : global::ProtoBuf.IExtensible
+  {
+    public CMsgResetStrangeGemCount() {}
+    
+
+    private ulong _item_item_id = default(ulong);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"item_item_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong item_item_id
+    {
+      get { return _item_item_id; }
+      set { _item_item_id = value; }
+    }
+
+    private uint _socket_index = default(uint);
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"socket_index", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint socket_index
+    {
+      get { return _socket_index; }
+      set { _socket_index = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+    [global::ProtoBuf.ProtoContract(Name=@"EGCBaseMsg", EnumPassthru=true)]
     public enum EGCBaseMsg
     {
             
@@ -2961,9 +3140,6 @@ namespace SteamKit2.GC.Internal
             
       [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCConVarUpdated", Value=4003)]
       k_EMsgGCConVarUpdated = 4003,
-            
-      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCInQueue", Value=4008)]
-      k_EMsgGCInQueue = 4008,
             
       [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCInviteToParty", Value=4501)]
       k_EMsgGCInviteToParty = 4501,
@@ -2999,7 +3175,7 @@ namespace SteamKit2.GC.Internal
       k_EMsgGCLANServerAvailable = 4511
     }
   
-    [global::ProtoBuf.ProtoContract(Name=@"EGCBaseProtoObjectTypes")]
+    [global::ProtoBuf.ProtoContract(Name=@"EGCBaseProtoObjectTypes", EnumPassthru=true)]
     public enum EGCBaseProtoObjectTypes
     {
             
@@ -3010,7 +3186,7 @@ namespace SteamKit2.GC.Internal
       k_EProtoObjectLobbyInvite = 1002
     }
   
-    [global::ProtoBuf.ProtoContract(Name=@"GC_BannedWordType")]
+    [global::ProtoBuf.ProtoContract(Name=@"GC_BannedWordType", EnumPassthru=true)]
     public enum GC_BannedWordType
     {
             

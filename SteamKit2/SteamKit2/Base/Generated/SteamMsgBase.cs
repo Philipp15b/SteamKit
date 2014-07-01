@@ -72,6 +72,15 @@ namespace SteamKit2.Internal
       set { _target_job_name = value; }
     }
 
+    private int _seq_num = default(int);
+    [global::ProtoBuf.ProtoMember(24, IsRequired = false, Name=@"seq_num", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(int))]
+    public int seq_num
+    {
+      get { return _seq_num; }
+      set { _seq_num = value; }
+    }
+
     private int _eresult = (int)2;
     [global::ProtoBuf.ProtoMember(13, IsRequired = false, Name=@"eresult", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     [global::System.ComponentModel.DefaultValue((int)2)]
@@ -106,6 +115,24 @@ namespace SteamKit2.Internal
     {
       get { return _auth_account_flags; }
       set { _auth_account_flags = value; }
+    }
+
+    private uint _token_source = default(uint);
+    [global::ProtoBuf.ProtoMember(22, IsRequired = false, Name=@"token_source", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint token_source
+    {
+      get { return _token_source; }
+      set { _token_source = value; }
+    }
+
+    private bool _admin_spoofing_user = default(bool);
+    [global::ProtoBuf.ProtoMember(23, IsRequired = false, Name=@"admin_spoofing_user", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool admin_spoofing_user
+    {
+      get { return _admin_spoofing_user; }
+      set { _admin_spoofing_user = value; }
     }
 
     private int _transport_error = (int)1;
@@ -380,6 +407,15 @@ namespace SteamKit2.Internal
     {
       get { return _propagation; }
       set { _propagation = value; }
+    }
+
+    private bool _has_adult_content = default(bool);
+    [global::ProtoBuf.ProtoMember(12, IsRequired = false, Name=@"has_adult_content", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool has_adult_content
+    {
+      get { return _has_adult_content; }
+      set { _has_adult_content = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)

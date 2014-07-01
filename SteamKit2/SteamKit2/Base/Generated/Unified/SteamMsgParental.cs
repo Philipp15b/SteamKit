@@ -123,6 +123,15 @@ namespace SteamKit2.Unified.Internal
       get { return _is_enabled; }
       set { _is_enabled = value; }
     }
+
+    private uint _enabled_features = default(uint);
+    [global::ProtoBuf.ProtoMember(10, IsRequired = false, Name=@"enabled_features", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint enabled_features
+    {
+      get { return _enabled_features; }
+      set { _enabled_features = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -150,6 +159,24 @@ namespace SteamKit2.Unified.Internal
     {
       get { return _settings; }
       set { _settings = value; }
+    }
+
+    private string _sessionid = "";
+    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"sessionid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string sessionid
+    {
+      get { return _sessionid; }
+      set { _sessionid = value; }
+    }
+
+    private ulong _steamid = default(ulong);
+    [global::ProtoBuf.ProtoMember(10, IsRequired = false, Name=@"steamid", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong steamid
+    {
+      get { return _steamid; }
+      set { _steamid = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
@@ -180,6 +207,15 @@ namespace SteamKit2.Unified.Internal
       get { return _password; }
       set { _password = value; }
     }
+
+    private ulong _steamid = default(ulong);
+    [global::ProtoBuf.ProtoMember(10, IsRequired = false, Name=@"steamid", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong steamid
+    {
+      get { return _steamid; }
+      set { _steamid = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -200,6 +236,15 @@ namespace SteamKit2.Unified.Internal
   {
     public CParental_GetParentalSettings_Request() {}
     
+
+    private ulong _steamid = default(ulong);
+    [global::ProtoBuf.ProtoMember(10, IsRequired = false, Name=@"steamid", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong steamid
+    {
+      get { return _steamid; }
+      set { _steamid = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -294,6 +339,33 @@ namespace SteamKit2.Unified.Internal
       get { return _settings; }
       set { _settings = value; }
     }
+
+    private string _new_password = "";
+    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"new_password", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string new_password
+    {
+      get { return _new_password; }
+      set { _new_password = value; }
+    }
+
+    private string _sessionid = "";
+    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"sessionid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string sessionid
+    {
+      get { return _sessionid; }
+      set { _sessionid = value; }
+    }
+
+    private ulong _steamid = default(ulong);
+    [global::ProtoBuf.ProtoMember(10, IsRequired = false, Name=@"steamid", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong steamid
+    {
+      get { return _steamid; }
+      set { _steamid = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -303,6 +375,120 @@ namespace SteamKit2.Unified.Internal
   public partial class CParental_SetParentalSettings_Response : global::ProtoBuf.IExtensible
   {
     public CParental_SetParentalSettings_Response() {}
+    
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CParental_ValidateToken_Request")]
+  public partial class CParental_ValidateToken_Request : global::ProtoBuf.IExtensible
+  {
+    public CParental_ValidateToken_Request() {}
+    
+
+    private string _unlock_token = "";
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"unlock_token", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string unlock_token
+    {
+      get { return _unlock_token; }
+      set { _unlock_token = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CParental_ValidateToken_Response")]
+  public partial class CParental_ValidateToken_Response : global::ProtoBuf.IExtensible
+  {
+    public CParental_ValidateToken_Response() {}
+    
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CParental_ValidatePassword_Request")]
+  public partial class CParental_ValidatePassword_Request : global::ProtoBuf.IExtensible
+  {
+    public CParental_ValidatePassword_Request() {}
+    
+
+    private string _password = "";
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"password", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string password
+    {
+      get { return _password; }
+      set { _password = value; }
+    }
+
+    private string _session = "";
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"session", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string session
+    {
+      get { return _session; }
+      set { _session = value; }
+    }
+
+    private bool _send_unlock_on_success = default(bool);
+    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"send_unlock_on_success", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool send_unlock_on_success
+    {
+      get { return _send_unlock_on_success; }
+      set { _send_unlock_on_success = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CParental_ValidatePassword_Response")]
+  public partial class CParental_ValidatePassword_Response : global::ProtoBuf.IExtensible
+  {
+    public CParental_ValidatePassword_Response() {}
+    
+
+    private string _token = "";
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"token", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string token
+    {
+      get { return _token; }
+      set { _token = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CParental_LockClient_Request")]
+  public partial class CParental_LockClient_Request : global::ProtoBuf.IExtensible
+  {
+    public CParental_LockClient_Request() {}
+    
+
+    private string _session = "";
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"session", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string session
+    {
+      get { return _session; }
+      set { _session = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CParental_LockClient_Response")]
+  public partial class CParental_LockClient_Response : global::ProtoBuf.IExtensible
+  {
+    public CParental_LockClient_Response() {}
     
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
@@ -332,6 +518,71 @@ namespace SteamKit2.Unified.Internal
       get { return _signature; }
       set { _signature = value; }
     }
+
+    private string _password = "";
+    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"password", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string password
+    {
+      get { return _password; }
+      set { _password = value; }
+    }
+
+    private string _sessionid = "";
+    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"sessionid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string sessionid
+    {
+      get { return _sessionid; }
+      set { _sessionid = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CParental_ParentalUnlock_Notification")]
+  public partial class CParental_ParentalUnlock_Notification : global::ProtoBuf.IExtensible
+  {
+    public CParental_ParentalUnlock_Notification() {}
+    
+
+    private string _password = "";
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"password", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string password
+    {
+      get { return _password; }
+      set { _password = value; }
+    }
+
+    private string _sessionid = "";
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"sessionid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string sessionid
+    {
+      get { return _sessionid; }
+      set { _sessionid = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CParental_ParentalLock_Notification")]
+  public partial class CParental_ParentalLock_Notification : global::ProtoBuf.IExtensible
+  {
+    public CParental_ParentalLock_Notification() {}
+    
+
+    private string _sessionid = "";
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"sessionid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string sessionid
+    {
+      get { return _sessionid; }
+      set { _sessionid = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -344,6 +595,9 @@ namespace SteamKit2.Unified.Internal
     CParental_GetParentalSettings_Response GetParentalSettings(CParental_GetParentalSettings_Request request);
     CParental_GetSignedParentalSettings_Response GetSignedParentalSettings(CParental_GetSignedParentalSettings_Request request);
     CParental_SetParentalSettings_Response SetParentalSettings(CParental_SetParentalSettings_Request request);
+    CParental_ValidateToken_Response ValidateToken(CParental_ValidateToken_Request request);
+    CParental_ValidatePassword_Response ValidatePassword(CParental_ValidatePassword_Request request);
+    CParental_LockClient_Response LockClient(CParental_LockClient_Request request);
     
     }
     
@@ -351,6 +605,8 @@ namespace SteamKit2.Unified.Internal
     public interface IParentalClient
     {
       NoResponse NotifySettingsChange(CParental_ParentalSettingsChange_Notification request);
+    NoResponse NotifyUnlock(CParental_ParentalUnlock_Notification request);
+    NoResponse NotifyLock(CParental_ParentalLock_Notification request);
     
     }
     

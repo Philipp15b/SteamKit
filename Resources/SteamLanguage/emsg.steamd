@@ -23,7 +23,7 @@ enum EMsg
 	ClientSessionStart = 135;
 	ClientSessionEnd = 136;
 	ClientSessionUpdateAuthTicket = 137;
-	StatsDeprecated = 138;
+	StatsDeprecated = 138; obsolete
 	Ping = 139;
 	PingResponse = 140;
 	Stats = 141;
@@ -128,7 +128,6 @@ enum EMsg
 	AMCompletePurchase = 521;
 	AMCancelPurchase = 522;
 	AMNewChallenge = 523;
-	AMFixPendingPurchase = 526; obsolete "renamed to AMFixPendingPurchaseResponse"
 	AMFixPendingPurchaseResponse = 526;
 	AMIsUserBanned = 527;
 	AMRegisterKey = 528;
@@ -225,11 +224,11 @@ enum EMsg
 	DRMEmptyGuidCacheResponse = 646;
 	
 	BaseCS = 650;
-	CSUserContentRequest = 652;
+	CSUserContentRequest = 652; obsolete
 	
 	BaseClient = 700;
-	ClientLogOn_Deprecated = 701;
-	ClientAnonLogOn_Deprecated = 702;
+	ClientLogOn_Deprecated = 701; obsolete
+	ClientAnonLogOn_Deprecated = 702; obsolete
 	ClientHeartBeat = 703;
 	ClientVACResponse = 704;
 	ClientGamesPlayed_obsolete = 705; obsolete
@@ -252,14 +251,14 @@ enum EMsg
 	ClientSystemIM = 726;
 	ClientSystemIMAck = 727;
 	ClientGetLicenses = 728;
-	ClientCancelLicense = 729;
+	ClientCancelLicense = 729; obsolete
 	ClientGetLegacyGameKey = 730;
 	ClientContentServerLogOn_Deprecated = 731; obsolete
 	ClientAckVACBan2 = 732;
 	ClientAckMessageByGID = 735;
 	ClientGetPurchaseReceipts = 736;
 	ClientAckPurchaseReceipt = 737;
-	ClientGamesPlayed3_obsolete = 738;
+	ClientGamesPlayed3_obsolete = 738; obsolete
 	ClientSendGuestPass = 739;
 	ClientAckGuestPass = 740;
 	ClientRedeemGuestPass = 741;
@@ -269,12 +268,12 @@ enum EMsg
 	ClientAcknowledgeClanInvite = 745;
 	ClientPurchaseWithMachineID = 746;
 	ClientAppUsageEvent = 747;
-	ClientGetGiftTargetList = 748;
-	ClientGetGiftTargetListResponse = 749;
+	ClientGetGiftTargetList = 748; obsolete
+	ClientGetGiftTargetListResponse = 749; obsolete
 	ClientLogOnResponse = 751;
 	ClientVACChallenge = 753;
 	ClientSetHeartbeatRate = 755;
-	ClientNotLoggedOnDeprecated = 756;
+	ClientNotLoggedOnDeprecated = 756; obsolete
 	ClientLoggedOff = 757;
 	GSApprove = 758;
 	GSDeny = 759;
@@ -293,20 +292,20 @@ enum EMsg
 	ClientGetFinalPriceResponse = 775;
 	ClientGameConnectTokens = 779;
 	ClientLicenseList = 780;
-	ClientCancelLicenseResponse = 781;
+	ClientCancelLicenseResponse = 781; obsolete
 	ClientVACBanStatus = 782;
 	ClientCMList = 783;
 	ClientEncryptPct = 784;
 	ClientGetLegacyGameKeyResponse = 785;
 	ClientFavoritesList = 786;
-	CSUserContentApprove = 787;
-	CSUserContentDeny = 788;
+	CSUserContentApprove = 787; obsolete
+	CSUserContentDeny = 788; obsolete
 	ClientInitPurchaseResponse = 789;
 	ClientAddFriend = 791;
 	ClientAddFriendResponse = 792;
 	ClientInviteFriend = 793;
 	ClientInviteFriendResponse = 794;
-	ClientSendGuestPassResponse = 795;
+	ClientSendGuestPassResponse = 795; obsolete
 	ClientAckGuestPassResponse = 796;
 	ClientRedeemGuestPassResponse = 797;
 	ClientUpdateGuestPassesList = 798;
@@ -461,7 +460,6 @@ enum EMsg
 	BaseBS = 1400;
 	BSPurchaseStart = 1401;
 	BSPurchaseResponse = 1402;
-	BSSettleStart = 1404; obsolete "renamed to BSSettleNOVA"
 	BSSettleNOVA = 1404;
 	BSSettleComplete = 1406;
 	BSBannedRequest = 1407;
@@ -482,9 +480,7 @@ enum EMsg
 	BSQueryGCBankXferTxn = 1423;
 	BSQueryGCBankXferTxnResponse = 1424;
 	BSCommitGCTxn = 1425;
-	BSQueryGCOrderStatus = 1426; obsolete "renamed to BSQueryTransactionStatus"
 	BSQueryTransactionStatus = 1426;
-	BSQueryGCOrderStatusResponse = 1427; obsolete "renamed to BSQueryTransactionStatusResponse"
 	BSQueryTransactionStatusResponse = 1427;
 	BSQueryCBOrderStatus = 1428;
 	BSQueryCBOrderStatusResponse = 1429;
@@ -495,9 +491,7 @@ enum EMsg
 	BSQueryTxnExtendedInfoResponse = 1434;
 	BSUpdateConversionRates = 1435;
 	BSProcessUSBankReports = 1436;
-	BSPurchaseMicroTxn = 1437; obsolete "renamed to BSPurchaseRunFraudChecks"
 	BSPurchaseRunFraudChecks = 1437;
-	BSPurchaseMicroTxnResponse = 1438; obsolete "renamed to BSPurchaseRunFraudChecksResponse"
 	BSPurchaseRunFraudChecksResponse = 1438;
 	BSStartShippingJobs = 1439;
 	BSQueryBankInformation = 1440;
@@ -580,7 +574,6 @@ enum EMsg
 	DPUniquePlayersStat = 1603;
 	DPVacInfractionStats = 1605;
 	DPVacBanStats = 1606;
-	DPCoplayStats = 1607; obsolete "renamed to DPBlockingStats"
 	DPBlockingStats = 1607;
 	DPNatTraversalStats = 1608;
 	DPSteamUsageEvent = 1609;
@@ -606,8 +599,7 @@ enum EMsg
 	BaseCM = 1700;
 	CMSetAllowState = 1701;
 	CMSpewAllowState = 1702;
-	CMAppInfoResponse = 1703; obsolete "deprecated and renamed to CMAppInfoResponseDeprecated"
-	CMAppInfoResponseDeprecated = 1703;
+	CMAppInfoResponseDeprecated = 1703; obsolete
 	
 	BaseDSS = 1800;
 	DSSNewFile = 1801;
@@ -702,9 +694,7 @@ enum EMsg
 	CCSNotifyCommentCount = 3158;
 	CCSGetCommentsForNews = 3159;
 	CCSGetCommentsForNewsResponse = 3160;
-	CCSDeleteAllComments = 3161; obsolete "renamed to CCSDeleteAllCommentsByAuthor"
 	CCSDeleteAllCommentsByAuthor = 3161;
-	CCSDeleteAllCommentsResponse = 3162; obsolete "renamed to CCSDeleteAllCommentsByAuthorResponse"
 	CCSDeleteAllCommentsByAuthorResponse = 3162;
 	
 	BaseLBSRange = 3200;
@@ -890,7 +880,6 @@ enum EMsg
 	AMGetLobbyListResponse = 4137;
 	AMGetLobbyMetadata = 4138;
 	AMGetLobbyMetadataResponse = 4139;
-	AMAddFriendNews = 4140; obsolete "renamed to CommunityAddFriendNews"
 	CommunityAddFriendNews = 4140;
 	AMAddClanNews = 4141;
 	AMWriteNews = 4142;
@@ -906,7 +895,6 @@ enum EMsg
 	AMSendQueuedEmails = 4152;
 	AMSetLicenseFlags = 4153;
 	AMGetUserHistory = 4154;
-	AMDeleteUserNews = 4155; obsolete "renamed to CommunityDeleteUserNews"
 	CommunityDeleteUserNews = 4155;
 	AMAllowUserFilesRequest = 4156;
 	AMAllowUserFilesResponse = 4157;
@@ -919,7 +907,6 @@ enum EMsg
 	AMGetFriendsLobbies = 4165;
 	AMGetFriendsLobbiesResponse = 4166;
 	AMGetUserFriendNewsResponse = 4172;
-	AMGetUserFriendNews = 4173; obsolete "renamed to CommunityGetUserFriendNews"
 	CommunityGetUserFriendNews = 4173;
 	AMGetUserClansNewsResponse = 4174;
 	AMGetUserClansNews = 4175;
@@ -1069,16 +1056,13 @@ enum EMsg
 	AMGetAccountCommunityBanInfoResponse = 4339;
 	AMGameServerAccountChangePassword = 4340;
 	AMGameServerAccountDeleteAccount = 4341;
-	AMRenewLicenseResponse = 4342; obsolete "renamed to AMRenewAgreement"
 	AMRenewAgreement = 4342;
 	AMSendEmail = 4343;
 	AMXsollaPayment = 4344;
 	AMXsollaPaymentResponse = 4345;
 	AMAcctAllowedToPurchase = 4346;
 	AMAcctAllowedToPurchaseResponse = 4347;
-	AMSwapXsollaDeposit = 4348; obsolete "renamed to AMSwapKioskDeposit"
 	AMSwapKioskDeposit = 4348;
-	AMSwapXsollaDepositResponse = 4349; obsolete "renamed to AMSwapKioskDepositResponse"
 	AMSwapKioskDepositResponse = 4349;
 	AMSetUserGiftUnowned = 4350;
 	AMSetUserGiftUnownedResponse = 4351;
@@ -1202,10 +1186,10 @@ enum EMsg
 	ClientLBSFindOrCreateLBResponse = 5417;
 	ClientLBSGetLBEntries = 5418;
 	ClientLBSGetLBEntriesResponse = 5419;
-	ClientMarketingMessageUpdate = 5420;
+	ClientMarketingMessageUpdate = 5420; obsolete
 	ClientChatDeclined = 5426;
 	ClientFriendMsgIncoming = 5427;
-	ClientAuthList_Deprecated = 5428;
+	ClientAuthList_Deprecated = 5428; obsolete
 	ClientTicketAuthComplete = 5429;
 	ClientIsLimitedAccount = 5430;
 	ClientRequestAuthList = 5431;
@@ -1351,8 +1335,10 @@ enum EMsg
 	ClientPlayerNicknameList = 5587;
 	AMClientSetPlayerNickname = 5588;
 	AMClientSetPlayerNicknameResponse = 5589;
-	ClientRequestOAuthTokenForApp = 5590;
-	ClientRequestOAuthTokenForAppResponse = 5591;
+	ClientRequestOAuthTokenForApp = 5590; obsolete
+	ClientRequestOAuthTokenForAppResponse = 5591; obsolete
+	ClientCreateAccountProto = 5590;
+	ClientCreateAccountProtoResponse = 5591;
 	ClientGetNumberOfCurrentPlayersDP = 5592;
 	ClientGetNumberOfCurrentPlayersDPResponse = 5593;
 	ClientServiceMethod = 5594;
@@ -1398,8 +1384,10 @@ enum EMsg
 	MDSToAMGetDepotDecryptionKeyResponse = 5813;
 	MDSGetVersionsForDepot = 5814;
 	MDSGetVersionsForDepotResponse = 5815;
-	MDSSetPublicVersionForDepot = 5816;
-	MDSSetPublicVersionForDepotResponse = 5817;
+	MDSSetPublicVersionForDepot = 5816; obsolete
+	MDSSetPublicVersionForDepotResponse = 5817; obsolete
+	ClientMDSInitWorkshopBuildRequest = 5816;
+	ClientMDSInitWorkshopBuildResponse = 5817;
 	ClientMDSGetDepotManifest = 5818;
 	ClientMDSGetDepotManifestResponse = 5819;
 	ClientMDSGetDepotManifestChunk = 5820;
@@ -1442,8 +1430,6 @@ enum EMsg
 	
 	ClientAuthorizeLocalDeviceRequest = 6501;
 	ClientAuthorizeLocalDevice = 6502;
-	ClientDeauthorizeLocalDeviceRequest = 6503; obsolete "renamed to ClientDeauthorizeDeviceRequest"
-	ClientDeauthorizeLocalDevice = 6504; obsolete "renamed to ClientDeauthorizeDevice"
 	ClientDeauthorizeDeviceRequest = 6503;
 	ClientDeauthorizeDevice = 6504;
 	ClientUseLocalDeviceAuthorizations = 6505;
@@ -1522,8 +1508,8 @@ enum EMsg
 	ClientUCMDeleteScreenshotResponse = 7310;
 	ClientUCMPublishFile = 7311;
 	ClientUCMPublishFileResponse = 7312;
-	ClientUCMGetPublishedFileDetails = 7313;
-	ClientUCMGetPublishedFileDetailsResponse = 7314;
+	ClientUCMGetPublishedFileDetails = 7313; obsolete
+	ClientUCMGetPublishedFileDetailsResponse = 7314; obsolete
 	ClientUCMDeletePublishedFile = 7315;
 	ClientUCMDeletePublishedFileResponse = 7316;
 	ClientUCMEnumerateUserPublishedFiles = 7317;
@@ -1721,12 +1707,12 @@ enum EMsg
 	LogsinkWriteReport = 8800;
 	
 	PICSBase = 8900;
-	PICSChangesSinceRequest = 8901;
-	PICSChangesSinceResponse = 8902;
-	PICSProductInfoRequest = 8903;
-	PICSProductInfoResponse = 8904;
-	PICSAccessTokenRequest = 8905;
-	PICSAccessTokenResponse = 8906;
+	ClientPICSChangesSinceRequest = 8901;
+	ClientPICSChangesSinceResponse = 8902;
+	ClientPICSProductInfoRequest = 8903;
+	ClientPICSProductInfoResponse = 8904;
+	ClientPICSAccessTokenRequest = 8905;
+	ClientPICSAccessTokenResponse = 8906;
 
 	WorkerProcess = 9000;
 	WorkerProcessPingRequest = 9000;
@@ -1783,5 +1769,11 @@ enum EMsg
 	ClientSharedLicensesStopPlaying = 9404; obsolete
 	ClientSharedLibraryLockStatus = 9405;
 	ClientSharedLibraryStopPlaying = 9406;
+	
+	ClientUnlockStreaming = 9507;
+	ClientUnlockStreamingResponse = 9508;
+	
+	ClientPlayingSessionState = 9600;
+	ClientKickPlayingSession = 9601;
 
 };

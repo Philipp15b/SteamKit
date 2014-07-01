@@ -11,7 +11,7 @@
 // Generated from: gcsystemmsgs.proto
 namespace SteamKit2.GC.Internal
 {
-    [global::ProtoBuf.ProtoContract(Name=@"EGCSystemMsg")]
+    [global::ProtoBuf.ProtoContract(Name=@"EGCSystemMsg", EnumPassthru=true)]
     public enum EGCSystemMsg
     {
             
@@ -195,6 +195,12 @@ namespace SteamKit2.GC.Internal
       [global::ProtoBuf.ProtoEnum(Name=@"k_EGCMsgMemCachedStatsResponse", Value=205)]
       k_EGCMsgMemCachedStatsResponse = 205,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EGCMsgSQLStats", Value=210)]
+      k_EGCMsgSQLStats = 210,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EGCMsgSQLStatsResponse", Value=211)]
+      k_EGCMsgSQLStatsResponse = 211,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"k_EGCMsgMasterSetDirectory", Value=220)]
       k_EGCMsgMasterSetDirectory = 220,
             
@@ -238,10 +244,25 @@ namespace SteamKit2.GC.Internal
       k_EGCMsgCheckFriendship = 505,
             
       [global::ProtoBuf.ProtoEnum(Name=@"k_EGCMsgCheckFriendshipResponse", Value=506)]
-      k_EGCMsgCheckFriendshipResponse = 506
+      k_EGCMsgCheckFriendshipResponse = 506,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EGCMsgGetPartnerAccountLink", Value=507)]
+      k_EGCMsgGetPartnerAccountLink = 507,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EGCMsgGetPartnerAccountLinkResponse", Value=508)]
+      k_EGCMsgGetPartnerAccountLinkResponse = 508,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EGCMsgVSReportedSuspiciousActivity", Value=509)]
+      k_EGCMsgVSReportedSuspiciousActivity = 509,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EGCMsgDPPartnerMicroTxns", Value=512)]
+      k_EGCMsgDPPartnerMicroTxns = 512,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EGCMsgDPPartnerMicroTxnsResponse", Value=513)]
+      k_EGCMsgDPPartnerMicroTxnsResponse = 513
     }
   
-    [global::ProtoBuf.ProtoContract(Name=@"ESOMsg")]
+    [global::ProtoBuf.ProtoContract(Name=@"ESOMsg", EnumPassthru=true)]
     public enum ESOMsg
     {
             
@@ -270,9 +291,15 @@ namespace SteamKit2.GC.Internal
       k_ESOMsg_CacheSubscribedUpToDate = 29
     }
   
-    [global::ProtoBuf.ProtoContract(Name=@"EGCBaseClientMsg")]
+    [global::ProtoBuf.ProtoContract(Name=@"EGCBaseClientMsg", EnumPassthru=true)]
     public enum EGCBaseClientMsg
     {
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCPingRequest", Value=3001)]
+      k_EMsgGCPingRequest = 3001,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCPingResponse", Value=3002)]
+      k_EMsgGCPingResponse = 3002,
             
       [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCClientWelcome", Value=4004)]
       k_EMsgGCClientWelcome = 4004,
@@ -293,7 +320,7 @@ namespace SteamKit2.GC.Internal
       k_EMsgGCServerConnectionStatus = 4010
     }
   
-    [global::ProtoBuf.ProtoContract(Name=@"EGCToGCMsg")]
+    [global::ProtoBuf.ProtoContract(Name=@"EGCToGCMsg", EnumPassthru=true)]
     public enum EGCToGCMsg
     {
             
@@ -309,14 +336,14 @@ namespace SteamKit2.GC.Internal
       [global::ProtoBuf.ProtoEnum(Name=@"k_EGCToGCMsgRoutedReply", Value=153)]
       k_EGCToGCMsgRoutedReply = 153,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgUpdateSessionIP", Value=154)]
-      k_EMsgUpdateSessionIP = 154,
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCUpdateSubGCSessionInfo", Value=154)]
+      k_EMsgGCUpdateSubGCSessionInfo = 154,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgRequestSessionIP", Value=155)]
-      k_EMsgRequestSessionIP = 155,
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCRequestSubGCSessionInfo", Value=155)]
+      k_EMsgGCRequestSubGCSessionInfo = 155,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgRequestSessionIPResponse", Value=156)]
-      k_EMsgRequestSessionIPResponse = 156,
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCRequestSubGCSessionInfoResponse", Value=156)]
+      k_EMsgGCRequestSubGCSessionInfoResponse = 156,
             
       [global::ProtoBuf.ProtoEnum(Name=@"k_EGCToGCMsgMasterStartupComplete", Value=157)]
       k_EGCToGCMsgMasterStartupComplete = 157,
@@ -325,7 +352,16 @@ namespace SteamKit2.GC.Internal
       k_EMsgGCToGCSOCacheSubscribe = 158,
             
       [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCToGCSOCacheUnsubscribe", Value=159)]
-      k_EMsgGCToGCSOCacheUnsubscribe = 159
+      k_EMsgGCToGCSOCacheUnsubscribe = 159,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCToGCLoadSessionSOCache", Value=160)]
+      k_EMsgGCToGCLoadSessionSOCache = 160,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCToGCLoadSessionSOCacheResponse", Value=161)]
+      k_EMsgGCToGCLoadSessionSOCacheResponse = 161,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_EMsgGCToGCUpdateSessionStats", Value=162)]
+      k_EMsgGCToGCUpdateSessionStats = 162
     }
   
 }

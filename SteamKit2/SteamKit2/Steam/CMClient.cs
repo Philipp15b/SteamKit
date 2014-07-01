@@ -12,6 +12,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.IO.Compression;
 
 namespace SteamKit2.Internal
 {
@@ -36,7 +37,7 @@ namespace SteamKit2.Internal
 
         /// <summary>
         /// Gets the connected universe of this client.
-        /// This value will be <see cref="EUniverse.Invalid"/> if the client is logged off of Steam.
+        /// This value will be <see cref="EUniverse.Invalid"/> if the client is not connected to Steam.
         /// </summary>
         /// <value>The universe.</value>
         public EUniverse ConnectedUniverse { get; private set; }
@@ -273,6 +274,13 @@ namespace SteamKit2.Internal
         /// <param name="packetMsg">The packet message.</param>
         protected virtual void OnClientMsgReceived( IPacketMsg packetMsg )
         {
+            if ( packetMsg == null )
+            {
+                DebugLog.WriteLine( "CMClient", "Packet message failed to parse, shutting down connection" );
+                Disconnect();
+                return;
+            }
+
             DebugLog.WriteLine( "CMClient", "<- Recv'd EMsg: {0} ({1}) (Proto: {2})", packetMsg.MsgType, ( int )packetMsg.MsgType, packetMsg.IsProto );
 
             switch ( packetMsg.MsgType )
@@ -345,15 +353,23 @@ namespace SteamKit2.Internal
                     return new PacketMsg( eMsg, data );
             }
 
-            if ( MsgUtil.IsProtoBuf( rawEMsg ) )
+            try
             {
-                // if the emsg is flagged, we're a proto message
-                return new PacketClientMsgProtobuf( eMsg, data );
+                if (MsgUtil.IsProtoBuf(rawEMsg))
+                {
+                    // if the emsg is flagged, we're a proto message
+                    return new PacketClientMsgProtobuf(eMsg, data);
+                }
+                else
+                {
+                    // otherwise we're a struct message
+                    return new PacketClientMsg(eMsg, data);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                // otherwise we're a struct message
-                return new PacketClientMsg( eMsg, data );
+                DebugLog.WriteLine( "CMClient", "Exception deserializing emsg {0} ({1}).\n{2}", eMsg, MsgUtil.IsProtoBuf( rawEMsg ), ex.ToString() );
+                return null;
             }
         }
 
@@ -375,7 +391,13 @@ namespace SteamKit2.Internal
             {
                 try
                 {
-                    payload = ZipUtil.Decompress( payload );
+                    using ( var compressedStream = new MemoryStream( payload ) )
+                    using ( var gzipStream = new GZipStream( compressedStream, CompressionMode.Decompress ) )
+                    using ( var decompressedStream = new MemoryStream() )
+                    {
+                        gzipStream.CopyTo( decompressedStream );
+                        payload = decompressedStream.ToArray();
+                    }
                 }
                 catch ( Exception ex )
                 {

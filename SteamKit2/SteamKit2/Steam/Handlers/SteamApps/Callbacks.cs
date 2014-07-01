@@ -95,8 +95,8 @@ namespace SteamKit2
 
                     this.LastChangeNumber = license.change_number;
 
-                    this.TimeCreated = Utils.DateTimeFromUnixTime( license.time_created );
-                    this.TimeNextProcess = Utils.DateTimeFromUnixTime( license.time_next_process );
+                    this.TimeCreated = DateUtils.DateTimeFromUnixTime( license.time_created );
+                    this.TimeNextProcess = DateUtils.DateTimeFromUnixTime( license.time_next_process );
 
                     this.MinuteLimit = license.minute_limit;
                     this.MinutesUsed = license.minutes_used;
@@ -157,8 +157,10 @@ namespace SteamKit2
             public byte[] Ticket { get; private set; }
 
 
-            internal AppOwnershipTicketCallback( CMsgClientGetAppOwnershipTicketResponse msg )
+            internal AppOwnershipTicketCallback( JobID jobID, CMsgClientGetAppOwnershipTicketResponse msg )
             {
+                this.JobID = jobID;
+
                 this.Result = ( EResult )msg.eresult;
                 this.AppID = msg.app_id;
                 this.Ticket = msg.ticket;
@@ -173,6 +175,7 @@ namespace SteamKit2
         /// This callback is received in response to calling <see cref="SteamApps.GetAppInfo"/>.
         /// </summary>
         public sealed class AppInfoCallback : CallbackMsg
+#pragma warning restore 0419
         {
             /// <summary>
             /// Represents a single app in the info response.
@@ -251,8 +254,10 @@ namespace SteamKit2
             public uint AppsPending { get; private set; }
 
 
-            internal AppInfoCallback( CMsgClientAppInfoResponse msg )
+            internal AppInfoCallback( JobID jobID, CMsgClientAppInfoResponse msg )
             {
+                JobID = jobID;
+
                 var list = new List<App>();
 
                 list.AddRange( msg.apps.Select( a => new App( a, App.AppInfoStatus.OK ) ) );
@@ -264,10 +269,15 @@ namespace SteamKit2
             }
         }
 
+        // Ambiguous reference in cref attribute: 'SteamApps.GetPackageInfo'. Assuming 'SteamKit2.SteamApps.GetPackageInfo(uint, bool)',
+        // but could have also matched other overloads including 'SteamKit2.SteamApps.GetPackageInfo(System.Collections.Generic.IEnumerable<uint>, bool)'.
+#pragma warning disable 0419
+
         /// <summary>
         /// This callback is received in response to calling <see cref="SteamApps.GetPackageInfo"/>.
         /// </summary>
         public sealed class PackageInfoCallback : CallbackMsg
+#pragma warning restore 0419
         {
             /// <summary>
             /// Represents a single package in this response.
@@ -352,8 +362,10 @@ namespace SteamKit2
             public uint PackagesPending { get; private set; }
 
 
-            internal PackageInfoCallback( CMsgClientPackageInfoResponse msg )
+            internal PackageInfoCallback( JobID jobID, CMsgClientPackageInfoResponse msg )
             {
+                JobID = jobID;
+
                 var packages = new List<Package>();
 
                 packages.AddRange( msg.packages.Select( p => new Package( p, Package.PackageStatus.OK ) ) );
@@ -364,8 +376,6 @@ namespace SteamKit2
                 Packages = new ReadOnlyCollection<Package>( packages );
             }
         }
-
-#pragma warning restore 0419
 
         /// <summary>
         /// This callback is received in response to calling <see cref="SteamApps.GetAppChanges"/>.
@@ -419,8 +429,10 @@ namespace SteamKit2
             public byte[] DepotKey { get; private set; }
 
 
-            internal DepotKeyCallback( CMsgClientGetDepotDecryptionKeyResponse msg )
+            internal DepotKeyCallback( JobID jobID, CMsgClientGetDepotDecryptionKeyResponse msg )
             {
+                JobID = jobID;
+
                 Result = ( EResult )msg.eresult;
                 DepotID = msg.depot_id;
                 DepotKey = msg.depot_encryption_key;
@@ -500,8 +512,10 @@ namespace SteamKit2
             public Dictionary<uint, ulong> AppTokens { get; private set; }
 
 
-            internal PICSTokensCallback( CMsgPICSAccessTokenResponse msg )
+            internal PICSTokensCallback( JobID jobID, CMsgClientPICSAccessTokenResponse msg )
             {
+                JobID = jobID;
+
                 PackageTokensDenied = new ReadOnlyCollection<uint>( msg.package_denied_tokens );
                 AppTokensDenied = new ReadOnlyCollection<uint>( msg.app_denied_tokens );
                 PackageTokens = new Dictionary<uint, ulong>();
@@ -542,14 +556,14 @@ namespace SteamKit2
                 /// </summary>
                 public bool NeedsToken { get; private set; }
 
-                internal PICSChangeData( CMsgPICSChangesSinceResponse.AppChange change )
+                internal PICSChangeData( CMsgClientPICSChangesSinceResponse.AppChange change )
                 {
                     this.ID = change.appid;
                     this.ChangeNumber = change.change_number;
                     this.NeedsToken = change.needs_token;
                 }
 
-                internal PICSChangeData( CMsgPICSChangesSinceResponse.PackageChange change )
+                internal PICSChangeData( CMsgClientPICSChangesSinceResponse.PackageChange change )
                 {
                     this.ID = change.packageid;
                     this.ChangeNumber = change.change_number;
@@ -579,8 +593,10 @@ namespace SteamKit2
             public Dictionary<uint, PICSChangeData> AppChanges { get; private set; }
 
 
-            internal PICSChangesCallback( CMsgPICSChangesSinceResponse msg )
+            internal PICSChangesCallback( JobID jobID, CMsgClientPICSChangesSinceResponse msg )
             {
+                JobID = jobID;
+
                 LastChangeNumber = msg.since_change_number;
                 CurrentChangeNumber = msg.current_change_number;
                 RequiresFullUpdate = msg.force_full_update;
@@ -633,9 +649,16 @@ namespace SteamKit2
                 /// For an app request, returns if only the public information was requested
                 /// </summary>
                 public bool OnlyPublic { get; private set; }
+                /// <summary>
+                /// Whether or not to use HTTP to load the KeyValues data.
+                /// </summary>
+                public bool UseHttp { get; private set; }
+                /// <summary>
+                /// For an app metadata-only request, returns the Uri for HTTP appinfo requests.
+                /// </summary>
+                public Uri HttpUri { get; private set; }
 
-
-                internal PICSProductInfo( CMsgPICSProductInfoResponse.AppInfo app_info )
+                internal PICSProductInfo( CMsgClientPICSProductInfoResponse parentResponse, CMsgClientPICSProductInfoResponse.AppInfo app_info)
                 {
                     this.ID = app_info.appid;
                     this.ChangeNumber = app_info.change_number;
@@ -643,13 +666,32 @@ namespace SteamKit2
                     this.SHAHash = app_info.sha;
 
                     this.KeyValues = new KeyValue();
-                    using (MemoryStream ms = new MemoryStream(app_info.buffer, 0, app_info.buffer.Length - 1))
-                        this.KeyValues.ReadAsText(ms);
+
+                    if ( app_info.buffer != null )
+                    {
+                        // we don't want to read the trailing null byte
+                        using ( var ms = new MemoryStream( app_info.buffer, 0, app_info.buffer.Length - 1 ) )
+                        {
+                            this.KeyValues.ReadAsText( ms );
+                        }
+                    }
 
                     this.OnlyPublic = app_info.only_public;
+
+                    // We should have all these fields set for the response to a metadata-only request, but guard here just in case.
+                    if (this.SHAHash != null && this.SHAHash.Length > 0 && !string.IsNullOrEmpty(parentResponse.http_host))
+                    {
+                        var shaString = BitConverter.ToString(this.SHAHash)
+                            .Replace("-", string.Empty)
+                            .ToLower();
+                        var uriString = string.Format("http://{0}/appinfo/{1}/sha/{2}.txt.gz", parentResponse.http_host, this.ID, shaString);
+                        this.HttpUri = new Uri(uriString);
+                    }
+
+                    this.UseHttp = this.HttpUri != null && app_info.size >= parentResponse.http_min_size;
                 }
 
-                internal PICSProductInfo( CMsgPICSProductInfoResponse.PackageInfo package_info )
+                internal PICSProductInfo( CMsgClientPICSProductInfoResponse.PackageInfo package_info )
                 {
                     this.ID = package_info.packageid;
                     this.ChangeNumber = package_info.change_number;
@@ -657,11 +699,15 @@ namespace SteamKit2
                     this.SHAHash = package_info.sha;
 
                     this.KeyValues = new KeyValue();
-                    using ( MemoryStream ms = new MemoryStream( package_info.buffer ) )
-                    using ( var br = new BinaryReader( ms ) )
+
+                    if ( package_info.buffer != null )
                     {
-                        br.ReadUInt32();
-                        this.KeyValues.ReadAsBinary( ms );
+                        using ( MemoryStream ms = new MemoryStream( package_info.buffer ) )
+                        using ( var br = new BinaryReader( ms ) )
+                        {
+                            br.ReadUInt32();
+                            this.KeyValues.ReadAsBinary( ms );
+                        }
                     }
                 }
             }
@@ -692,8 +738,10 @@ namespace SteamKit2
             public Dictionary<uint, PICSProductInfo> Packages { get; private set; }
 
 
-            internal PICSProductInfoCallback( CMsgPICSProductInfoResponse msg )
+            internal PICSProductInfoCallback( JobID jobID, CMsgClientPICSProductInfoResponse msg )
             {
+                JobID = jobID;
+
                 MetaDataOnly = msg.meta_data_only;
                 ResponsePending = msg.response_pending;
                 UnknownPackages = new ReadOnlyCollection<uint>( msg.unknown_packageids );
@@ -708,7 +756,7 @@ namespace SteamKit2
 
                 foreach ( var app_info in msg.apps )
                 {
-                    Apps.Add( app_info.appid, new PICSProductInfo( app_info ) );
+                    Apps.Add( app_info.appid, new PICSProductInfo( msg, app_info ) );
                 }
             }
         }
@@ -769,5 +817,32 @@ namespace SteamKit2
             }
         }
 
+        /// <summary>
+        /// This callback is received when a CDN auth token is received
+        /// </summary>
+        public sealed class CDNAuthTokenCallback : CallbackMsg
+        {
+            /// <summary>
+            /// Result of the operation
+            /// </summary>
+            public EResult Result { get; set; }
+            /// <summary>
+            /// CDN auth token
+            /// </summary>
+            public string Token { get; set; }
+            /// <summary>
+            /// Token expiration date
+            /// </summary>
+            public DateTime Expiration { get; set; }
+
+            internal CDNAuthTokenCallback( JobID jobID, CMsgClientGetCDNAuthTokenResponse msg )
+            {
+                JobID = jobID;
+
+                Result = (EResult)msg.eresult;
+                Token = msg.token;
+                Expiration = DateUtils.DateTimeFromUnixTime( msg.expiration_time );
+            }
+        }
     }
 }

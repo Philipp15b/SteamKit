@@ -19,7 +19,7 @@ enum EChatEntryType
 	ChatMsg = 1;
 	Typing = 2;
 	InviteGame = 3;
-	Emote = 4;
+	Emote = 4; obsolete "No longer supported by clients"
 	LobbyGameStart = 5;
 	LeftConversation = 6;
 	Entered = 7;
@@ -494,6 +494,9 @@ enum EOSType
 	Linux24 = -201;
 	Linux26 = -200;
 	Linux32 = -199;
+	Linux35 = -198;
+	Linux36 = -197;
+	Linux310 = -196;
 
 	WinUnknown = 0;
 	Win311 = 1;
@@ -695,6 +698,28 @@ enum EPublishedFileVisibility
 	Private = 2;
 };
 
+enum EWorkshopFileType
+{
+	First = 0;
+
+	Community	= 0;
+	Microtransaction	= 1;
+	Collection	= 2;
+	Art	= 3;
+	Video	= 4;
+	Screenshot	= 5;
+	Game	= 6;
+	Software	= 7;
+	Concept	= 8;
+	WebGuide	= 9;
+	IntegratedGuide	= 10;
+	Merch	= 11;
+	ControllerBinding	= 12;
+	SteamworksAccessInvite = 13;
+
+	Max = 14;
+};
+
 enum EWorkshopFileAction
 {
 	Played = 0;
@@ -731,6 +756,8 @@ enum EEconTradeResponse
 	InitiatorNeedsSteamGuard = 21;
 	TargetAccountCannotTrade = 22;
 	InitiatorSteamGuardDuration = 23;
+	InitiatorPasswordResetProbation = 24;
+	InitiatorNewDeviceCooldown = 25;
 	OKToDeliver = 50;
 };
 
@@ -741,7 +768,8 @@ enum EMarketingMessageFlags flags
 	HighPriority = 1;
 	PlatformWindows = 2;
 	PlatformMac = 4;
-	PlatformRestrictions = 6;
+	PlatformLinux = 8;
+	PlatformRestrictions = PlatformWindows | PlatformMac | PlatformLinux;
 };
 
 enum ENewsUpdateType

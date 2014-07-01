@@ -14,132 +14,6 @@ namespace SteamKit2
     public sealed partial class SteamWorkshop
     {
         /// <summary>
-        /// This callback is received in response to calling <see cref="RequestPublishedFileDetails"/>.
-        /// </summary>
-        public sealed class PublishedFileDetailsCallback : CallbackMsg
-        {
-            /// <summary>
-            /// Gets the result.
-            /// </summary>
-            public EResult Result { get; private set; }
-
-            /// <summary>
-            /// Gets the file ID.
-            /// </summary>
-            public PublishedFileID FileID { get; private set; }
-
-            /// <summary>
-            /// Gets the SteamID of the creator of this file.
-            /// </summary>
-            public SteamID Creator { get; private set; }
-
-            /// <summary>
-            /// Gets the AppID used during creation.
-            /// </summary>
-            public uint CreatorAppID { get; private set; }
-            /// <summary>
-            /// Gets the AppID used during consumption.
-            /// </summary>
-            public uint ConsumerAppID { get; private set; }
-
-            /// <summary>
-            /// Gets the handle for the UGC file this published file represents.
-            /// </summary>
-            public UGCHandle FileUGC { get; private set; }
-            /// <summary>
-            /// Gets the handle for the UGC preview file this published file represents, normally an image or thumbnail.
-            /// </summary>
-            public UGCHandle PreviewFileUGC { get; private set; }
-
-            /// <summary>
-            /// Gets the title.
-            /// </summary>
-            public string Title { get; private set; }
-            /// <summary>
-            /// Gets the description.
-            /// </summary>
-            public string Description { get; private set; }
-
-            /// <summary>
-            /// Gets the creation time.
-            /// </summary>
-            public DateTime CreationTime { get; private set; }
-            /// <summary>
-            /// Gets the last update time.
-            /// </summary>
-            public DateTime UpdateTime { get; private set; }
-
-            /// <summary>
-            /// Gets the visiblity of this file.
-            /// </summary>
-            public EPublishedFileVisibility Visiblity { get; private set; }
-
-            /// <summary>
-            /// Gets a value indicating whether this instance is banned.
-            /// </summary>
-            public bool IsBanned { get; private set; }
-
-            /// <summary>
-            /// Gets the tags associated with this file.
-            /// </summary>
-            public ReadOnlyCollection<string> Tags { get; private set; }
-
-            /// <summary>
-            /// Gets the name of the file.
-            /// </summary>
-            public string FileName { get; private set; }
-
-            /// <summary>
-            /// Gets the size of the file.
-            /// </summary>
-            public uint FileSize { get; private set; }
-            /// <summary>
-            /// Gets the size of the preview file.
-            /// </summary>
-            public uint PreviewFileSize { get; private set; }
-
-            /// <summary>
-            /// Gets the URL.
-            /// </summary>
-            public string URL { get; private set; }
-
-
-            internal PublishedFileDetailsCallback( CMsgClientUCMGetPublishedFileDetailsResponse msg )
-            {
-                this.Result = ( EResult )msg.eresult;
-
-                this.FileID = msg.published_file_id;
-
-                this.Creator = msg.creator_steam_id;
-
-                this.CreatorAppID = msg.creator_app_id;
-                this.ConsumerAppID = msg.consumer_app_id;
-
-                this.FileUGC = msg.file_hcontent;
-                this.PreviewFileUGC = msg.preview_hcontent;
-
-                this.Title = msg.title;
-                this.Description = msg.description;
-
-                this.CreationTime = Utils.DateTimeFromUnixTime( msg.rtime32_created );
-                this.UpdateTime = Utils.DateTimeFromUnixTime( msg.rtime32_updated );
-
-                this.Visiblity = ( EPublishedFileVisibility )msg.visibility;
-
-                this.IsBanned = msg.banned;
-
-                this.Tags = new ReadOnlyCollection<string>( new List<string>( msg.tag ) );
-
-                this.FileName = msg.filename;
-
-                this.FileSize = msg.file_size;
-                this.PreviewFileSize = msg.preview_file_size;
-
-                this.URL = msg.url;
-            }
-        }
-
-        /// <summary>
         /// This callback is received in response to calling <see cref="EnumeratePublishedFiles"/>.
         /// </summary>
         public sealed class PublishedFilesCallback : CallbackMsg
@@ -204,8 +78,10 @@ namespace SteamKit2
             public int TotalResults { get; private set; }
 
 
-            internal PublishedFilesCallback( CMsgCREEnumeratePublishedFilesResponse msg )
+            internal PublishedFilesCallback( JobID jobID, CMsgCREEnumeratePublishedFilesResponse msg )
             {
+                this.JobID = jobID;
+
                 this.Result = ( EResult )msg.eresult;
 
                 var fileList = msg.published_files
@@ -257,8 +133,10 @@ namespace SteamKit2
             public int TotalResults { get; private set; }
 
 
-            internal UserPublishedFilesCallback( CMsgClientUCMEnumerateUserPublishedFilesResponse msg )
+            internal UserPublishedFilesCallback( JobID jobID, CMsgClientUCMEnumerateUserPublishedFilesResponse msg)
             {
+                this.JobID = jobID;
+
                 this.Result = ( EResult )msg.eresult;
 
                 var fileList = msg.published_files
@@ -296,7 +174,7 @@ namespace SteamKit2
                 {
                     this.FileID = file.published_file_id;
 
-                    this.TimeSubscribed = Utils.DateTimeFromUnixTime( file.rtime32_subscribed );
+                    this.TimeSubscribed = DateUtils.DateTimeFromUnixTime( file.rtime32_subscribed );
                 }
             }
 
@@ -317,8 +195,10 @@ namespace SteamKit2
             public int TotalResults { get; private set; }
 
 
-            internal UserSubscribedFilesCallback( CMsgClientUCMEnumerateUserSubscribedFilesResponse msg )
+            internal UserSubscribedFilesCallback( JobID jobID, CMsgClientUCMEnumerateUserSubscribedFilesResponse msg )
             {
+                this.JobID = jobID;
+
                 this.Result = ( EResult )msg.eresult;
 
                 var fileList = msg.subscribed_files
@@ -356,7 +236,7 @@ namespace SteamKit2
                 {
                     this.FileID = file.published_file_id;
 
-                    this.Timestamp = Utils.DateTimeFromUnixTime( file.rtime_time_stamp );
+                    this.Timestamp = DateUtils.DateTimeFromUnixTime( file.rtime_time_stamp );
                 }
             }
 
@@ -377,8 +257,10 @@ namespace SteamKit2
             public int TotalResults { get; private set; }
 
 
-            internal UserActionPublishedFilesCallback( CMsgClientUCMEnumeratePublishedFilesByUserActionResponse msg )
+            internal UserActionPublishedFilesCallback( JobID jobID, CMsgClientUCMEnumeratePublishedFilesByUserActionResponse msg )
             {
+                this.JobID = jobID;
+
                 this.Result = ( EResult )msg.eresult;
 
                 var fileList = msg.published_files

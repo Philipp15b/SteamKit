@@ -14,6 +14,7 @@ using System.Collections;
 using SteamKit2.Internal;
 using ProtoBuf.Meta;
 using SteamKit2.GC;
+using SteamKit2.GC.Internal;
 
 namespace NetHookAnalyzer
 {
@@ -39,6 +40,55 @@ namespace NetHookAnalyzer
             PopulatePackets();
         }
 
+        ClientMsgProtobuf<T> GetProtoMsgFromFile<T>( EMsg eMsg, string fileName )
+            where T : IExtensible, new()
+        {
+            var fileData = File.ReadAllBytes( fileName );
+            var msg = new SteamKit2.PacketClientMsgProtobuf( eMsg, fileData );
+            var proto = new ClientMsgProtobuf<T>( msg );
+            return proto;
+        }
+
+        string PacketItemNameEnhance( EMsg eMsg, string nameFromEMsg, string fileName )
+        {
+            if ( eMsg == EMsg.ClientToGC || eMsg == EMsg.ClientFromGC )
+            {
+                var proto = GetProtoMsgFromFile<CMsgGCClient>( eMsg, fileName );
+                var gcEMsg = proto.Body.msgtype;
+                var gcName = BuildEMsg( MsgUtil.GetGCMsg( gcEMsg ) );
+
+                var headerToTrim = "k_EMsg";
+                if ( gcName.StartsWith( headerToTrim ) )
+                {
+                    gcName = gcName.Substring( headerToTrim.Length );
+                }
+
+                return string.Format( "{0} ({1})", nameFromEMsg, gcName );
+            }
+            else if ( eMsg == EMsg.ServiceMethod )
+            {
+                var fileData = File.ReadAllBytes( fileName );
+                var hdr = new MsgHdrProtoBuf();
+                using ( var ms = new MemoryStream( fileData ) )
+                {
+                    hdr.Deserialize(ms);
+                }
+
+                return string.Format( "{0} ({1})", nameFromEMsg, hdr.Proto.target_job_name );
+            }
+            else if ( eMsg == EMsg.ClientServiceMethod )
+            {
+                var proto = GetProtoMsgFromFile<CMsgClientServiceMethod>( eMsg, fileName );
+                return string.Format( "{0} ({1})", nameFromEMsg, proto.Body.method_name );
+            }
+            else if ( eMsg == EMsg.ClientServiceMethodResponse )
+            {
+                var proto = GetProtoMsgFromFile<CMsgClientServiceMethodResponse>( eMsg, fileName );
+                return string.Format( "{0} ({1})", nameFromEMsg, proto.Body.method_name );
+            }
+
+            return nameFromEMsg;
+        }
 
         void PopulatePackets()
         {
@@ -46,7 +96,8 @@ namespace NetHookAnalyzer
 
             foreach ( var file in packetFiles )
             {
-                PacketItem packItem = new PacketItem( file.FullName );
+                PacketItem.PacketItemNameEnhance nameEnhance = chkEnhanceMsgNames.Checked ? PacketItemNameEnhance : (PacketItem.PacketItemNameEnhance)null;
+                PacketItem packItem = new PacketItem( file.FullName, nameEnhance );
 
                 if ( !packItem.IsValid )
                     continue;
@@ -80,15 +131,11 @@ namespace NetHookAnalyzer
                 var header = BuildHeader( realEMsg, packetStream );
                 object body = null;
                 
-                if ( MsgUtil.IsProtoBuf( realEMsg ) && eMsg == EMsg.ServiceMethod )
+                if ( MsgUtil.IsProtoBuf( realEMsg ) && eMsg == EMsg.ServiceMethod && !string.IsNullOrEmpty( ((MsgHdrProtoBuf)header).Proto.target_job_name ) )
                 {
-                    var protoHdr = (MsgHdrProtoBuf)header;
-                    if ( !string.IsNullOrEmpty( protoHdr.Proto.target_job_name ) )
-                    {
-                        body = BuildServiceMethodBody( protoHdr.Proto.target_job_name,packetStream, x => x.GetParameters().First().ParameterType );
-                    }
+                    body = BuildServiceMethodBody( ((MsgHdrProtoBuf)header).Proto.target_job_name,packetStream, x => x.GetParameters().First().ParameterType );
                 }
-                if ( body == null )
+                else if ( body == null )
                 {
                     body = BuildBody( realEMsg, packetStream );
                 }
@@ -124,7 +171,7 @@ namespace NetHookAnalyzer
                         {
                             emsg = BuildEMsg( gcBody.msgtype ),
                             header = BuildGCHeader( gcBody.msgtype, ms ),
-                            body = BuildBody( gcBody.msgtype, ms ),
+                            body = BuildBody( gcBody.msgtype, ms, gcBody.appid),
                         };
 
                         DumpType( gc, gcBodyNode );
@@ -408,14 +455,14 @@ namespace NetHookAnalyzer
             return hdr;
         }
 
-        object BuildBody( uint realEMsg, Stream str )
+        Type GetMessageBodyType( uint realEMsg )
         {
-            EMsg eMsg = MsgUtil.GetMsg( realEMsg );
+            EMsg eMsg = MsgUtil.GetMsg(realEMsg);
 
-            if ( eMsg == EMsg.ClientLogonGameServer )
-                eMsg = EMsg.ClientLogon; // temp hack for now
-            else if( eMsg == EMsg.ClientGamesPlayedWithDataBlob)
-                eMsg = EMsg.ClientGamesPlayed;
+            if ( MessageTypeOverrides.BodyMap.ContainsKey( eMsg ) )
+            {
+                return MessageTypeOverrides.BodyMap[eMsg];
+            }
 
             var protomsgType = typeof(CMClient).Assembly.GetTypes().ToList().Find(type =>
             {
@@ -427,6 +474,47 @@ namespace NetHookAnalyzer
 
                 return false;
             });
+
+            return protomsgType;
+        }
+
+        IEnumerable<Type> GetGCMessageBodyTypeCandidates( uint realEMsg, uint gcAppid = 0 )
+        {
+            uint eMsg = MsgUtil.GetGCMsg( realEMsg );
+
+            if ( MessageTypeOverrides.GCBodyMap.ContainsKey( eMsg ) )
+            {
+                return Enumerable.Repeat( MessageTypeOverrides.GCBodyMap[eMsg], 1 );
+            }
+
+            var gcMsgName = BuildEMsg( realEMsg );
+
+            var typeMsgName = gcMsgName
+                .Replace( "GC", string.Empty )
+                .Replace( "k_", string.Empty )
+                .Replace( "ESOMsg", string.Empty )
+                .TrimStart( '_' )
+                .Replace( "EMsg", string.Empty );
+            
+            var possibleTypes = from type in typeof(CMClient).Assembly.GetTypes()
+                                from typePrefix in GetPossibleGCTypePrefixes( gcAppid )
+                                where type.GetInterfaces().Contains( typeof(IExtensible) )
+                                where type.FullName.StartsWith( typePrefix ) && type.FullName.EndsWith( typeMsgName )
+                                select type;
+
+            return possibleTypes;
+        }
+
+        object BuildBody( uint realEMsg, Stream str , uint gcAppid = 0)
+        {
+            EMsg eMsg = MsgUtil.GetMsg( realEMsg );
+
+            if ( eMsg == EMsg.ClientLogonGameServer )
+                eMsg = EMsg.ClientLogon; // temp hack for now
+            else if( eMsg == EMsg.ClientGamesPlayedWithDataBlob)
+                eMsg = EMsg.ClientGamesPlayed;
+
+            var protomsgType = GetMessageBodyType( realEMsg );
 
             if (protomsgType != null)
             {
@@ -472,35 +560,7 @@ namespace NetHookAnalyzer
                 return Serializer.Deserialize<CMsgGCClient>( str );
             }
 
-            var gcMsgName = BuildEMsg( realEMsg );
-            var gcMsgPossibleTypePrefixes = new[]
-            {
-                "SteamKit2.GC.Internal.CMsg",
-                "SteamKit2.GC.Dota.Internal.CMsg",
-                "SteamKit2.GC.CSGO.Internal.CMsg",
-                "SteamKit2.GC.TF.Internal.CMsg",
-            };
-
-            var typeMsgName = gcMsgName
-                .Replace("GC", string.Empty)
-                .Replace("k_", string.Empty)
-                .Replace("ESOMsg", string.Empty)
-                .TrimStart('_')
-                .Replace("EMsg", string.Empty);
-
-            
-            if ( typeMsgName == "Create" || typeMsgName == "Destroy" || typeMsgName == "Update" )
-                typeMsgName = "SingleObject";
-            else if ( typeMsgName == "Multiple" )
-                typeMsgName = "MultipleObjects";
-
-            var possibleTypes = from type in typeof( CMClient ).Assembly.GetTypes()
-                                from typePrefix in gcMsgPossibleTypePrefixes
-                                where type.GetInterfaces().Contains( typeof ( IExtensible ) )
-                                where type.FullName.StartsWith( typePrefix ) && type.FullName.EndsWith( typeMsgName )
-                                select type;
-
-            foreach ( var type in possibleTypes )
+            foreach ( var type in GetGCMessageBodyTypeCandidates( realEMsg, gcAppid ) )
             {
                 var streamPos = str.Position;
                 try
@@ -581,6 +641,26 @@ namespace NetHookAnalyzer
             }
 
             return null;
+        }
+
+        IEnumerable<string> GetPossibleGCTypePrefixes(uint appid)
+        {
+            yield return "SteamKit2.GC.Internal.CMsg";
+
+            switch (appid)
+            {
+                case 440:
+                    yield return "SteamKit2.GC.TF.Internal.CMsg";
+                    break;
+
+                case 570:
+                    yield return "SteamKit2.GC.Dota.Internal.CMsg";
+                    break;
+
+                case 730:
+                    yield return "SteamKit2.GC.CSGO.Internal.CMsg";
+                    break;
+            }
         }
 
         byte[] BuildPayload( Stream str )

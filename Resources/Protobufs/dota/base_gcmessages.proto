@@ -4,7 +4,6 @@ enum EGCBaseMsg {
 	k_EMsgGCSystemMessage = 4001;
 	k_EMsgGCReplicateConVars = 4002;
 	k_EMsgGCConVarUpdated = 4003;
-	k_EMsgGCInQueue = 4008;
 	k_EMsgGCInviteToParty = 4501;
 	k_EMsgGCInvitationCreated = 4502;
 	k_EMsgGCPartyInviteResponse = 4503;
@@ -33,6 +32,7 @@ message CGCStorePurchaseInit_LineItem {
 	optional uint32 quantity = 2;
 	optional uint32 cost_in_local_currency = 3;
 	optional uint32 purchase_type = 4;
+	optional uint64 source_reference_id = 5;
 }
 
 message CMsgGCStorePurchaseInit {
@@ -67,6 +67,7 @@ message CMsgInviteToParty {
 	optional fixed64 steam_id = 1;
 	optional uint32 client_version = 2;
 	optional uint32 team_id = 3;
+	optional bool as_coach = 4;
 }
 
 message CMsgInvitationCreated {
@@ -79,6 +80,9 @@ message CMsgPartyInviteResponse {
 	optional bool accept = 2;
 	optional uint32 client_version = 3;
 	optional uint32 team_id = 4;
+	optional bool as_coach = 5;
+	optional uint32 game_language_enum = 6;
+	optional string game_language_name = 7;
 }
 
 message CMsgKickFromParty {
@@ -105,7 +109,6 @@ message CSOEconGameAccountClient {
 	optional fixed32 duel_ban_expiration = 7;
 	optional uint32 preview_item_def = 8 [default = 0];
 	optional bool made_first_purchase = 9 [default = false];
-	optional bool eligible_for_community_market = 10;
 }
 
 message CSOItemCriteriaCondition {
@@ -155,14 +158,6 @@ message CMsgDevNewItemRequest {
 	optional .CSOItemCriteria criteria = 2;
 }
 
-message CMsgIncrementKillCountAttribute {
-	optional fixed32 killer_account_id = 1;
-	optional fixed32 victim_account_id = 2;
-	optional uint64 item_id = 3;
-	optional uint32 event_type = 4;
-	optional uint32 amount = 5;
-}
-
 message CMsgApplyStrangePart {
 	optional uint64 strange_part_item_id = 1;
 	optional uint64 item_item_id = 2;
@@ -194,13 +189,11 @@ message CSOEconItem {
 	optional uint32 account_id = 2;
 	optional uint32 inventory = 3;
 	optional uint32 def_index = 4;
-	optional uint32 quantity = 5;
-	optional uint32 level = 6;
-	optional uint32 quality = 7;
+	optional uint32 quantity = 5 [default = 1];
+	optional uint32 level = 6 [default = 1];
+	optional uint32 quality = 7 [default = 4];
 	optional uint32 flags = 8 [default = 0];
-	optional uint32 origin = 9;
-	optional string custom_name = 10;
-	optional string custom_desc = 11;
+	optional uint32 origin = 9 [default = 0];
 	repeated .CSOEconItemAttribute attribute = 12;
 	optional .CSOEconItem interior_item = 13;
 	optional bool in_use = 14 [default = false];
@@ -265,14 +258,6 @@ message CMsgReplicateConVars {
 	repeated .CMsgConVarValue convars = 1;
 }
 
-message CMsgUseItem {
-	optional uint64 item_id = 1;
-	optional fixed64 target_steam_id = 2;
-	repeated uint32 gift__potential_targets = 3;
-	optional uint32 duel__class_lock = 4;
-	optional fixed64 initiator_steam_id = 5;
-}
-
 message CMsgReplayUploadedToYouTube {
 	optional string youtube_url = 1;
 	optional string youtube_account_name = 2;
@@ -301,7 +286,7 @@ message CMsgSetPresetItemPosition {
 
 message CMsgSetItemPositions {
 	message ItemPosition {
-		optional uint32 item_id = 1;
+		optional uint64 item_id = 1;
 		optional uint32 position = 2;
 	}
 
@@ -371,19 +356,21 @@ message CMsgGCIncrementKillCountResponse {
 }
 
 message CSOEconItemDropRateBonus {
-	optional uint32 account_id = 1;
+	optional uint32 account_id = 1 [(key_field) = true];
 	optional fixed32 expiration_date = 2;
-	optional float bonus = 3;
+	optional float bonus = 3 [(key_field) = true];
 	optional uint32 bonus_count = 4;
 	optional uint64 item_id = 5;
 	optional uint32 def_index = 6;
+	optional uint32 seconds_left = 7;
+	optional uint32 booster_type = 8 [(key_field) = true];
 }
 
 message CSOEconItemLeagueViewPass {
 	optional uint32 account_id = 1 [(key_field) = true];
 	optional uint32 league_id = 2 [(key_field) = true];
-	optional uint32 admin = 3;
 	optional uint32 itemindex = 4;
+	optional uint32 grant_reason = 5;
 }
 
 message CSOEconItemEventTicket {
@@ -429,16 +416,6 @@ message CMsgGCBannedWordListRequest {
 	optional uint32 word_id = 2;
 }
 
-message CMsgGCRequestAnnouncements {
-}
-
-message CMsgGCRequestAnnouncementsResponse {
-	optional string announcement_title = 1;
-	optional string announcement = 2;
-	optional string nextmatch_title = 3;
-	optional string nextmatch = 4;
-}
-
 message CMsgGCBannedWord {
 	optional uint32 word_id = 1;
 	optional .GC_BannedWordType word_type = 2 [default = GC_BANNED_WORD_DISABLE_WORD];
@@ -468,6 +445,15 @@ message CMsgGCToGCDirtyMultipleSDOCache {
 	repeated uint64 key_uint64 = 2;
 }
 
+message CMsgGCToGCApplyLocalizationDiff {
+	optional uint32 language = 1;
+	optional string packed_diff = 2;
+}
+
+message CMsgGCToGCApplyLocalizationDiffResponse {
+	optional bool success = 1;
+}
+
 message CMsgGCCollectItem {
 	optional uint64 collection_item_id = 1;
 	optional uint64 subject_item_id = 2;
@@ -478,14 +464,6 @@ message CMsgSDONoMemcached {
 
 message CMsgGCToGCUpdateSQLKeyValue {
 	optional string key_name = 1;
-}
-
-message CMsgGCToGCIsTrustedServer {
-	optional fixed64 steam_id = 1;
-}
-
-message CMsgGCToGCIsTrustedServerResponse {
-	optional bool is_trusted = 1;
 }
 
 message CMsgGCToGCBroadcastConsoleCommand {
@@ -503,9 +481,64 @@ message CMsgGCClientVersionUpdated {
 message CMsgGCToGCWebAPIAccountChanged {
 }
 
-message CMsgGCToGCRequestPassportItemGrant {
-	optional fixed64 steam_id = 1;
-	optional uint32 league_id = 2;
-	optional int32 reward_flag = 3;
+message CMsgRecipeComponent {
+	optional uint64 subject_item_id = 1;
+	optional uint64 attribute_index = 2;
+}
+
+message CMsgFulfillDynamicRecipeComponent {
+	optional uint64 tool_item_id = 1;
+	repeated .CMsgRecipeComponent consumption_components = 2;
+}
+
+message CMsgGCClientMarketDataRequest {
+	optional uint32 user_currency = 1;
+}
+
+message CMsgGCClientMarketDataEntry {
+	optional uint32 item_def_index = 1;
+	optional uint32 item_quality = 2;
+	optional uint32 item_sell_listings = 3;
+	optional uint32 price_in_local_currency = 4;
+}
+
+message CMsgGCClientMarketData {
+	repeated .CMsgGCClientMarketDataEntry entries = 1;
+}
+
+message CMsgExtractGems {
+	optional uint64 tool_item_id = 1;
+	optional uint64 item_item_id = 2;
+}
+
+message CMsgAddSocket {
+	optional uint64 tool_item_id = 1;
+	optional uint64 item_item_id = 2;
+	optional bool unusual = 3;
+}
+
+message CMsgAddSocketResponse {
+	optional uint64 item_id = 1;
+	repeated uint32 updated_socket_index = 2;
+}
+
+message CMsgAddItemToSocketData {
+	optional uint64 gem_item_id = 1;
+	optional uint32 socket_index = 2;
+}
+
+message CMsgAddItemToSocket {
+	optional uint64 item_item_id = 1;
+	repeated .CMsgAddItemToSocketData gems_to_socket = 2;
+}
+
+message CMsgAddItemToSocketResponse {
+	optional uint64 item_item_id = 1;
+	repeated uint32 updated_socket_index = 2;
+}
+
+message CMsgResetStrangeGemCount {
+	optional uint64 item_item_id = 1;
+	optional uint32 socket_index = 2;
 }
 

@@ -4,7 +4,7 @@
  */
 
 
-
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SteamKit2.Internal;
@@ -25,6 +25,7 @@ namespace SteamKit2
         /// Represents app request details when calling <see cref="SteamApps.GetAppInfo"/>.
         /// </summary>
         public sealed class AppDetails
+#pragma warning restore 0419
         {
             /// <summary>
             /// Gets or sets the AppID for this request.
@@ -54,10 +55,15 @@ namespace SteamKit2
             }
         }
 
+        // Ambiguous reference in cref attribute: 'SteamApps.PICSGetProductInfo'. Assuming 'SteamKit2.SteamApps.PICSGetProductInfo(uint?, uint?, bool, bool)',
+        // but could have also matched other overloads including 'SteamKit2.SteamApps.PICSGetProductInfo(System.Collections.Generic.IEnumerable<SteamKit2.SteamApps.PICSRequest>, System.Collections.Generic.IEnumerable<SteamKit2.SteamApps.PICSRequest>, bool)'.
+#pragma warning disable 0419
+
         /// <summary>
         /// Represents a PICS request used for <see cref="SteamApps.PICSGetProductInfo"/>
         /// </summary>
         public sealed class PICSRequest
+#pragma warning restore 0419
         {
             /// <summary>
             /// Gets or sets the ID of the app or package being requested
@@ -103,7 +109,6 @@ namespace SteamKit2
                 Public = only_public;
             }
         }
-#pragma warning restore 0419
 
 
         internal SteamApps()
@@ -116,7 +121,7 @@ namespace SteamKit2
         /// Results are returned in a <see cref="AppOwnershipTicketCallback"/> callback.
         /// </summary>
         /// <param name="appid">The appid to request the ownership ticket of.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="AppOwnershipTicketCallback"/>.</returns>
         public JobID GetAppOwnershipTicket( uint appid )
         {
             var request = new ClientMsgProtobuf<CMsgClientGetAppOwnershipTicket>( EMsg.ClientGetAppOwnershipTicket );
@@ -135,7 +140,7 @@ namespace SteamKit2
         /// </summary>
         /// <param name="app">The app to request information for.</param>
         /// <param name="supportsBatches">if set to <c>true</c>, the request supports batches.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="AppInfoCallback"/>.</returns>
         public JobID GetAppInfo( AppDetails app, bool supportsBatches = false )
         {
             return GetAppInfo( new AppDetails[] { app }, supportsBatches );
@@ -146,7 +151,7 @@ namespace SteamKit2
         /// </summary>
         /// <param name="app">The app to request information for.</param>
         /// <param name="supportsBatches">if set to <c>true</c>, the request supports batches.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="AppInfoCallback"/>.</returns>
         public JobID GetAppInfo( uint app, bool supportsBatches = false )
         {
             return GetAppInfo( new uint[] { app }, supportsBatches );
@@ -157,7 +162,7 @@ namespace SteamKit2
         /// </summary>
         /// <param name="apps">The apps to request information for.</param>
         /// <param name="supportsBatches">if set to <c>true</c>, the request supports batches.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="AppInfoCallback"/>.</returns>
         public JobID GetAppInfo( IEnumerable<uint> apps, bool supportsBatches = false )
         {
             return GetAppInfo( apps.Select( a => new AppDetails { AppID = a } ), supportsBatches );
@@ -168,7 +173,7 @@ namespace SteamKit2
         /// </summary>
         /// <param name="apps">The apps to request information for.</param>
         /// <param name="supportsBatches">if set to <c>true</c>, the request supports batches.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="AppInfoCallback"/>.</returns>
         public JobID GetAppInfo( IEnumerable<AppDetails> apps, bool supportsBatches = false )
         {
             var request = new ClientMsgProtobuf<CMsgClientAppInfoRequest>( EMsg.ClientAppInfoRequest );
@@ -200,7 +205,7 @@ namespace SteamKit2
         /// </summary>
         /// <param name="packageId">The package id to request information for.</param>
         /// <param name="metaDataOnly">if set to <c>true</c>, request metadata only.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="PackageInfoCallback"/>.</returns>
         public JobID GetPackageInfo( uint packageId, bool metaDataOnly = false )
         {
             return GetPackageInfo( new uint[] { packageId }, metaDataOnly );
@@ -211,7 +216,7 @@ namespace SteamKit2
         /// </summary>
         /// <param name="packageId">The packages to request information for.</param>
         /// <param name="metaDataOnly">if set to <c>true</c> to request metadata only.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="PackageInfoCallback"/>.</returns>
         public JobID GetPackageInfo( IEnumerable<uint> packageId, bool metaDataOnly = false )
         {
             var request = new ClientMsgProtobuf<CMsgClientPackageInfoRequest>( EMsg.ClientPackageInfoRequest );
@@ -248,7 +253,7 @@ namespace SteamKit2
         /// </summary>
         /// <param name="depotid">The DepotID to request a decryption key for.</param>
         /// <param name="appid">The AppID to request the decryption key for.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="DepotKeyCallback"/>.</returns>
         public JobID GetDepotDecryptionKey( uint depotid, uint appid = 0 )
         {
             var request = new ClientMsgProtobuf<CMsgClientGetDepotDecryptionKey>( EMsg.ClientGetDepotDecryptionKey );
@@ -268,10 +273,10 @@ namespace SteamKit2
         /// </summary>
         /// <param name="appIds">List of app ids to request access tokens for.</param>
         /// <param name="packageIds">List of package ids to request access tokens for.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="PICSTokensCallback"/>.</returns>
         public JobID PICSGetAccessTokens( IEnumerable<uint> appIds, IEnumerable<uint> packageIds )
         {
-            var request = new ClientMsgProtobuf<CMsgPICSAccessTokenRequest>( EMsg.PICSAccessTokenRequest );
+            var request = new ClientMsgProtobuf<CMsgClientPICSAccessTokenRequest>( EMsg.ClientPICSAccessTokenRequest );
             request.SourceJobID = Client.GetNextJobID();
 
             request.Body.packageids.AddRange( packageIds );
@@ -289,10 +294,10 @@ namespace SteamKit2
         /// <param name="lastChangeNumber">Last change number seen.</param>
         /// <param name="sendAppChangelist">Whether to send app changes.</param>
         /// <param name="sendPackageChangelist">Whether to send package changes.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="PICSChangesCallback"/>.</returns>
         public JobID PICSGetChangesSince( uint lastChangeNumber = 0, bool sendAppChangelist = true, bool sendPackageChangelist = false )
         {
-            var request = new ClientMsgProtobuf<CMsgPICSChangesSinceRequest>( EMsg.PICSChangesSinceRequest );
+            var request = new ClientMsgProtobuf<CMsgClientPICSChangesSinceRequest>( EMsg.ClientPICSChangesSinceRequest );
             request.SourceJobID = Client.GetNextJobID();
 
             request.Body.since_change_number = lastChangeNumber;
@@ -312,7 +317,7 @@ namespace SteamKit2
         /// <param name="package">Package id requested.</param>
         /// <param name="onlyPublic">Whether to send only public information.</param>
         /// <param name="metaDataOnly">Whether to send only meta data.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="PICSTokensCallback"/>.</returns>
         public JobID PICSGetProductInfo(uint? app, uint? package, bool onlyPublic = true, bool metaDataOnly = false)
         {
             List<uint> apps = new List<uint>();
@@ -332,7 +337,7 @@ namespace SteamKit2
         /// <param name="packages">List of package ids requested.</param>
         /// <param name="onlyPublic">Whether to send only public information.</param>
         /// <param name="metaDataOnly">Whether to send only meta data.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="PICSProductInfoCallback"/>.</returns>
         public JobID PICSGetProductInfo( IEnumerable<uint> apps, IEnumerable<uint> packages, bool onlyPublic = true, bool metaDataOnly = false )
         {
             return PICSGetProductInfo( apps.Select( app => new PICSRequest( app, 0, onlyPublic ) ), packages.Select( package => new PICSRequest( package ) ), metaDataOnly );
@@ -345,15 +350,15 @@ namespace SteamKit2
         /// <param name="apps">List of <see cref="PICSRequest"/> requests for apps.</param>
         /// <param name="packages">List of <see cref="PICSRequest"/> requests for packages.</param>
         /// <param name="metaDataOnly">Whether to send only meta data.</param>
-        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="SteamClient.JobCallback&lt;T&gt;"/>.</returns>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="PICSProductInfoCallback"/>.</returns>
         public JobID PICSGetProductInfo( IEnumerable<PICSRequest> apps, IEnumerable<PICSRequest> packages, bool metaDataOnly = false )
         {
-            var request = new ClientMsgProtobuf<CMsgPICSProductInfoRequest>( EMsg.PICSProductInfoRequest );
+            var request = new ClientMsgProtobuf<CMsgClientPICSProductInfoRequest>( EMsg.ClientPICSProductInfoRequest );
             request.SourceJobID = Client.GetNextJobID();
 
             foreach ( var app_request in apps )
             {
-                var appinfo = new CMsgPICSProductInfoRequest.AppInfo();
+                var appinfo = new CMsgClientPICSProductInfoRequest.AppInfo();
                 appinfo.access_token = app_request.AccessToken;
                 appinfo.appid = app_request.ID;
                 appinfo.only_public = app_request.Public;
@@ -363,7 +368,7 @@ namespace SteamKit2
 
             foreach ( var package_request in packages )
             {
-                var packageinfo = new CMsgPICSProductInfoRequest.PackageInfo();
+                var packageinfo = new CMsgClientPICSProductInfoRequest.PackageInfo();
                 packageinfo.access_token = package_request.AccessToken;
                 packageinfo.packageid = package_request.ID;
 
@@ -377,32 +382,25 @@ namespace SteamKit2
             return request.SourceJobID;
         }
 
+
         /// <summary>
-        /// Send a guest pass or gift to a target user, defined by their account id or email
+        /// Request product information for an app or package
+        /// Results are returned in a <see cref="CDNAuthTokenCallback"/> callback.
         /// </summary>
-        /// <param name="giftId">64-bit GID of the gift</param>
-        /// <param name="accountId">Account ID of the recipient</param>
-        /// <param name="email">Optional email of the recipient</param>
-        public void SendGuestPass( ulong giftId, uint accountId, string email = null )
+        /// <param name="app">App id requested.</param>
+        /// <param name="host_name">CDN host name being requested.</param>
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="CDNAuthTokenCallback"/>.</returns>
+        public JobID GetCDNAuthToken(uint app, string host_name)
         {
-            var sendGift = new ClientMsg<MsgClientSendGuestPass>();
+            var request = new ClientMsgProtobuf<CMsgClientGetCDNAuthToken>(EMsg.ClientGetCDNAuthToken);
+            request.SourceJobID = Client.GetNextJobID();
 
-            sendGift.Body.GiftId = giftId;
+            request.Body.app_id = app;
+            request.Body.host_name = host_name;
 
-            if ( string.IsNullOrEmpty( email ) )
-            {
-                sendGift.Body.GiftType = 1;
-                sendGift.Body.AccountId = accountId;
-                sendGift.WriteNullTermString( "" );
-            }
-            else
-            {
-                sendGift.Body.GiftType = 0;
-                sendGift.Body.AccountId = 0;
-                sendGift.WriteNullTermString( email );
-            }
+            this.Client.Send(request);
 
-            this.Client.Send( sendGift );
+            return request.SourceJobID;
         }
 
         /// <summary>
@@ -445,15 +443,15 @@ namespace SteamKit2
                     HandleDepotKeyResponse( packetMsg );
                     break;
 
-                case EMsg.PICSAccessTokenResponse:
+                case EMsg.ClientPICSAccessTokenResponse:
                     HandlePICSAccessTokenResponse( packetMsg );
                     break;
 
-                case EMsg.PICSChangesSinceResponse:
+                case EMsg.ClientPICSChangesSinceResponse:
                     HandlePICSChangesSinceResponse( packetMsg );
                     break;
 
-                case EMsg.PICSProductInfoResponse:
+                case EMsg.ClientPICSProductInfoResponse:
                     HandlePICSProductInfoResponse( packetMsg );
                     break;
 
@@ -461,8 +459,8 @@ namespace SteamKit2
                     HandleGuestPassList( packetMsg );
                     break;
 
-                case EMsg.ClientSendGuestPassResponse:
-                    HandleSendGuestPassResponse( packetMsg );
+                case EMsg.ClientGetCDNAuthTokenResponse:
+                    HandleCDNAuthTokenResponse( packetMsg );
                     break;
             }
         }
@@ -473,24 +471,21 @@ namespace SteamKit2
         {
             var ticketResponse = new ClientMsgProtobuf<CMsgClientGetAppOwnershipTicketResponse>( packetMsg );
 
-            var innerCallback = new AppOwnershipTicketCallback( ticketResponse.Body );
-            var callback = new SteamClient.JobCallback<AppOwnershipTicketCallback>( ticketResponse.TargetJobID, innerCallback );
+            var callback = new AppOwnershipTicketCallback(ticketResponse.TargetJobID, ticketResponse.Body);
             this.Client.PostCallback( callback );
         }
         void HandleAppInfoResponse( IPacketMsg packetMsg )
         {
             var infoResponse = new ClientMsgProtobuf<CMsgClientAppInfoResponse>( packetMsg );
 
-            var innerCallback = new AppInfoCallback( infoResponse.Body );
-            var callback = new SteamClient.JobCallback<AppInfoCallback>( infoResponse.TargetJobID, innerCallback );
+            var callback = new AppInfoCallback(infoResponse.TargetJobID, infoResponse.Body);
             this.Client.PostCallback( callback );
         }
         void HandlePackageInfoResponse( IPacketMsg packetMsg )
         {
             var response = new ClientMsgProtobuf<CMsgClientPackageInfoResponse>( packetMsg );
 
-            var innerCallback = new PackageInfoCallback( response.Body );
-            var callback = new SteamClient.JobCallback<PackageInfoCallback>( response.TargetJobID, innerCallback );
+            var callback = new PackageInfoCallback(response.TargetJobID, response.Body);
             this.Client.PostCallback( callback );
         }
         void HandleAppInfoChanges( IPacketMsg packetMsg )
@@ -504,8 +499,7 @@ namespace SteamKit2
         {
             var keyResponse = new ClientMsgProtobuf<CMsgClientGetDepotDecryptionKeyResponse>( packetMsg );
 
-            var innerCallback = new DepotKeyCallback( keyResponse.Body );
-            var callback = new SteamClient.JobCallback<DepotKeyCallback>( keyResponse.TargetJobID, innerCallback );
+            var callback = new DepotKeyCallback(keyResponse.TargetJobID, keyResponse.Body);
             this.Client.PostCallback( callback );
         }
         void HandleGameConnectTokens( IPacketMsg packetMsg )
@@ -531,26 +525,23 @@ namespace SteamKit2
         }
         void HandlePICSAccessTokenResponse( IPacketMsg packetMsg )
         {
-            var tokensResponse = new ClientMsgProtobuf<CMsgPICSAccessTokenResponse>( packetMsg );
+            var tokensResponse = new ClientMsgProtobuf<CMsgClientPICSAccessTokenResponse>( packetMsg );
 
-            var innerCallback = new PICSTokensCallback( tokensResponse.Body );
-            var callback = new SteamClient.JobCallback<PICSTokensCallback>( tokensResponse.TargetJobID, innerCallback );
+            var callback = new PICSTokensCallback(tokensResponse.TargetJobID, tokensResponse.Body);
             this.Client.PostCallback( callback );
         }
         void HandlePICSChangesSinceResponse( IPacketMsg packetMsg )
         {
-            var changesResponse = new ClientMsgProtobuf<CMsgPICSChangesSinceResponse>( packetMsg );
+            var changesResponse = new ClientMsgProtobuf<CMsgClientPICSChangesSinceResponse>( packetMsg );
 
-            var innerCallback = new PICSChangesCallback( changesResponse.Body );
-            var callback = new SteamClient.JobCallback<PICSChangesCallback>( changesResponse.TargetJobID, innerCallback );
+            var callback = new PICSChangesCallback( changesResponse.TargetJobID, changesResponse.Body );
             this.Client.PostCallback( callback );
         }
         void HandlePICSProductInfoResponse( IPacketMsg packetMsg )
         {
-            var productResponse = new ClientMsgProtobuf<CMsgPICSProductInfoResponse>( packetMsg );
+            var productResponse = new ClientMsgProtobuf<CMsgClientPICSProductInfoResponse>( packetMsg );
 
-            var innerCallback = new PICSProductInfoCallback( productResponse.Body );
-            var callback = new SteamClient.JobCallback<PICSProductInfoCallback>( productResponse.TargetJobID, innerCallback );
+            var callback = new PICSProductInfoCallback( productResponse.TargetJobID, productResponse.Body );
             this.Client.PostCallback( callback );
         }
         void HandleGuestPassList( IPacketMsg packetMsg )
@@ -561,11 +552,11 @@ namespace SteamKit2
             this.Client.PostCallback( callback );
         }
 
-        void HandleSendGuestPassResponse(IPacketMsg packetMsg)
+        void HandleCDNAuthTokenResponse( IPacketMsg packetMsg )
         {
-            var response = new ClientMsg<MsgClientSendGuestPassResponse>(packetMsg);
+            var response = new ClientMsgProtobuf<CMsgClientGetCDNAuthTokenResponse>( packetMsg );
 
-            var callback = new SendGuestPassCallback( response.Body );
+            var callback = new CDNAuthTokenCallback( response.TargetJobID, response.Body );
             this.Client.PostCallback( callback );
         }
         #endregion
