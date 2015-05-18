@@ -1,5 +1,8 @@
 import "steammessages.proto";
 
+option optimize_for = SPEED;
+option cc_generic_services = false;
+
 enum PartnerAccountType {
 	PARTNER_NONE = 0;
 	PARTNER_PERFECT_WORLD = 1;
@@ -180,29 +183,5 @@ message CMsgGCToGCSOCacheUnsubscribe {
 }
 
 message CMsgGCClientPing {
-}
-
-message CWorkshop_PopulateItemDescriptions_Request {
-	message SingleItemDescription {
-		optional uint32 gameitemid = 1;
-		optional string item_description = 2;
-	}
-
-	message ItemDescriptionsLanguageBlock {
-		optional string language = 1;
-		repeated .CWorkshop_PopulateItemDescriptions_Request.SingleItemDescription descriptions = 2;
-	}
-
-	optional uint32 appid = 1;
-	repeated .CWorkshop_PopulateItemDescriptions_Request.ItemDescriptionsLanguageBlock languages = 2;
-}
-
-message CWorkshop_GetContributors_Request {
-	optional uint32 appid = 1;
-	optional uint32 gameitemid = 2;
-}
-
-message CWorkshop_GetContributors_Response {
-	repeated fixed64 contributors = 1;
 }
 

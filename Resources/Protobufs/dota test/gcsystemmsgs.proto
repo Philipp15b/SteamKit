@@ -1,3 +1,6 @@
+option optimize_for = SPEED;
+option cc_generic_services = false;
+
 enum EGCSystemMsg {
 	k_EGCMsgInvalid = 0;
 	k_EGCMsgMulti = 1;
@@ -79,6 +82,12 @@ enum EGCSystemMsg {
 	k_EGCMsgGetPartnerAccountLink = 507;
 	k_EGCMsgGetPartnerAccountLinkResponse = 508;
 	k_EGCMsgVSReportedSuspiciousActivity = 509;
+	k_EGCMsgDPPartnerMicroTxns = 512;
+	k_EGCMsgDPPartnerMicroTxnsResponse = 513;
+	k_EGCMsgGetIPASN = 514;
+	k_EGCMsgGetIPASNResponse = 515;
+	k_EGCMsgGetAppFriendsList = 516;
+	k_EGCMsgGetAppFriendsListResponse = 517;
 }
 
 enum ESOMsg {
@@ -116,5 +125,6 @@ enum EGCToGCMsg {
 	k_EMsgGCToGCSOCacheUnsubscribe = 159;
 	k_EMsgGCToGCLoadSessionSOCache = 160;
 	k_EMsgGCToGCLoadSessionSOCacheResponse = 161;
+	k_EMsgGCToGCUpdateSessionStats = 162;
 }
 

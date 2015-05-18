@@ -2,6 +2,9 @@ import "google/protobuf/descriptor.proto";
 import "netmessages.proto";
 import "cstrike15_gcmessages.proto";
 
+option optimize_for = SPEED;
+option cc_generic_services = false;
+
 enum ECstrike15UserMessages {
 	CS_UM_VGUIMenu = 1;
 	CS_UM_Geiger = 2;
@@ -62,6 +65,7 @@ enum ECstrike15UserMessages {
 	CS_UM_SendPlayerItemDrops = 61;
 	CS_UM_RoundBackupFilenames = 62;
 	CS_UM_SendPlayerItemFound = 63;
+	CS_UM_ReportHit = 64;
 }
 
 message CCSUsrMsg_VGUIMenu {
@@ -222,10 +226,20 @@ message CCSUsrMsg_SendPlayerItemFound {
 message CCSUsrMsg_ReloadEffect {
 	optional int32 entidx = 1;
 	optional int32 actanim = 2;
+	optional float origin_x = 3;
+	optional float origin_y = 4;
+	optional float origin_z = 5;
 }
 
 message CCSUsrMsg_AdjustMoney {
 	optional int32 amount = 1;
+}
+
+message CCSUsrMsg_ReportHit {
+	optional float pos_x = 1;
+	optional float pos_y = 2;
+	optional float timestamp = 4;
+	optional float pos_z = 3;
 }
 
 message CCSUsrMsg_KillCam {
@@ -407,6 +421,6 @@ message CCSUsrMsg_ClientInfo {
 }
 
 message CCSUsrMsg_ServerRankRevealAll {
-	optional int32 dummy = 1;
+	optional int32 seconds_till_shutdown = 1;
 }
 

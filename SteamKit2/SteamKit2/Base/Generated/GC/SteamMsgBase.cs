@@ -1392,6 +1392,68 @@ namespace SteamKit2.GC.Internal
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CGCMsgGetIPASN")]
+  public partial class CGCMsgGetIPASN : global::ProtoBuf.IExtensible
+  {
+    public CGCMsgGetIPASN() {}
+    
+    private readonly global::System.Collections.Generic.List<uint> _ips = new global::System.Collections.Generic.List<uint>();
+    [global::ProtoBuf.ProtoMember(1, Name=@"ips", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+    public global::System.Collections.Generic.List<uint> ips
+    {
+      get { return _ips; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CIPASNInfo")]
+  public partial class CIPASNInfo : global::ProtoBuf.IExtensible
+  {
+    public CIPASNInfo() {}
+    
+
+    private uint _ip = default(uint);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"ip", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint ip
+    {
+      get { return _ip; }
+      set { _ip = value; }
+    }
+
+    private uint _asn = default(uint);
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"asn", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint asn
+    {
+      get { return _asn; }
+      set { _asn = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CGCMsgGetIPASNResponse")]
+  public partial class CGCMsgGetIPASNResponse : global::ProtoBuf.IExtensible
+  {
+    public CGCMsgGetIPASNResponse() {}
+    
+    private readonly global::System.Collections.Generic.List<CIPASNInfo> _infos = new global::System.Collections.Generic.List<CIPASNInfo>();
+    [global::ProtoBuf.ProtoMember(1, Name=@"infos", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<CIPASNInfo> infos
+    {
+      get { return _infos; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CGCMsgSystemStatsSchema")]
   public partial class CGCMsgSystemStatsSchema : global::ProtoBuf.IExtensible
   {
@@ -1919,6 +1981,15 @@ namespace SteamKit2.GC.Internal
       set { _persona_name = value; }
     }
 
+    private bool _is_profile_created = default(bool);
+    [global::ProtoBuf.ProtoMember(26, IsRequired = false, Name=@"is_profile_created", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool is_profile_created
+    {
+      get { return _is_profile_created; }
+      set { _is_profile_created = value; }
+    }
+
     private bool _is_profile_public = default(bool);
     [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"is_profile_public", DataFormat = global::ProtoBuf.DataFormat.Default)]
     [global::System.ComponentModel.DefaultValue(default(bool))]
@@ -2089,6 +2160,24 @@ namespace SteamKit2.GC.Internal
       get { return _steam_level; }
       set { _steam_level = value; }
     }
+
+    private uint _friend_count = default(uint);
+    [global::ProtoBuf.ProtoMember(24, IsRequired = false, Name=@"friend_count", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint friend_count
+    {
+      get { return _friend_count; }
+      set { _friend_count = value; }
+    }
+
+    private uint _account_creation_time = default(uint);
+    [global::ProtoBuf.ProtoMember(25, IsRequired = false, Name=@"account_creation_time", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint account_creation_time
+    {
+      get { return _account_creation_time; }
+      set { _account_creation_time = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -2214,6 +2303,51 @@ namespace SteamKit2.GC.Internal
       get { return _found_friendship; }
       set { _found_friendship = value; }
     }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCGetAppFriendsList")]
+  public partial class CMsgGCGetAppFriendsList : global::ProtoBuf.IExtensible
+  {
+    public CMsgGCGetAppFriendsList() {}
+    
+
+    private ulong _steamid = default(ulong);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"steamid", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+    [global::System.ComponentModel.DefaultValue(default(ulong))]
+    public ulong steamid
+    {
+      get { return _steamid; }
+      set { _steamid = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"CMsgGCGetAppFriendsList_Response")]
+  public partial class CMsgGCGetAppFriendsList_Response : global::ProtoBuf.IExtensible
+  {
+    public CMsgGCGetAppFriendsList_Response() {}
+    
+
+    private bool _success = default(bool);
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"success", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool success
+    {
+      get { return _success; }
+      set { _success = value; }
+    }
+    private readonly global::System.Collections.Generic.List<ulong> _steamids = new global::System.Collections.Generic.List<ulong>();
+    [global::ProtoBuf.ProtoMember(2, Name=@"steamids", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+    public global::System.Collections.Generic.List<ulong> steamids
+    {
+      get { return _steamids; }
+    }
+  
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -3278,14 +3412,14 @@ namespace SteamKit2.GC.Internal
       [global::ProtoBuf.ProtoEnum(Name=@"k_MsgPartnerInfoDiscrepancy", Value=5)]
       k_MsgPartnerInfoDiscrepancy = 5,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"k_MsgTransactionDeleteFailed", Value=6)]
-      k_MsgTransactionDeleteFailed = 6,
-            
       [global::ProtoBuf.ProtoEnum(Name=@"k_MsgTransactionInsertFailed", Value=7)]
       k_MsgTransactionInsertFailed = 7,
             
       [global::ProtoBuf.ProtoEnum(Name=@"k_MsgAlreadyRunning", Value=8)]
-      k_MsgAlreadyRunning = 8
+      k_MsgAlreadyRunning = 8,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"k_MsgInvalidTransactionData", Value=9)]
+      k_MsgInvalidTransactionData = 9
     }
   
     private global::ProtoBuf.IExtension extensionObject;

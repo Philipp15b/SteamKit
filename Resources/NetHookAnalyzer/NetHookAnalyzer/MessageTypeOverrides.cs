@@ -14,8 +14,12 @@ namespace NetHookAnalyzer
             { EMsg.ClientGamesPlayed, typeof(CMsgClientGamesPlayed) },
             { EMsg.ClientGamesPlayedNoDataBlob, typeof(CMsgClientGamesPlayed) },
             { EMsg.ClientGamesPlayedWithDataBlob, typeof(CMsgClientGamesPlayed) },
+            { EMsg.ClientFriendMsgIncoming, typeof(CMsgClientFriendMsgIncoming) },
+            { EMsg.ClientFriendMsgEchoToSender, typeof(CMsgClientFriendMsgIncoming) },
 
             { EMsg.AMGameServerUpdate, typeof(CMsgGameServerData) },
+
+            { EMsg.ClientDPUpdateAppJobReport, typeof(CMsgClientUpdateAppJobReport) },
         };
 
         public static Dictionary<uint, Type> GCBodyMap = new Dictionary<uint, Type>

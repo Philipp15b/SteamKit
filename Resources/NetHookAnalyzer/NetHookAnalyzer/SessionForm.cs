@@ -222,7 +222,7 @@ namespace NetHookAnalyzer
             if ( methodInfo != null )
             {
                 var requestType = typeSelector( methodInfo );
-                var request = RuntimeTypeModel.Default.Deserialize( methodStream, null, requestType );
+                var request = Serializer.NonGeneric.Deserialize( requestType, methodStream );
                 return request;
             }
 
@@ -236,7 +236,8 @@ namespace NetHookAnalyzer
 
             var namespaces = new[]
             {
-                "SteamKit2.Unified.Internal"
+                "SteamKit2.Unified.Internal",
+                "SteamKit2.Unified.Internal.Steamworks"
             };
 
             foreach ( var ns in namespaces )
@@ -263,6 +264,7 @@ namespace NetHookAnalyzer
             Type[] eMsgEnums =
             {
                 typeof( SteamKit2.GC.Dota.Internal.EDOTAGCMsg ),
+                typeof( SteamKit2.GC.CSGO.Internal.ECsgoGCMsg ),
                 typeof( SteamKit2.GC.Internal.EGCBaseMsg ),
                 typeof( SteamKit2.GC.Internal.ESOMsg ),
                 typeof( SteamKit2.GC.Internal.EGCSystemMsg ),
@@ -332,6 +334,18 @@ namespace NetHookAnalyzer
                         return;
                     }
 
+                    node.ContextMenu = new ContextMenu( new[] {
+                        new MenuItem( "Save to File...", delegate( object sender, EventArgs e )
+                        {
+                            var dialog = new SaveFileDialog { DefaultExt = "bin", SupportMultiDottedExtensions = true };
+                            var result = dialog.ShowDialog( this );
+                            if ( result == DialogResult.OK )
+                            {
+                                File.WriteAllBytes( dialog.FileName, data );
+                            }
+                        }),
+                    });
+
                     const int MaxBinLength = 400;
                     if ( data.Length > MaxBinLength )
                     {
@@ -339,13 +353,86 @@ namespace NetHookAnalyzer
                         return;
                     }
 
-                    string strAscii = Encoding.ASCII.GetString( data ).Replace( "\0", "\\0" );
-                    string strUnicode = Encoding.UTF8.GetString( data ).Replace( "\0", "\\0" );
-                    string hexString = data.Aggregate( new StringBuilder(), ( str, value ) => str.Append( value.ToString( "X2" ) ) ).ToString();
+                    Action<object> setAsRadioSelected = delegate( object sender )
+                    {
+                        var senderItem = (MenuItem)sender;
+                        foreach ( MenuItem item in senderItem.Parent.MenuItems )
+                        {
+                            item.Checked = false;
+                        }
+                        senderItem.Checked = true;
+                    };
 
-                    node.Nodes.Add( string.Format( "{0}: {1}", "ASCII", strAscii ) );
-                    node.Nodes.Add( string.Format( "{0}: {1}", "UTF8", strUnicode ) );
-                    node.Nodes.Add( string.Format( "{0}: {1}", "Binary", hexString ) );
+                    node.ContextMenu.MenuItems.Add( new MenuItem( "-" )); // Separator
+
+                    MenuItem intialMenuItem;
+
+                    node.ContextMenu.MenuItems.Add( new MenuItem( "Display as ASCII", delegate( object sender, EventArgs e )
+                    {
+                        setAsRadioSelected( sender );
+                        node.Nodes.Clear();
+
+                        var strAscii = Encoding.ASCII.GetString( data ).Replace( "\0", "\\0" );
+                        node.Nodes.Add( strAscii );
+                        node.Expand();
+
+                    }) { RadioCheck = true } );
+
+                   node.ContextMenu.MenuItems.Add( new MenuItem( "Display as UTF-8", delegate( object sender, EventArgs e )
+                    {
+                        setAsRadioSelected( sender );
+                        node.Nodes.Clear();
+
+                        var strUnicode = Encoding.UTF8.GetString( data ).Replace( "\0", "\\0" );
+                        node.Nodes.Add( strUnicode );
+                        node.Expand();
+
+                    }) { RadioCheck = true } );
+
+                   node.ContextMenu.MenuItems.Add( ( intialMenuItem = new MenuItem( "Display as Hexadecimal", delegate( object sender, EventArgs e )
+                    {
+                        setAsRadioSelected( sender );
+                        node.Nodes.Clear();
+
+                        var hexString = data.Aggregate( new StringBuilder(), ( str, value ) => str.Append( value.ToString( "X2" ) ) ).ToString();
+                        node.Nodes.Add( hexString );
+                        node.Expand();
+
+                    }) { RadioCheck = true, Checked = true } ) );
+
+                   node.ContextMenu.MenuItems.Add(new MenuItem("Display as Binary KeyValues", delegate(object sender, EventArgs e)
+                   {
+                       setAsRadioSelected(sender);
+                       node.Nodes.Clear();
+
+                       var kv = new KeyValue();
+                       bool didRead;
+                       using ( var ms = new MemoryStream( data ) )
+                       {
+                           try
+                           {
+                               didRead = kv.ReadAsBinary( ms );
+                           }
+                           catch (InvalidDataException)
+                           {
+                               didRead = false;
+                           }
+                       }
+
+                       if ( !didRead )
+                       {
+                           node.Nodes.Add( "Not a valid KeyValues object!" );
+                       }
+                       else
+                       {
+                           node.Nodes.Add( BuildKeyValuesNode( kv.Children[0] ) );
+                       }
+
+                       node.ExpandAll();
+
+                   }) { RadioCheck = true });
+
+                    intialMenuItem.PerformClick();
 
                     return;
                 }
@@ -490,11 +577,11 @@ namespace NetHookAnalyzer
             var gcMsgName = BuildEMsg( realEMsg );
 
             var typeMsgName = gcMsgName
-                .Replace( "GC", string.Empty )
                 .Replace( "k_", string.Empty )
                 .Replace( "ESOMsg", string.Empty )
                 .TrimStart( '_' )
-                .Replace( "EMsg", string.Empty );
+                .Replace( "EMsg", string.Empty )
+                .TrimStart( "GC" );
             
             var possibleTypes = from type in typeof(CMClient).Assembly.GetTypes()
                                 from typePrefix in GetPossibleGCTypePrefixes( gcAppid )
@@ -518,7 +605,7 @@ namespace NetHookAnalyzer
 
             if (protomsgType != null)
             {
-                return RuntimeTypeModel.Default.Deserialize(str, null, protomsgType);
+                return Serializer.NonGeneric.Deserialize( protomsgType, str );
             }
 
             // lets first find the type by checking all EMsgs we have
@@ -740,6 +827,25 @@ namespace NetHookAnalyzer
 
             sorter.Column = e.Column;
             viewPacket.Sort();
+        }
+
+        static TreeNode BuildKeyValuesNode( KeyValue kv )
+        {
+            var node = new TreeNode();
+            if ( kv.Children.Count > 0 )
+            {
+                node.Text = kv.Name;
+                foreach (var child in kv.Children)
+                {
+                    node.Nodes.Add( BuildKeyValuesNode( child ) );
+                }
+            }
+            else
+            {
+                node.Text = string.Format( "{0}: {1}", kv.Name, kv.Value );
+            }
+
+            return node;
         }
     }
 
