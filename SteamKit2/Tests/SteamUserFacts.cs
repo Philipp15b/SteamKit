@@ -1,4 +1,5 @@
-﻿using SteamKit2;
+﻿using System;
+using SteamKit2;
 using Xunit;
 
 namespace Tests
@@ -20,6 +21,121 @@ namespace Tests
 
             var loc = (SteamUser.LoggedOnCallback)callback;
             Assert.Equal( EResult.NoConnection, loc.Result );
+        }
+
+        [Fact]
+        public void LogOnThrowsExceptionIfDetailsNotProvided()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                Handler.LogOn(null);
+            });
+        }
+
+        [Fact]
+        public void LogOnThrowsExceptionIfUsernameNotProvided_OnlyPassword()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                Handler.LogOn(new SteamUser.LogOnDetails
+                {
+                    Password = "def"
+                });
+            });
+        }
+
+        [Fact]
+        public void LogOnThrowsExceptionIfUsernameNotProvided_OnlyLoginKey()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                Handler.LogOn(new SteamUser.LogOnDetails
+                {
+                    LoginKey = "def"
+                });
+            });
+        }
+
+        [Fact]
+        public void LogOnThrowsExceptionIfUsernameNotProvided_OnlyLoginKey_ShouldRememberPassword()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                Handler.LogOn(new SteamUser.LogOnDetails
+                {
+                    LoginKey = "def",
+                    ShouldRememberPassword = true
+                });
+            });
+        }
+
+        [Fact]
+        public void LogOnThrowsExceptionIfPasswordAndLoginKeyNotProvided()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                Handler.LogOn(new SteamUser.LogOnDetails
+                {
+                    Username = "abc"
+                });
+            });
+        }
+
+        [Fact]
+        public void LogOnThrowsExceptionIfLoginKeyProvidedWithoutShouldRememberPassword()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                Handler.LogOn(new SteamUser.LogOnDetails
+                {
+                    Username = "abc",
+                    LoginKey = "def"
+                });
+            });
+        }
+        
+        [Fact]
+        public void LogOnDoesNotThrowExceptionIfUserNameAndPasswordProvided()
+        {
+            var ex = Record.Exception(() =>
+            {
+                Handler.LogOn(new SteamUser.LogOnDetails
+                {
+                    Username = "abc",
+                    Password = "def"
+                });
+            });
+
+            Assert.Null( ex );
+        }
+        
+        [Fact]
+        public void LogOnDoesNotThrowExceptionIfUserNameAndLoginKeyProvided()
+        {
+            var ex = Record.Exception(() =>
+            {
+                Handler.LogOn(new SteamUser.LogOnDetails
+                {
+                    Username = "abc",
+                    LoginKey = "def",
+                    ShouldRememberPassword = true,
+                });
+            });
+
+            Assert.Null( ex );
+        }
+
+        [Fact]
+        public void LogOnThrowsExceptionIfLoginKeyIsProvidedWithoutShouldRememberPassword()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                Handler.LogOn(new SteamUser.LogOnDetails
+                {
+                    Username = "abc",
+                    LoginKey = "def"
+                });
+            });
         }
 
         [Fact]

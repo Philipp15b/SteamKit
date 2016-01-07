@@ -22,6 +22,7 @@ enum GCConnectionStatus {
 	GCConnectionStatus_NO_SESSION_IN_LOGON_QUEUE = 3;
 	GCConnectionStatus_NO_STEAM = 4;
 	GCConnectionStatus_SUSPENDED = 5;
+	GCConnectionStatus_STEAM_GOING_DOWN = 6;
 }
 
 message CMsgSHA1Digest {
@@ -192,6 +193,8 @@ message CMsgClientWelcome {
 	repeated .CMsgSOCacheSubscriptionCheck uptodate_subscribed_caches = 4;
 	optional .CMsgClientWelcome.Location location = 5;
 	optional bytes save_game_key = 6;
+	optional fixed32 item_schema_crc = 7;
+	optional string items_game_url = 8;
 }
 
 message CMsgConnectionStatus {
@@ -280,5 +283,12 @@ message CWorkshop_SetItemPaymentRules_Request {
 }
 
 message CWorkshop_SetItemPaymentRules_Response {
+}
+
+message CBroadcast_PostGameDataFrame_Request {
+	optional uint32 appid = 1;
+	optional fixed64 steamid = 2;
+	optional fixed64 broadcast_id = 3;
+	optional bytes frame_data = 4;
 }
 

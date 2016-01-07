@@ -1,4 +1,5 @@
 import "steammessages.proto";
+import "base_gcmessages.proto";
 
 option optimize_for = SPEED;
 option cc_generic_services = false;
@@ -103,6 +104,8 @@ enum ETFGCMsg {
 	k_EMsgGCSetLobbySafeToLeave = 6302;
 	k_EMsgGC_UpdatePeriodicEvent = 6400;
 	k_EMsgGC_DuckLeaderboard_IndividualUpdate = 6401;
+	k_EMsgGC_Client2GCEconPreviewDataBlockRequest = 6402;
+	k_EMsgGC_Client2GCEconPreviewDataBlockResponse = 6403;
 	k_EMsgGC_ClientVerificationChallenge = 6500;
 	k_EMsgGC_ClientVerificationChallengeResponse = 6501;
 	k_EMsgGC_ClientVerificationVerboseResponse = 6502;
@@ -113,6 +116,11 @@ enum ETFGCMsg {
 	k_EMsgGC_SpyVsEngyWar_RequestGlobalStats = 6507;
 	k_EMsgGC_SpyVsEngyWar_GlobalStatsResponse = 6508;
 	k_EMsgGC_SpyVsEngyWar_SetKillCamMessage = 6509;
+	k_EMsgGC_WorldItemPlacement_Attribute = 6510;
+	k_EMsgGC_WorldItemPlacement_Update = 6511;
+	k_EMsgGC_Match_Result = 6512;
+	k_EMsgGCVoteKickPlayerRequest = 6513;
+	k_EMsgGCVoteKickPlayerRequestResponse = 6514;
 	k_EMsgGCDev_GrantWarKill = 10001;
 }
 
@@ -175,6 +183,13 @@ enum ServerMatchmakingState {
 	ServerMatchmakingState_EMPTY = 2;
 	ServerMatchmakingState_ACTIVE_SLOTS_AVAILABLE = 3;
 	ServerMatchmakingState_ACTIVE_FULL = 4;
+}
+
+enum TF_SkillRatingMatchType {
+	TF_SkillRatingMatchType_INVALID = -1;
+	TF_SkillRatingMatchType_PUBLIC = 0;
+	TF_SkillRatingMatchType_LADDER_6V6 = 1;
+	TF_SkillRatingMatchType_LADDER_9V9 = 2;
 }
 
 message CMsgTFGoldenWrenchBroadcast {
@@ -499,7 +514,9 @@ message CSOTFPartyMember {
 	optional uint32 badge_level = 4;
 	optional bool squad_surplus = 5;
 	optional bool is_banned = 8 [default = false];
-	optional bool owns_ladder_ticket = 9;
+	optional bool owns_ladder_pass = 9;
+	optional bool phone_verified = 10 [default = false];
+	optional bool two_factor_enabled = 11 [default = false];
 }
 
 message CMsgMatchSearchCriteria {
@@ -509,7 +526,7 @@ message CMsgMatchSearchCriteria {
 	repeated string mvm_missions = 9;
 	optional bool play_for_bragging_rights = 6;
 	optional uint32 quickplay_game_type = 8;
-	optional uint32 ladder_type = 11;
+	optional uint32 ladder_game_type = 11;
 }
 
 message CMsgCreateOrUpdateParty {
@@ -550,7 +567,7 @@ message CSOTFParty {
 	repeated string search_mvm_missions = 31;
 	optional bool search_play_for_bragging_rights = 26;
 	optional uint32 search_quickplay_game_type = 28;
-	optional uint32 search_ladder_type = 33;
+	optional uint32 search_ladder_game_type = 33;
 	optional uint32 prevent_match_until_date = 18;
 	optional uint32 prevent_match_account_id = 19;
 }
@@ -641,7 +658,7 @@ message CSOTFLobby {
 	optional string map_name = 38;
 	optional string mission_name = 39;
 	optional uint32 match_group = 41;
-	optional uint32 match_id = 30;
+	optional uint64 match_id = 30 [default = 0];
 	optional fixed32 replay_salt = 35;
 }
 
@@ -772,6 +789,7 @@ message CMsgGameServerMatchmakingStatus {
 	optional uint32 mvm_credits_acquired = 19;
 	optional uint32 mvm_credits_dropped = 20;
 	optional uint32 skillrating_force_average = 21;
+	optional uint32 ladder_game_type = 22;
 }
 
 message CMsgMatchmakingProgress {
@@ -809,6 +827,7 @@ message CMsgMvMVictoryInfo {
 		optional uint32 badge_progress_bits = 7;
 		repeated .CMsgMvMVictoryInfo.Item items = 8;
 		optional bool voucher_missing = 9;
+		optional uint32 badge_points = 10;
 	}
 
 	enum GrantReason {
@@ -864,6 +883,7 @@ message CMsgMvMMannUpVictoryReply {
 
 message CMsgGameServerKickingLobby {
 	repeated fixed64 connected_players = 1;
+	optional bool create_party = 2 [default = true];
 }
 
 message CMsgLeaveGameAndPrepareToJoinParty {
@@ -980,13 +1000,8 @@ message CGCMsgTFPlayerSkillRatingAdjustment {
 		optional int32 adjustment = 3;
 	}
 
-	enum MatchType {
-		PUBLIC = 0;
-		BETA = 1;
-	}
-
 	repeated .CGCMsgTFPlayerSkillRatingAdjustment.Player players = 1;
-	optional .CGCMsgTFPlayerSkillRatingAdjustment.MatchType match_type = 2 [default = PUBLIC];
+	optional .TF_SkillRatingMatchType match_type = 2 [default = TF_SkillRatingMatchType_INVALID];
 }
 
 message CSOTFSpyVsEngyWarData {
@@ -1028,5 +1043,101 @@ message CGCMsgGC_PlayerDuckLeaderboard_IndividualUpdate {
 	optional uint32 type = 3;
 	optional bytes score_id = 4;
 	optional uint32 score_check = 5;
+}
+
+message CAttribute_WorldItemPlacement {
+	optional uint64 original_item_id = 1;
+	optional float pos_x = 2;
+	optional float pos_y = 3;
+	optional float pos_z = 4;
+	optional float ang_x = 5;
+	optional float ang_y = 6;
+	optional float ang_z = 7;
+}
+
+message CGCMsg_WorldItemPlacement_Update {
+	optional uint64 original_item_id = 1;
+	optional float pos_x = 2;
+	optional float pos_y = 3;
+	optional float pos_z = 4;
+	optional float ang_x = 5;
+	optional float ang_y = 6;
+	optional float ang_z = 7;
+	optional bool force_remove_all = 8;
+	optional string attrib_name = 9;
+}
+
+message CMsgGC_Match_Result {
+	message Player {
+		optional fixed64 steam_id = 1;
+		optional uint32 team = 2;
+		optional uint32 score = 3;
+		optional uint32 ping = 4;
+		optional uint32 flags = 5;
+		optional uint32 skillrating = 6;
+		optional uint32 skillrating_change = 7;
+		optional uint32 classes_played = 8;
+		optional uint32 kills = 9;
+		optional uint32 damage = 10;
+		optional uint32 healing = 11;
+		optional uint32 support = 12;
+	}
+
+	enum Status {
+		MATCH_SUCCEEDED = 0;
+		MATCH_FAILED_GC = 1;
+		MATCH_FAILED_TRUSTED = 2;
+		MATCH_FAILED_LEAVER = 3;
+		MATCH_FAILED_RATING = 4;
+	}
+
+	optional uint64 match_id = 1 [(key_field) = true];
+	optional .TF_SkillRatingMatchType match_type = 2 [default = TF_SkillRatingMatchType_INVALID];
+	optional .CMsgGC_Match_Result.Status status = 3 [default = MATCH_SUCCEEDED];
+	optional uint32 duration = 4;
+	optional uint32 red_score = 5;
+	optional uint32 blue_score = 6;
+	optional uint32 winning_team = 7;
+	optional string map_name = 8;
+	optional uint32 game_type = 9 [default = 0];
+	repeated .CMsgGC_Match_Result.Player players = 10;
+	optional uint32 red_skillrating = 11;
+	optional uint32 blue_skillrating = 12;
+	optional uint32 win_reason = 13;
+}
+
+message CEconItemPreviewDataBlock {
+	optional .CSOEconItem econitem = 1;
+}
+
+message CMsgGC_Client2GCEconPreviewDataBlockRequest {
+	optional uint64 param_s = 1;
+	optional uint64 param_a = 2;
+	optional uint64 param_d = 3;
+	optional uint64 param_m = 4;
+}
+
+message CMsgGC_Client2GCEconPreviewDataBlockResponse {
+	optional .CEconItemPreviewDataBlock iteminfo = 1;
+}
+
+message CSOTFLadderPlayerStats {
+	optional uint32 account_id = 1 [(key_field) = true];
+	optional .TF_SkillRatingMatchType match_type = 2 [default = TF_SkillRatingMatchType_INVALID, (key_field) = true];
+	optional uint32 games = 3;
+	optional uint32 kills = 4;
+	optional uint32 damage = 5;
+	optional uint32 healing = 6;
+	optional uint32 support = 7;
+	optional uint32 score = 8;
+	optional uint32 experience = 9;
+}
+
+message CMsgGC_TFVoteKickPlayerRequest {
+	optional uint32 account_id = 1;
+}
+
+message CMsgGC_VoteKickPlayerRequestResponse {
+	optional bool allowed = 1;
 }
 

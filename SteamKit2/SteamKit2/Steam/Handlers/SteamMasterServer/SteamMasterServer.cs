@@ -3,6 +3,8 @@
  * file 'license.txt', which is part of this source code package.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Net;
 using SteamKit2.Internal;
 
@@ -46,18 +48,25 @@ namespace SteamKit2
         }
 
 
+        Dictionary<EMsg, Action<IPacketMsg>> dispatchMap;
+
         internal SteamMasterServer()
         {
+            dispatchMap = new Dictionary<EMsg, Action<IPacketMsg>>
+            {
+                { EMsg.GMSClientServerQueryResponse, HandleServerQueryResponse },
+            };
         }
 
 
         /// <summary>
         /// Requests a list of servers from the Steam game master server.
         /// Results are returned in a <see cref="QueryCallback"/>.
+        /// The returned <see cref="AsyncJob{T}"/> can also be awaited to retrieve the callback result.
         /// </summary>
         /// <param name="details">The details for the request.</param>
         /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="QueryCallback"/>.</returns>
-        public JobID ServerQuery( QueryDetails details )
+        public AsyncJob<QueryCallback> ServerQuery( QueryDetails details )
         {
             var query = new ClientMsgProtobuf<CMsgClientGMSServerQuery>( EMsg.ClientGMSServerQuery );
             query.SourceJobID = Client.GetNextJobID();
@@ -74,7 +83,7 @@ namespace SteamKit2
 
             this.Client.Send( query );
 
-            return query.SourceJobID;
+            return new AsyncJob<QueryCallback>( this.Client, query.SourceJobID );
         }
 
 
@@ -84,12 +93,16 @@ namespace SteamKit2
         /// <param name="packetMsg">The packet message that contains the data.</param>
         public override void HandleMsg( IPacketMsg packetMsg )
         {
-            switch ( packetMsg.MsgType )
+            Action<IPacketMsg> handlerFunc;
+            bool haveFunc = dispatchMap.TryGetValue( packetMsg.MsgType, out handlerFunc );
+
+            if ( !haveFunc )
             {
-                case EMsg.GMSClientServerQueryResponse:
-                    HandleServerQueryResponse( packetMsg );
-                    break;
+                // ignore messages that we don't have a handler function for
+                return;
             }
+
+            handlerFunc( packetMsg );
         }
 
 

@@ -157,6 +157,17 @@ enum EGCItemMsg {
 	k_EMsgGCQuestObjective_Progress = 2558;
 	k_EMsgGCQuestCompleted = 2559;
 	k_EMsgGCApplyDuckToken = 2560;
+	k_EMsgGCQuestComplete_Request = 2561;
+	k_EMsgGCQuestObjective_PointsChange = 2562;
+	k_EMsgGCQuestObjective_PointsChangeResponse = 2563;
+	k_EMsgGCQuestObjective_RequestLoanerItems = 2564;
+	k_EMsgGCQuestObjective_RequestLoanerResponse = 2565;
+	k_EMsgGCApplyStrangeCountTransfer = 2566;
+	k_EMsgGCCraftCollectionUpgrade = 2567;
+	k_EMsgGCCraftHalloweenOffering = 2568;
+	k_EMsgGCQuestDiscard_Request = 2569;
+	k_EMsgGCRemoveGiftedBy = 2570;
+	k_EMsgGCRemoveGiftedByResponse = 2571;
 }
 
 enum EGCMsgResponse {
@@ -310,11 +321,49 @@ message CMsgGCShuffleCrateContents {
 message CMsgGCQuestObjective_Progress {
 	optional uint64 quest_item_id = 1;
 	optional uint32 quest_attrib_index = 2;
-	optional uint32 start_count = 3;
-	optional uint32 proposed_count = 4;
-	optional fixed64 owner_steamid = 5;
+	optional uint32 delta = 3;
+	optional fixed64 owner_steamid = 4;
+}
+
+message CMsgGCQuestObjective_PointsChange {
+	optional uint64 quest_item_id = 1;
+	optional uint32 standard_points = 2;
+	optional uint32 bonus_points = 3;
+	optional fixed64 owner_steamid = 4;
+	optional bool update_base_points = 5 [default = false];
+}
+
+message CMsgGCQuestObjective_PointsChangeResponse {
+	optional uint64 quest_item_id = 1;
+	optional uint32 standard_points = 2;
+	optional uint32 bonus_points = 3;
+	optional bool update_base_points = 4;
+}
+
+message CMsgGCQuestComplete_Request {
+	optional uint64 quest_item_id = 1;
 }
 
 message CMsgGCQuestCompleted {
+}
+
+message CMsgGCQuestObjective_RequestLoanerItems {
+	optional uint64 quest_item_id = 1;
+}
+
+message CMsgGCQuestObjective_RequestLoanerResponse {
+}
+
+message CMsgCraftCollectionUpgrade {
+	repeated uint64 item_id = 1;
+}
+
+message CMsgCraftHalloweenOffering {
+	optional uint64 tool_id = 1;
+	repeated uint64 item_id = 2;
+}
+
+message CMsgGCQuestDiscard_Request {
+	optional uint64 quest_item_id = 1;
 }
 

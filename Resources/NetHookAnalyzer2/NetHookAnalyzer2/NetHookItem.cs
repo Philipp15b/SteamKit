@@ -31,7 +31,7 @@ namespace NetHookAnalyzer2
 		}
 		string innerMessageName;
 
-		FileInfo FileInfo { get; set; }
+		public FileInfo FileInfo { get; private set; }
 
 		public Stream OpenStream()
 		{
@@ -76,7 +76,19 @@ namespace NetHookAnalyzer2
 			return true;
 		}
 
-		public string ReadInnerMessageName()
+		string ReadInnerMessageName()
+		{
+			try
+			{
+				return ReadInnerMessageNameCore();
+			}
+			catch (IOException)
+			{
+				return null;
+			}
+		}
+
+		string ReadInnerMessageNameCore()
 		{
 			switch (EMsg)
 			{
@@ -85,7 +97,7 @@ namespace NetHookAnalyzer2
 				{
 					var proto = ReadAsProtobufMsg<CMsgGCClient>();
 					var gcEMsg = proto.Body.msgtype;
-					var gcName = EMsgExtensions.GetGCMessageName(gcEMsg);
+					var gcName = EMsgExtensions.GetGCMessageName(gcEMsg, proto.Body.appid);
 
 					var headerToTrim = "k_EMsg";
 					if (gcName.StartsWith(headerToTrim))

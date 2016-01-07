@@ -5,6 +5,7 @@
 
 
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,7 @@ namespace SteamKit2
 
         AccountCache cache;
 
+        Dictionary<EMsg, Action<IPacketMsg>> dispatchMap;
 
         internal SteamFriends()
         {
@@ -30,6 +32,27 @@ namespace SteamKit2
             clanList = new List<SteamID>();
 
             cache = new AccountCache();
+
+            dispatchMap = new Dictionary<EMsg, Action<IPacketMsg>>
+            {
+                { EMsg.ClientPersonaState, HandlePersonaState },
+                { EMsg.ClientClanState, HandleClanState },
+                { EMsg.ClientFriendsList, HandleFriendsList },
+                { EMsg.ClientFriendMsgIncoming, HandleFriendMsg },
+                { EMsg.ClientFriendMsgEchoToSender, HandleFriendEchoMsg },
+                { EMsg.ClientFSGetFriendMessageHistoryResponse, HandleFriendMessageHistoryResponse },
+                { EMsg.ClientAccountInfo, HandleAccountInfo },
+                { EMsg.ClientAddFriendResponse, HandleFriendResponse },
+                { EMsg.ClientChatEnter, HandleChatEnter },
+                { EMsg.ClientChatMsg, HandleChatMsg },
+                { EMsg.ClientChatMemberInfo, HandleChatMemberInfo },
+                { EMsg.ClientChatRoomInfo, HandleChatRoomInfo },
+                { EMsg.ClientChatActionResult, HandleChatActionResult },
+                { EMsg.ClientChatInvite, HandleChatInvite },
+                { EMsg.ClientSetIgnoreFriendResponse, HandleIgnoreFriendResponse },
+                { EMsg.ClientFriendProfileInfoResponse, HandleProfileInfoResponse },
+                { EMsg.ClientPersonaChangeResponse, HandlePersonaChangeResponse },
+            };
         }
 
 
@@ -43,18 +66,25 @@ namespace SteamKit2
         }
         /// <summary>
         /// Sets the local user's persona name and broadcasts it over the network.
+        /// Results are returned in a <see cref="PersonaChangeCallback"/> callback.
+        /// The returned <see cref="AsyncJob{T}"/> can also be awaited to retrieve the callback result.
         /// </summary>
         /// <param name="name">The name.</param>
-        public void SetPersonaName( string name )
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="PersonaChangeCallback"/>.</returns>
+        public AsyncJob<PersonaChangeCallback> SetPersonaName( string name )
         {
             // cache the local name right away, so that early calls to SetPersonaState don't reset the set name
             cache.LocalUser.Name = name;
 
             var stateMsg = new ClientMsgProtobuf<CMsgClientChangeStatus>( EMsg.ClientChangeStatus );
+            stateMsg.SourceJobID = Client.GetNextJobID();
+
             stateMsg.Body.persona_state = ( uint )cache.LocalUser.PersonaState;
             stateMsg.Body.player_name = name;
 
             this.Client.Send( stateMsg );
+
+            return new AsyncJob<PersonaChangeCallback>( this.Client, stateMsg.SourceJobID );
         }
 
         /// <summary>
@@ -67,17 +97,24 @@ namespace SteamKit2
         }
         /// <summary>
         /// Sets the local user's persona state and broadcasts it over the network.
+        /// Results are returned in a <see cref="PersonaChangeCallback"/> callback.
+        /// The returned <see cref="AsyncJob{T}"/> can also be awaited to retrieve the callback result.
         /// </summary>
         /// <param name="state">The state.</param>
-        public void SetPersonaState( EPersonaState state )
+        /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="PersonaChangeCallback"/>.</returns>
+        public AsyncJob<PersonaChangeCallback> SetPersonaState( EPersonaState state )
         {
             cache.LocalUser.PersonaState = state;
 
             var stateMsg = new ClientMsgProtobuf<CMsgClientChangeStatus>( EMsg.ClientChangeStatus );
+            stateMsg.SourceJobID = Client.GetNextJobID();
+
             stateMsg.Body.persona_state = ( uint )state;
             stateMsg.Body.player_name = cache.LocalUser.Name;
 
             this.Client.Send( stateMsg );
+
+            return new AsyncJob<PersonaChangeCallback>( this.Client, stateMsg.SourceJobID );
         }
 
         /// <summary>
@@ -350,6 +387,34 @@ namespace SteamKit2
         }
 
         /// <summary>
+        /// Invites a user to a chat room.
+        /// The results of this action will be available through the <see cref="ChatActionResultCallback"/> callback.
+        /// </summary>
+        /// <param name="steamIdUser">The SteamID of the user to invite.</param>
+        /// <param name="steamIdChat">The SteamID of the chat room to invite the user to.</param>
+        public void InviteUserToChat( SteamID steamIdUser, SteamID steamIdChat )
+        {
+            SteamID chatId = steamIdChat.ConvertToUInt64(); // copy the steamid so we don't modify it
+
+            if ( chatId.IsClanAccount )
+            {
+                // this steamid is incorrect, so we'll fix it up
+                chatId.AccountInstance = (uint)SteamID.ChatInstanceFlags.Clan;
+                chatId.AccountType = EAccountType.Chat;
+            }
+
+            var inviteMsg = new ClientMsgProtobuf<CMsgClientChatInvite>( EMsg.ClientChatInvite );
+
+            inviteMsg.Body.steam_id_chat = chatId;
+            inviteMsg.Body.steam_id_invited = steamIdUser;
+            // steamclient also sends the steamid of the user that did the invitation
+            // we'll mimic that behavior
+            inviteMsg.Body.steam_id_patron = Client.SteamID;
+
+            this.Client.Send( inviteMsg );
+        }
+
+        /// <summary>
         /// Kicks the specified chat member from the given chat room.
         /// </summary>
         /// <param name="steamIdChat">The SteamID of chat room to kick the member from.</param>
@@ -461,11 +526,12 @@ namespace SteamKit2
         /// <summary>
         /// Ignores or unignores a friend on Steam.
         /// Results are returned in a <see cref="IgnoreFriendCallback"/>.
+        /// The returned <see cref="AsyncJob{T}"/> can also be awaited to retrieve the callback result.
         /// </summary>
         /// <param name="steamId">The SteamID of the friend to ignore or unignore.</param>
         /// <param name="setIgnore">if set to <c>true</c>, the friend will be ignored; otherwise, they will be unignored.</param>
         /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="IgnoreFriendCallback"/>.</returns>
-        public JobID IgnoreFriend( SteamID steamId, bool setIgnore = true )
+        public AsyncJob<IgnoreFriendCallback> IgnoreFriend( SteamID steamId, bool setIgnore = true )
         {
             var ignore = new ClientMsg<MsgClientSetIgnoreFriend>();
             ignore.SourceJobID = Client.GetNextJobID();
@@ -476,17 +542,18 @@ namespace SteamKit2
 
             this.Client.Send( ignore );
 
-            return ignore.SourceJobID;
+            return new AsyncJob<IgnoreFriendCallback>( this.Client, ignore.SourceJobID );
         }
 
 
         /// <summary>
         /// Requests profile information for the given <see cref="SteamID"/>.
         /// Results are returned in a <see cref="ProfileInfoCallback"/>.
+        /// The returned <see cref="AsyncJob{T}"/> can also be awaited to retrieve the callback result.
         /// </summary>
         /// <param name="steamId">The SteamID of the friend to request the details of.</param>
         /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="ProfileInfoCallback"/>.</returns>
-        public JobID RequestProfileInfo( SteamID steamId )
+        public AsyncJob<ProfileInfoCallback> RequestProfileInfo( SteamID steamId )
         {
             var request = new ClientMsgProtobuf<CMsgClientFriendProfileInfo>( EMsg.ClientFriendProfileInfo );
             request.SourceJobID = Client.GetNextJobID();
@@ -495,7 +562,33 @@ namespace SteamKit2
 
             this.Client.Send( request );
 
-            return request.SourceJobID;
+            return new AsyncJob<ProfileInfoCallback>( this.Client, request.SourceJobID );
+        }
+
+        /// <summary>
+        /// Requests the last few chat messages with a friend.
+        /// Results are returned in a <see cref="FriendMsgHistoryCallback"/>
+        /// </summary>
+        /// <param name="steamId">SteamID of the friend</param>
+        public void RequestMessageHistory( SteamID steamId )
+        {
+            var request = new ClientMsgProtobuf<CMsgClientFSGetFriendMessageHistory>( EMsg.ClientFSGetFriendMessageHistory );
+
+            request.Body.steamid = steamId;
+
+            this.Client.Send(request);
+        }
+
+        /// <summary>
+        /// Requests all offline messages.
+        /// This also marks them as read server side.
+        /// Results are returned in a <see cref="FriendMsgHistoryCallback"/>.
+        /// </summary>
+        public void RequestOfflineMessages()
+        {
+            var request = new ClientMsgProtobuf<CMsgClientFSGetFriendMessageHistoryForOfflineMessages>( EMsg.ClientFSGetFriendMessageHistoryForOfflineMessages );
+            
+            this.Client.Send( request );
         }
 
 
@@ -505,64 +598,16 @@ namespace SteamKit2
         /// <param name="packetMsg">The packet message that contains the data.</param>
         public override void HandleMsg( IPacketMsg packetMsg )
         {
-            switch ( packetMsg.MsgType )
+            Action<IPacketMsg> handlerFunc;
+            bool haveFunc = dispatchMap.TryGetValue( packetMsg.MsgType, out handlerFunc );
+
+            if ( !haveFunc )
             {
-                case EMsg.ClientPersonaState:
-                    HandlePersonaState( packetMsg );
-                    break;
-
-                case EMsg.ClientClanState:
-                    HandleClanState( packetMsg );
-                    break;
-
-                case EMsg.ClientFriendsList:
-                    HandleFriendsList( packetMsg );
-                    break;
-
-                case EMsg.ClientFriendMsgIncoming:
-                    HandleFriendMsg( packetMsg );
-                    break;
-
-                case EMsg.ClientFriendMsgEchoToSender:
-                    HandleFriendEchoMsg( packetMsg );
-                    break;
-
-                case EMsg.ClientAccountInfo:
-                    HandleAccountInfo( packetMsg );
-                    break;
-
-                case EMsg.ClientAddFriendResponse:
-                    HandleFriendResponse( packetMsg );
-                    break;
-
-                case EMsg.ClientChatEnter:
-                    HandleChatEnter( packetMsg );
-                    break;
-
-                case EMsg.ClientChatMsg:
-                    HandleChatMsg( packetMsg );
-                    break;
-
-                case EMsg.ClientChatMemberInfo:
-                    HandleChatMemberInfo( packetMsg );
-                    break;
-
-                case EMsg.ClientChatActionResult:
-                    HandleChatActionResult( packetMsg );
-                    break;
-
-                case EMsg.ClientChatInvite:
-                    HandleChatInvite( packetMsg );
-                    break;
-
-                case EMsg.ClientSetIgnoreFriendResponse:
-                    HandleIgnoreFriendResponse( packetMsg );
-                    break;
-
-                case EMsg.ClientFriendProfileInfoResponse:
-                    HandleProfileInfoResponse( packetMsg );
-                    break;
+                // ignore messages that we don't have a handler function for
+                return;
             }
+
+            handlerFunc( packetMsg );
         }
 
 
@@ -587,6 +632,14 @@ namespace SteamKit2
             var friendEchoMsg = new ClientMsgProtobuf<CMsgClientFriendMsgIncoming>( packetMsg );
 
             var callback = new FriendMsgEchoCallback( friendEchoMsg.Body );
+            this.Client.PostCallback( callback );
+        }
+
+        private void HandleFriendMessageHistoryResponse( IPacketMsg packetMsg )
+        {
+            var historyResponse = new ClientMsgProtobuf<CMsgClientFSGetFriendMessageHistoryResponse>( packetMsg );
+
+            var callback = new FriendMsgHistoryCallback( historyResponse.Body, this.Client.ConnectedUniverse );
             this.Client.PostCallback( callback );
         }
 
@@ -756,7 +809,9 @@ namespace SteamKit2
         {
             var chatEnter = new ClientMsg<MsgClientChatEnter>( packetMsg );
 
-            var callback = new ChatEnterCallback( chatEnter.Body );
+            byte[] payload = chatEnter.Payload.ToArray();
+
+            var callback = new ChatEnterCallback( chatEnter.Body, payload );
             this.Client.PostCallback( callback );
         }
         void HandleChatMsg( IPacketMsg packetMsg )
@@ -775,6 +830,15 @@ namespace SteamKit2
             byte[] payload = membInfo.Payload.ToArray();
 
             var callback = new ChatMemberInfoCallback( membInfo.Body, payload );
+            this.Client.PostCallback( callback );
+        }
+        void HandleChatRoomInfo( IPacketMsg packetMsg )
+        {
+            var roomInfo = new ClientMsg<MsgClientChatRoomInfo>( packetMsg );
+
+            byte[] payload = roomInfo.Payload.ToArray();
+
+            var callback = new ChatRoomInfoCallback( roomInfo.Body, payload );
             this.Client.PostCallback( callback );
         }
         void HandleChatActionResult( IPacketMsg packetMsg )
@@ -803,6 +867,16 @@ namespace SteamKit2
             var response = new ClientMsgProtobuf<CMsgClientFriendProfileInfoResponse>( packetMsg );
 
             var callback = new ProfileInfoCallback( packetMsg.TargetJobID, response.Body );
+            Client.PostCallback( callback );
+        }
+        void HandlePersonaChangeResponse( IPacketMsg packetMsg )
+        {
+            var response = new ClientMsgProtobuf<CMsgPersonaChangeResponse>( packetMsg );
+
+            // update our cache to what steam says our name is
+            cache.LocalUser.Name = response.Body.player_name;
+
+            var callback = new PersonaChangeCallback( packetMsg.TargetJobID, response.Body );
             Client.PostCallback( callback );
         }
         #endregion

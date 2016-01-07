@@ -11,10 +11,8 @@ echo.
 echo.
 
 echo Steam Messages ClientServer
-..\..\sed\sed "s/string serialized/bytes serialized/g" steammessages_clientserver.proto > steammessages_clientserver_asbytes.proto
-..\..\Protogen\protogen -i:"steammessages_clientserver_asbytes.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\SteamMsgClientServer.cs" -t:csharp -ns:"SteamKit2.Internal"
+..\..\Protogen\protogen -i:"steammessages_clientserver.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\SteamMsgClientServer.cs" -t:csharp -ns:"SteamKit2.Internal"
 ..\..\Protogen\protogen -i:"steammessages_clientserver_2.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\SteamMsgClientServer2.cs" -t:csharp -ns:"SteamKit2.Internal"
-del steammessages_clientserver_asbytes.proto
 echo.
 echo.
 
@@ -35,9 +33,11 @@ echo Unified Messages
 ..\..\Protogen\protogen -s:..\ -i:"steammessages_gamenotifications.steamclient.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\Unified\SteamMsgGameNotifications.cs" -t:csharp -ns:"SteamKit2.Unified.Internal"
 ..\..\Protogen\protogen -s:..\ -i:"steammessages_gameservers.steamclient.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\Unified\SteamMsgGameServers.cs" -t:csharp -ns:"SteamKit2.Unified.Internal"
 ..\..\Protogen\protogen -s:..\ -i:"steammessages_linkfilter.steamclient.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\Unified\SteamMsgLinkFilter.cs" -t:csharp -ns:"SteamKit2.Unified.Internal"
+..\..\Protogen\protogen -s:..\ -i:"steammessages_inventory.steamclient.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\Unified\SteamMsgInventory.cs" -t:csharp -ns:"SteamKit2.Unified.Internal"
 ..\..\Protogen\protogen -s:..\ -i:"steammessages_offline.steamclient.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\Unified\SteamMsgOffline.cs" -t:csharp -ns:"SteamKit2.Unified.Internal"
 ..\..\Protogen\protogen -s:..\ -i:"steammessages_parental.steamclient.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\Unified\SteamMsgParental.cs" -t:csharp -ns:"SteamKit2.Unified.Internal"
 ..\..\Protogen\protogen -s:..\ -i:"steammessages_partnerapps.steamclient.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\Unified\SteamMsgPartnerApps.cs" -t:csharp -ns:"SteamKit2.Unified.Internal"
+..\..\Protogen\protogen -s:..\ -i:"steammessages_physicalgoods.steamclient.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\Unified\SteamMsgPhysicalGoods.cs" -t:csharp -ns:"SteamKit2.Unified.Internal"
 ..\..\Protogen\protogen -s:..\ -i:"steammessages_player.steamclient.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\Unified\SteamMsgPlayer.cs" -t:csharp -ns:"SteamKit2.Unified.Internal"
 ..\..\Protogen\protogen -s:..\ -i:"steammessages_publishedfile.steamclient.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\Unified\SteamMsgPublishedFile.cs" -t:csharp -ns:"SteamKit2.Unified.Internal"
 ..\..\Protogen\protogen -s:..\ -i:"steammessages_secrets.steamclient.proto" -o:"..\..\..\SteamKit2\SteamKit2\Base\Generated\Unified\SteamMsgSecrets.cs" -t:csharp -ns:"SteamKit2.Unified.Internal"

@@ -1547,6 +1547,8 @@ namespace SteamKit2.Internal
 		public byte ChatFlags { get; set; }
 		// Static size: 4
 		public EChatRoomEnterResponse EnterResponse { get; set; }
+		// Static size: 4
+		public int NumMembers { get; set; }
 
 		public MsgClientChatEnter()
 		{
@@ -1557,6 +1559,7 @@ namespace SteamKit2.Internal
 			steamIdClan = 0;
 			ChatFlags = 0;
 			EnterResponse = 0;
+			NumMembers = 0;
 		}
 
 		public void Serialize(Stream stream)
@@ -1570,6 +1573,7 @@ namespace SteamKit2.Internal
 			bw.Write( steamIdClan );
 			bw.Write( ChatFlags );
 			bw.Write( (int)EnterResponse );
+			bw.Write( NumMembers );
 
 		}
 
@@ -1584,6 +1588,7 @@ namespace SteamKit2.Internal
 			steamIdClan = br.ReadUInt64();
 			ChatFlags = br.ReadByte();
 			EnterResponse = (EChatRoomEnterResponse)br.ReadInt32();
+			NumMembers = br.ReadInt32();
 		}
 	}
 
@@ -1743,6 +1748,40 @@ namespace SteamKit2.Internal
 			steamIdUserActedOn = br.ReadUInt64();
 			ChatAction = (EChatAction)br.ReadInt32();
 			ActionResult = (EChatActionResult)br.ReadInt32();
+		}
+	}
+
+	public class MsgClientChatRoomInfo : ISteamSerializableMessage
+	{
+		public EMsg GetEMsg() { return EMsg.ClientChatRoomInfo; }
+
+		// Static size: 8
+		private ulong steamIdChat;
+		public SteamID SteamIdChat { get { return new SteamID( steamIdChat ); } set { steamIdChat = value.ConvertToUInt64(); } }
+		// Static size: 4
+		public EChatInfoType Type { get; set; }
+
+		public MsgClientChatRoomInfo()
+		{
+			steamIdChat = 0;
+			Type = 0;
+		}
+
+		public void Serialize(Stream stream)
+		{
+			BinaryWriter bw = new BinaryWriter( stream );
+
+			bw.Write( steamIdChat );
+			bw.Write( (int)Type );
+
+		}
+
+		public void Deserialize( Stream stream )
+		{
+			BinaryReader br = new BinaryReader( stream );
+
+			steamIdChat = br.ReadUInt64();
+			Type = (EChatInfoType)br.ReadInt32();
 		}
 	}
 

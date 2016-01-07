@@ -32,7 +32,7 @@ namespace Tests
                 didCall = true;
             };
 
-            using (new Callback<CallbackForTest>(action, mgr))
+            using (mgr.Subscribe(action))
             {
                 PostAndRunCallback(callback);
             }
@@ -54,7 +54,7 @@ namespace Tests
                 didCall = true;
             };
 
-            using (new Callback<CallbackMsg>(action, mgr))
+            using (mgr.Subscribe(action))
             {
                 PostAndRunCallback(callback);
             }
@@ -76,7 +76,7 @@ namespace Tests
                 didCall = true;
             };
 
-            using (new Callback<CallbackForTest>(action, mgr, JobID.Invalid))
+            using (mgr.Subscribe(JobID.Invalid, action))
             {
                 PostAndRunCallback(callback);
             }
@@ -98,7 +98,7 @@ namespace Tests
                 didCall = true;
             };
 
-            using (new Callback<CallbackForTest>(action, mgr))
+            using (mgr.Subscribe(action))
             {
                 PostAndRunCallback(callback);
             }
@@ -118,7 +118,7 @@ namespace Tests
                 didCall = true;
             };
 
-            using (new Callback<CallbackForTest>(action, mgr, new JobID(123)))
+            using (mgr.Subscribe(123, action))
             {
                 PostAndRunCallback(callback);
             }
@@ -140,12 +140,32 @@ namespace Tests
                 didCall = true;
             };
 
-            using (new Callback<CallbackForTest>(action, mgr, new JobID(123456)))
+            using (mgr.Subscribe(123456, action))
             {
                 PostAndRunCallback(callback);
             }
 
             Assert.True(didCall);
+        }
+
+        [Fact]
+        public void SubscribedFunctionDoesNotRunWhenSubscriptionIsDisposed()
+        {
+            var callback = new CallbackForTest();
+
+            var callCount = 0;
+            Action<CallbackForTest> action = delegate (CallbackForTest cb)
+            {
+                callCount++;
+            };
+
+            using (mgr.Subscribe(action))
+            {
+                PostAndRunCallback(callback);
+            }
+            PostAndRunCallback(callback);
+
+            Assert.Equal(1, callCount);
         }
 
         void PostAndRunCallback(CallbackMsg callback)

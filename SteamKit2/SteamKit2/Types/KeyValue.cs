@@ -92,16 +92,14 @@ namespace SteamKit2
                 char next = ( char )Peek();
                 if ( next == '/' )
                 {
-                    Read();
-                    if ( next == '/' )
-                    {
-                        ReadLine();
-                        return true;
-                    }
-                    else
-                    {
-                        throw new Exception( "BARE / WHAT ARE YOU DOIOIOIINODGNOIGNONGOIGNGGGGGGG" );
-                    }
+		    ReadLine();
+		    return true;
+		    /*
+		     *  As came up in parsing the Dota 2 units.txt file, the reference (Valve) implementation
+		     *  of the KV format considers a single forward slash to be sufficient to comment out the
+		     *  entirety of a line. While they still _tend_ to use two, it's not required, and likely
+		     *  is just done out of habit.
+		     */
                 }
 
                 return false;
@@ -264,8 +262,8 @@ namespace SteamKit2
 
 
         /// <summary>
-        /// Gets the child <see cref="SteamKit2.KeyValue"/> with the specified key.
-        /// If no child with this key exists, <see cref="Invalid"/> is returned.
+        /// Gets or sets the child <see cref="SteamKit2.KeyValue" /> with the specified key.
+        /// When retrieving by key, if no child with the given key exists, <see cref="Invalid" /> is returned.
         /// </summary>
         public KeyValue this[ string key ]
         {
@@ -280,6 +278,22 @@ namespace SteamKit2
                 }
 
                 return child;
+            }
+            set
+            {
+                var existingChild = this.Children
+                    .FirstOrDefault( c => string.Equals( c.Name, key, StringComparison.OrdinalIgnoreCase ) );
+
+                if ( existingChild != null )
+                {
+                    // if the key already exists, remove the old one
+                    this.Children.Remove( existingChild );
+                }
+
+                // ensure the given KV actually has the correct key assigned
+                value.Name = key;
+
+                this.Children.Add( value );
             }
         }
 
@@ -315,12 +329,29 @@ namespace SteamKit2
         /// If the conversion is invalid, the default value is returned.
         /// </summary>
         /// <param name="defaultValue">The default value to return if the conversion is invalid.</param>
-        /// <returns>The value of this instance as an long.</returns>
+        /// <returns>The value of this instance as a long.</returns>
         public long AsLong( long defaultValue = default( long ) )
         {
             long value;
 
             if ( long.TryParse( this.Value, out value ) == false )
+            {
+                return defaultValue;
+            }
+
+            return value;
+        }
+        /// <summary>
+        /// Attempts to convert and return the value of this instance as an unsigned long.
+        /// If the conversion is invalid, the default value is returned.
+        /// </summary>
+        /// <param name="defaultValue">The default value to return if the conversion is invalid.</param>
+        /// <returns>The value of this instance as an unsigned long.</returns>
+        public ulong AsUnsignedLong( ulong defaultValue = default( ulong ) )
+        {
+            ulong value;
+
+            if ( ulong.TryParse( this.Value, out value ) == false )
             {
                 return defaultValue;
             }
@@ -333,7 +364,7 @@ namespace SteamKit2
         /// If the conversion is invalid, the default value is returned.
         /// </summary>
         /// <param name="defaultValue">The default value to return if the conversion is invalid.</param>
-        /// <returns>The value of this instance as an float.</returns>
+        /// <returns>The value of this instance as a float.</returns>
         public float AsFloat( float defaultValue = default( float ) )
         {
             float value;
@@ -351,7 +382,7 @@ namespace SteamKit2
         /// If the conversion is invalid, the default value is returned.
         /// </summary>
         /// <param name="defaultValue">The default value to return if the conversion is invalid.</param>
-        /// <returns>The value of this instance as an boolean.</returns>
+        /// <returns>The value of this instance as a boolean.</returns>
         public bool AsBoolean( bool defaultValue = default( bool ) )
         {
             int value;
@@ -362,6 +393,25 @@ namespace SteamKit2
             }
 
             return value != 0;
+        }
+
+        /// <summary>
+        /// Attempts to convert and return the value of this instance as an enum.
+        /// If the conversion is invalid, the default value is returned.
+        /// </summary>
+        /// <param name="defaultValue">The default value to return if the conversion is invalid.</param>
+        /// <returns>The value of this instance as an enum.</returns>
+        public T AsEnum<T>( T defaultValue = default( T ) )
+            where T : struct
+        {
+            T value;
+
+            if ( Enum.TryParse<T>( this.Value, out value ) == false )
+            {
+                return defaultValue;
+            }
+
+            return value;
         }
 
         /// <summary>
@@ -393,12 +443,30 @@ namespace SteamKit2
         /// </summary>
         /// <param name="path">The path to the file to load.</param>
         /// <returns>a <see cref="KeyValue"/> instance if the load was successful, or <c>null</c> on failure.</returns>
-        /// <remarks>
-        /// This method will swallow any exceptions that occur when reading, use <see cref="ReadAsBinary"/> if you wish to handle exceptions.
-        /// </remarks>
+        [Obsolete( "Use TryReadAsBinary instead. Note that TryLoadAsBinary returns the root object, not a dummy parent node containg the root object." )]
         public static KeyValue LoadAsBinary( string path )
         {
-            return LoadFromFile( path, true );
+            var kv = LoadFromFile( path, true );
+            if (kv == null)
+            {
+                return null;
+            }
+
+            var parent = new KeyValue();
+            parent.Children.Add(kv);
+            return parent;
+        }
+
+        /// <summary>
+        /// Attempts to load the given filename as a binary <see cref="KeyValue"/>.
+        /// </summary>
+        /// <param name="path">The path to the file to load.</param>
+        /// <param name="keyValue">The resulting <see cref="KeyValue"/> object if the load was successful, or <c>null</c> if unsuccessful.</param>
+        /// <returns><c>true</c> if the load was successful, or <c>false</c> on failure.</returns>
+        public static bool TryLoadAsBinary( string path, out KeyValue keyValue )
+        {
+            keyValue = LoadFromFile(path, true);
+            return keyValue != null;
         }
 
 
@@ -417,7 +485,7 @@ namespace SteamKit2
 
                     if ( asBinary )
                     {
-                        if ( kv.ReadAsBinary( input ) == false )
+                        if ( kv.TryReadAsBinary( input ) == false )
                         {
                             return null;
                         }
@@ -562,24 +630,34 @@ namespace SteamKit2
         {
             using ( var f = File.Create( path ) )
             {
-                if ( asBinary )
-                {
-                    RecursiveSaveBinaryToFile( f );
-                }
-                else
-                {
-                    RecursiveSaveTextToFile( f );
-                }
+                SaveToStream( f, asBinary );
             }
         }
 
-        private void RecursiveSaveBinaryToFile( Stream f )
+        /// <summary>
+        /// Saves this instance to a given <see cref="System.IO.Stream"/>.
+        /// </summary>
+        /// <param name="stream">The <see cref="System.IO.Stream"/> to save to.</param>
+        /// <param name="asBinary">If set to <c>true</c>, saves this instance as binary.</param>
+        public void SaveToStream( Stream stream, bool asBinary )
         {
-            RecursiveSaveBinaryToFileCore( f );
+            if (asBinary)
+            {
+                RecursiveSaveBinaryToStream( stream );
+            }
+            else
+            {
+                RecursiveSaveTextToFile( stream );
+            }
+        }
+
+        void RecursiveSaveBinaryToStream( Stream f )
+        {
+            RecursiveSaveBinaryToStreamCore( f );
             f.WriteByte( ( byte )Type.End );
         }
 
-        private void RecursiveSaveBinaryToFileCore( Stream f )
+        void RecursiveSaveBinaryToStreamCore( Stream f )
         {
             // Only supported types ATM:
             // 1. KeyValue with children (no value itself)
@@ -590,7 +668,7 @@ namespace SteamKit2
                 f.WriteNullTermString( Name, Encoding.UTF8 );
                 foreach ( var child in Children )
                 {
-                    child.RecursiveSaveBinaryToFileCore( f );
+                    child.RecursiveSaveBinaryToStreamCore( f );
                 }
                 f.WriteByte( ( byte )Type.End );
             }
@@ -602,45 +680,45 @@ namespace SteamKit2
             }
         }
 
-        private void RecursiveSaveTextToFile( FileStream f, int indentLevel = 0 )
+        private void RecursiveSaveTextToFile( Stream stream, int indentLevel = 0 )
         {
             // write header
-            WriteIndents( f, indentLevel );
-            WriteString( f, Name, true );
-            WriteString( f, "\n" );
-            WriteIndents( f, indentLevel );
-            WriteString( f, "{\n" );
+            WriteIndents( stream, indentLevel );
+            WriteString( stream, Name, true );
+            WriteString( stream, "\n" );
+            WriteIndents( stream, indentLevel );
+            WriteString( stream, "{\n" );
 
             // loop through all our keys writing them to disk
             foreach ( KeyValue child in Children )
             {
                 if ( child.Value == null )
                 {
-                    child.RecursiveSaveTextToFile( f, indentLevel + 1 );
+                    child.RecursiveSaveTextToFile( stream, indentLevel + 1 );
                 }
                 else
                 {
-                    WriteIndents( f, indentLevel + 1 );
-                    WriteString( f, child.Name, true );
-                    WriteString( f, "\t\t" );
-                    WriteString( f, child.AsString(), true );
-                    WriteString( f, "\n" );
+                    WriteIndents( stream, indentLevel + 1 );
+                    WriteString( stream, child.Name, true );
+                    WriteString( stream, "\t\t" );
+                    WriteString( stream, child.AsString(), true );
+                    WriteString( stream, "\n" );
                 }
             }
 
-            WriteIndents( f, indentLevel );
-            WriteString( f, "}\n" );
+            WriteIndents( stream, indentLevel );
+            WriteString( stream, "}\n" );
         }
 
-        private void WriteIndents( FileStream f, int indentLevel )
+        void WriteIndents( Stream stream, int indentLevel )
         {
-            WriteString( f, new string( '\t', indentLevel ) );
+            WriteString( stream, new string( '\t', indentLevel ) );
         }
 
-        private static void WriteString( FileStream f, string str, bool quote = false )
+        static void WriteString( Stream stream, string str, bool quote = false )
         {
             byte[] bytes = Encoding.UTF8.GetBytes( ( quote ? "\"" : "" ) + str.Replace( "\"", "\\\"" ) + ( quote ? "\"" : "" ) );
-            f.Write( bytes, 0, bytes.Length );
+            stream.Write( bytes, 0, bytes.Length );
         }
 
         /// <summary>
@@ -648,13 +726,30 @@ namespace SteamKit2
         /// </summary>
         /// <param name="input">The input <see cref="Stream"/> to read from.</param>
         /// <returns><c>true</c> if the read was successful; otherwise, <c>false</c>.</returns>
+        [Obsolete( "Use TryReadAsBinary instead. Note that TryReadAsBinary returns the root object, not a dummy parent node containg the root object." )]
         public bool ReadAsBinary( Stream input )
         {
-            this.Children = new List<KeyValue>();
+            var dummyChild = new KeyValue();
+            this.Children.Add( dummyChild );
+            return dummyChild.TryReadAsBinary( input );
+        }
+
+        /// <summary>
+        /// Populate this instance from the given <see cref="Stream"/> as a binary <see cref="KeyValue"/>.
+        /// </summary>
+        /// <param name="input">The input <see cref="Stream"/> to read from.</param>
+        /// <returns><c>true</c> if the read was successful; otherwise, <c>false</c>.</returns>
+        public bool TryReadAsBinary( Stream input )
+        {
+            return TryReadAsBinaryCore( input, this, null );
+        }
+
+        static bool TryReadAsBinaryCore( Stream input, KeyValue current, KeyValue parent )
+        {
+            current.Children = new List<KeyValue>();
 
             while ( true )
             {
-
                 var type = ( Type )input.ReadByte();
 
                 if ( type == Type.End )
@@ -662,65 +757,67 @@ namespace SteamKit2
                     break;
                 }
 
-                var current = new KeyValue();
                 current.Name = input.ReadNullTermString( Encoding.UTF8 );
-
-                try
+                
+                switch ( type )
                 {
-                    switch ( type )
-                    {
-                        case Type.None:
+                    case Type.None:
+                        {
+                            var child = new KeyValue();
+                            var didReadChild = TryReadAsBinaryCore( input, child, current );
+                            if ( !didReadChild )
                             {
-                                current.ReadAsBinary( input );
-                                break;
+                                return false;
                             }
+                            break;
+                        }
 
-                        case Type.String:
-                            {
-                                current.Value = input.ReadNullTermString( Encoding.UTF8 );
-                                break;
-                            }
+                    case Type.String:
+                        {
+                            current.Value = input.ReadNullTermString( Encoding.UTF8 );
+                            break;
+                        }
 
-                        case Type.WideString:
-                            {
-                                throw new InvalidDataException( "wstring is unsupported" );
-                            }
+                    case Type.WideString:
+                        {
+                            DebugLog.WriteLine( "KeyValue", "Encountered WideString type when parsing binary KeyValue, which is unsupported. Returning false.");
+                            return false;
+                        }
 
-                        case Type.Int32:
-                        case Type.Color:
-                        case Type.Pointer:
-                            {
-                                current.Value = Convert.ToString( input.ReadInt32() );
-                                break;
-                            }
+                    case Type.Int32:
+                    case Type.Color:
+                    case Type.Pointer:
+                        {
+                            current.Value = Convert.ToString( input.ReadInt32() );
+                            break;
+                        }
 
-                        case Type.UInt64:
-                            {
-                                current.Value = Convert.ToString( input.ReadUInt64() );
-                                break;
-                            }
+                    case Type.UInt64:
+                        {
+                            current.Value = Convert.ToString( input.ReadUInt64() );
+                            break;
+                        }
 
-                        case Type.Float32:
-                            {
-                                current.Value = Convert.ToString( input.ReadFloat() );
-                                break;
-                            }
+                    case Type.Float32:
+                        {
+                            current.Value = Convert.ToString( input.ReadFloat() );
+                            break;
+                        }
 
-                        default:
-                            {
-                                throw new InvalidDataException( "Unknown KV type encountered." );
-                            }
-                    }
+                    default:
+                        {
+                            return false;
+                        }
                 }
-                catch ( InvalidDataException ex )
+
+                if (parent != null)
                 {
-                    throw new InvalidDataException( string.Format( "An exception ocurred while reading KV '{0}'", current.Name ), ex );
+                    parent.Children.Add(current);
                 }
-
-                this.Children.Add( current );
+                current = new KeyValue();
             }
 
-            return input.Position == input.Length;
+            return true;
         }
     }
 }

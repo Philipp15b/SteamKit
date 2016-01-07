@@ -264,6 +264,7 @@ namespace SteamKit2
 		[Obsolete]
 		ClientContentServerLogOn_Deprecated = 731,
 		ClientAckVACBan2 = 732,
+		[Obsolete]
 		ClientAckMessageByGID = 735,
 		ClientGetPurchaseReceipts = 736,
 		ClientAckPurchaseReceipt = 737,
@@ -319,7 +320,9 @@ namespace SteamKit2
 		ClientInitPurchaseResponse = 789,
 		ClientAddFriend = 791,
 		ClientAddFriendResponse = 792,
+		[Obsolete]
 		ClientInviteFriend = 793,
+		[Obsolete]
 		ClientInviteFriendResponse = 794,
 		[Obsolete]
 		ClientSendGuestPassResponse = 795,
@@ -1221,6 +1224,8 @@ namespace SteamKit2
 		ClientDisableTestLicenseResponse = 5446,
 		ClientRequestValidationMail = 5448,
 		ClientRequestValidationMailResponse = 5449,
+		ClientCheckAppBetaPassword = 5450,
+		ClientCheckAppBetaPasswordResponse = 5451,
 		ClientToGC = 5452,
 		ClientFromGC = 5453,
 		ClientRequestChangeMail = 5454,
@@ -1231,6 +1236,7 @@ namespace SteamKit2
 		ClientPersonalQAChange3 = 5459,
 		ClientResetForgottenPassword3 = 5460,
 		ClientRequestForgottenPasswordEmail3 = 5461,
+		[Obsolete]
 		ClientCreateAccount3 = 5462,
 		ClientNewLoginKey = 5463,
 		ClientNewLoginKeyAccepted = 5464,
@@ -1336,7 +1342,9 @@ namespace SteamKit2
 		ClientItemAnnouncements = 5576,
 		ClientRequestItemAnnouncements = 5577,
 		ClientFriendMsgEchoToSender = 5578,
+		[Obsolete]
 		ClientChangeSteamGuardOptions = 5579,
+		[Obsolete]
 		ClientChangeSteamGuardOptionsResponse = 5580,
 		ClientOGSGameServerPingSample = 5581,
 		ClientCommentNotifications = 5582,
@@ -1542,11 +1550,15 @@ namespace SteamKit2
 		ClientUCMDeletePublishedFileResponse = 7316,
 		ClientUCMEnumerateUserPublishedFiles = 7317,
 		ClientUCMEnumerateUserPublishedFilesResponse = 7318,
+		[Obsolete]
 		ClientUCMSubscribePublishedFile = 7319,
+		[Obsolete]
 		ClientUCMSubscribePublishedFileResponse = 7320,
 		ClientUCMEnumerateUserSubscribedFiles = 7321,
 		ClientUCMEnumerateUserSubscribedFilesResponse = 7322,
+		[Obsolete]
 		ClientUCMUnsubscribePublishedFile = 7323,
+		[Obsolete]
 		ClientUCMUnsubscribePublishedFileResponse = 7324,
 		ClientUCMUpdatePublishedFile = 7325,
 		ClientUCMUpdatePublishedFileResponse = 7326,
@@ -1900,16 +1912,26 @@ namespace SteamKit2
 		AccountLoginDeniedThrottle = 87,
 		TwoFactorCodeMismatch = 88,
 		TwoFactorActivationCodeMismatch = 89,
+		[Obsolete( "renamed to AccountAssociatedToMultiplePartners" )]
 		AccountAssociatedToMultiplePlayers = 90,
+		AccountAssociatedToMultiplePartners = 90,
 		NotModified = 91,
+		[Obsolete( "renamed to NoMobileDevice" )]
 		NoMobileDeviceAvailable = 92,
+		NoMobileDevice = 92,
+		[Obsolete( "renamed to TimeNotSynced" )]
 		TimeIsOutOfSync = 93,
+		TimeNotSynced = 93,
 		SMSCodeFailed = 94,
 		[Obsolete( "renamed to AccountLimitExceeded" )]
 		TooManyAccountsAccessThisResource = 95,
 		AccountLimitExceeded = 95,
 		AccountActivityLimitExceeded = 96,
 		PhoneActivityLimitExceeded = 97,
+		RefundToWallet = 98,
+		EmailSendFailure = 99,
+		NotSettled = 100,
+		NeedCaptcha = 101,
 	}
 	public enum EUniverse
 	{
@@ -2156,10 +2178,47 @@ namespace SteamKit2
 		Hipercard = 27,
 		MastercardBrazil = 28,
 		DinersCardBrazil = 29,
+		AuthorizedDevice = 30,
+		MOLPoints = 31,
 		ClickAndBuy = 32,
+		Beeline = 33,
+		Konbini = 34,
+		EClubPoints = 35,
+		CreditCardJapan = 36,
+		BankTransferJapan = 37,
+		PayEasyJapan = 38,
+		Zong = 39,
+		CultureVoucher = 40,
+		BookVoucher = 41,
+		HappymoneyVoucher = 42,
+		ConvenientStoreVoucher = 43,
+		GameVoucher = 44,
+		Multibanco = 45,
+		Payshop = 46,
+		Maestro = 47,
+		OXXO = 48,
+		ToditoCash = 49,
+		Carnet = 50,
+		SPEI = 51,
+		ThreePay = 52,
+		IsBank = 53,
+		Garanti = 54,
+		Akbank = 55,
+		YapiKredi = 56,
+		Halkbank = 57,
+		BankAsya = 58,
+		Finansbank = 59,
+		DenizBank = 60,
+		PTT = 61,
+		CashU = 62,
+		OneCard = 63,
 		AutoGrant = 64,
+		WebMoneyJapan = 65,
+		Smart2PayTest = 66,
 		Wallet = 128,
 		Valve = 129,
+		SteamPressMaster = 130,
+		StorePromotion = 131,
 		OEMTicket = 256,
 		Split = 512,
 		Complimentary = 1024,
@@ -2316,7 +2375,8 @@ namespace SteamKit2
 		Policies = 13,
 		SysReqs = 14,
 		Community = 15,
-		Max = 16,
+		Store = 16,
+		Max = 17,
 	}
 	public enum EContentDownloadSourceType
 	{
@@ -2526,8 +2586,32 @@ namespace SteamKit2
 		RUB = 5,
 		PLN = 6,
 		BRL = 7,
+		JPY = 8,
 		NOK = 9,
-		Max = 10,
+		IDR = 10,
+		MYR = 11,
+		PHP = 12,
+		SGD = 13,
+		THB = 14,
+		VND = 15,
+		KRW = 16,
+		TRY = 17,
+		UAH = 18,
+		MXN = 19,
+		CAD = 20,
+		AUD = 21,
+		NZD = 22,
+		CNY = 23,
+		INR = 24,
+		CLP = 25,
+		PEN = 26,
+		COP = 27,
+		ZAR = 28,
+		HKD = 29,
+		TWD = 30,
+		SAR = 31,
+		AED = 32,
+		Max = 33,
 	}
 	[Flags]
 	public enum EDepotFileFlag
@@ -2576,7 +2660,8 @@ namespace SteamKit2
 		ControllerBinding = 12,
 		SteamworksAccessInvite = 13,
 		SteamVideo = 14,
-		Max = 15,
+		GameManagedItem = 15,
+		Max = 16,
 	}
 	public enum EWorkshopFileAction
 	{
@@ -2732,6 +2817,13 @@ namespace SteamKit2
 		None = 0,
 		Ascending = 1,
 		Descending = 2,
+	}
+	public enum ELeaderboardDisplayType
+	{
+		None = 0,
+		Numeric = 1,
+		TimeSeconds = 2,
+		TimeMilliSeconds = 3,
 	}
 	public enum ELeaderboardUploadScoreMethod
 	{

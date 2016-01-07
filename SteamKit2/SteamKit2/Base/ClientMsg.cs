@@ -183,7 +183,7 @@ namespace SteamKit2
         public ClientMsgProtobuf( IPacketMsg msg )
             : this( msg.MsgType )
         {
-            DebugLog.Assert( msg.IsProto, "ClientMsgProtobuf<>", "ClientMsgProtobuf<> used for non-proto message!" );
+            DebugLog.Assert( msg.IsProto, "ClientMsgProtobuf<>", $"ClientMsgProtobuf<{typeof(BodyType).FullName}> used for non-proto message!" );
 
             Deserialize( msg.GetData() );
         }
@@ -221,6 +221,7 @@ namespace SteamKit2
                 int payloadLen = ( int )( ms.Length - ms.Position );
 
                 Payload.Write( data, payloadOffset, payloadLen );
+                Payload.Seek( 0, SeekOrigin.Begin );
             }
         }
     }
@@ -335,7 +336,7 @@ namespace SteamKit2
         public ClientMsg( IPacketMsg msg )
             : this()
         {
-            DebugLog.Assert( !msg.IsProto, "ClientMsg", "ClientMsg used for proto message!" );
+            DebugLog.Assert( !msg.IsProto, "ClientMsg", $"ClientMsg<{typeof(BodyType).FullName}> used for proto message!" );
 
             Deserialize( msg.GetData() );
         }
@@ -519,6 +520,7 @@ namespace SteamKit2
                 int payloadLen = ( int )( ms.Length - ms.Position );
 
                 Payload.Write( data, payloadOffset, payloadLen );
+                Payload.Seek( 0, SeekOrigin.Begin );
             }
         }
 

@@ -11,7 +11,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.Win32;
 
 namespace SteamKit2
 {
@@ -150,7 +149,7 @@ namespace SteamKit2
             }
         }
 
-        static bool IsRunningOnDarwin()
+        public static bool IsRunningOnDarwin()
         {
             // Replace with a safer way if one exists in the future, such as if
             // Mono actually decides to use PlatformID.MacOSX
@@ -181,42 +180,6 @@ namespace SteamKit2
 
         [DllImport ("libc")]
         static extern int uname (IntPtr buf);
-
-
-        public static byte[] GenerateMachineID()
-        {
-            // this is steamkit's own implementation, it doesn't match what steamclient does
-            // but this should make it so individual systems can be identified
-
-            PlatformID platform = Environment.OSVersion.Platform;
-
-            if ( platform == PlatformID.Win32NT )
-            {
-                string hwString = "foobar";
-
-                try
-                {
-                    RegistryKey localKey = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry64);
-                    localKey = localKey.OpenSubKey(@"SOFTWARE\Microsoft\Cryptography");
-                    if (localKey != null)
-                    {
-                        hwString = localKey.GetValue("MachineGuid").ToString();
-                    }
-                }
-                catch { }
-
-                try
-                {
-                    return CryptoHelper.SHAHash( Encoding.UTF8.GetBytes( hwString.ToString() ) );
-                }
-                catch { return null; }
-            }
-            else
-            {
-                // todo: implement me!
-                return null;
-            }
-        }
 
         public static T[] GetAttributes<T>( this Type type, bool inherit = false )
             where T : Attribute
@@ -433,6 +396,32 @@ namespace SteamKit2
         public static ushort EndianSwap( ushort input )
         {
             return ( ushort )IPAddress.NetworkToHostOrder( ( short )input );
+        }
+        public static bool TryParseIPEndPoint(string stringValue, out IPEndPoint endPoint)
+        {
+            var endpointParts = stringValue.Split(':');
+            if (endpointParts.Length != 2)
+            {
+                endPoint = null;
+                return false;
+            }
+
+            IPAddress address;
+            if (!IPAddress.TryParse(endpointParts[0], out address))
+            {
+                endPoint = null;
+                return false;
+            }
+
+            int port;
+            if (!int.TryParse(endpointParts[1], out port))
+            {
+                endPoint = null;
+                return false;
+            }
+
+            endPoint = new IPEndPoint(address, port);
+            return true;
         }
     }
 }

@@ -54,7 +54,7 @@ namespace SteamKit2
         private Socket sock;
         private IPEndPoint remoteEndPoint;
 
-        NetFilterEncryption filter;
+        INetFilterEncryption filter;
 
         private DateTime timeOut;
         private DateTime nextResend;
@@ -100,6 +100,11 @@ namespace SteamKit2
             sock.Bind(localEndPoint);
 
             state = State.Disconnected;
+        }
+
+        public override IPEndPoint CurrentEndPoint
+        {
+            get { return remoteEndPoint; }
         }
 
         /// <summary>
@@ -364,6 +369,7 @@ namespace SteamKit2
             // Begin by sending off the challenge request
             SendPacket(new UdpPacket(EUdpPacketType.ChallengeReq));
             state = State.ChallengeReqSent;
+            var userRequestedDisconnect = false;
 
             while ( state != State.Disconnected )
             {
@@ -423,11 +429,12 @@ namespace SteamKit2
                     DebugLog.WriteLine("UdpConnection", "Graceful disconnect completed");
 
                     state = State.Disconnected;
+                    userRequestedDisconnect = true;
                 }
             }
 
             DebugLog.WriteLine("UdpConnection", "Calling OnDisconnected");
-            OnDisconnected(EventArgs.Empty);
+            OnDisconnected( new DisconnectedEventArgs( userRequestedDisconnect ) );
         }
 
         /// <summary>
@@ -575,8 +582,8 @@ namespace SteamKit2
         /// <summary>
         /// Sets the network encryption filter for this connection
         /// </summary>
-        /// <param name="filter">filter implementing <see cref="NetFilterEncryption"/></param>
-        public override void SetNetEncryptionFilter(NetFilterEncryption filter)
+        /// <param name="filter">filter implementing <see cref="INetFilterEncryption"/></param>
+        public override void SetNetEncryptionFilter( INetFilterEncryption filter )
         {
             this.filter = filter;
         }

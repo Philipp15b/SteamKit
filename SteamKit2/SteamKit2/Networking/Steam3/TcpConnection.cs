@@ -1,11 +1,9 @@
-﻿﻿/*
- * This file is subject to the terms and conditions defined in
- * file 'license.txt', which is part of this source code package.
- */
+﻿/*
+* This file is subject to the terms and conditions defined in
+* file 'license.txt', which is part of this source code package.
+*/
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -20,7 +18,7 @@ namespace SteamKit2
 
         private IPEndPoint destination;
         private Socket socket;
-        private NetFilterEncryption netFilter;
+        private INetFilterEncryption netFilter;
         private Thread netThread;
         private NetworkStream netStream;
         private BinaryReader netReader;
@@ -35,6 +33,11 @@ namespace SteamKit2
             netLock = new object();
             connectLock = new object();
             connectionFree = new ManualResetEvent(true);
+        }
+
+        public override IPEndPoint CurrentEndPoint
+        {
+            get { return destination; }
         }
 
         private void Shutdown()
@@ -55,7 +58,7 @@ namespace SteamKit2
             }
         }
 
-        private void Release(bool notifyUser)
+        private void Release( bool userRequestedDisconnect )
         {
             lock (netLock)
             {
@@ -86,12 +89,9 @@ namespace SteamKit2
                 netFilter = null;
             }
 
-            connectionFree.Set();
+            OnDisconnected( new DisconnectedEventArgs( userRequestedDisconnect ) );
 
-            if (notifyUser)
-            {
-                OnDisconnected(EventArgs.Empty);
-            }
+            connectionFree.Set();
         }
 
         private void ConnectCompleted(bool success)
@@ -101,13 +101,13 @@ namespace SteamKit2
             {
                 DebugLog.WriteLine("TcpConnection", "Connection request to {0} was cancelled", destination);
                 if (success) Shutdown();
-                Release(false);
+                Release( userRequestedDisconnect: true );
                 return;
             }
             else if (!success)
             {
                 DebugLog.WriteLine("TcpConnection", "Timed out while connecting to {0}", destination);
-                Release(true);
+                Release( userRequestedDisconnect: false );
                 return;
             }
 
@@ -133,17 +133,17 @@ namespace SteamKit2
             catch (Exception ex)
             {
                 DebugLog.WriteLine("TcpConnection", "Exception while setting up connection to {0}: {1}", destination, ex);
-                Release(true);
+                Release( userRequestedDisconnect: false );
             }
         }
 
-        private void TryConnect(Object sender)
+        private void TryConnect(object sender)
         {
             int timeout = (int)sender;
             if (cancellationToken.IsCancellationRequested)
             {
                 DebugLog.WriteLine("TcpConnection", "Connection to {0} cancelled by user", destination);
-                Release(false);
+                Release( userRequestedDisconnect: true );
                 return;
             }
 
@@ -272,8 +272,11 @@ namespace SteamKit2
             // Thread is shutting down, ensure socket is shut down and disposed
             bool userShutdown = cancellationToken.IsCancellationRequested;
 
-            if (userShutdown) Shutdown();
-            Release(!userShutdown);
+            if ( userShutdown )
+            {
+                Shutdown();
+            }
+            Release( userShutdown );
         }
 
         byte[] ReadPacket()
@@ -319,7 +322,7 @@ namespace SteamKit2
                     return;
                 }
 
-                byte[] data = clientMsg.Serialize();
+                var data = clientMsg.Serialize();
 
                 if (netFilter != null)
                 {
@@ -360,7 +363,7 @@ namespace SteamKit2
             }
         }
 
-        public override void SetNetEncryptionFilter(NetFilterEncryption filter)
+        public override void SetNetEncryptionFilter( INetFilterEncryption filter )
         {
             lock (netLock)
             {

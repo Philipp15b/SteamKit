@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SteamKit2</RootNamespace>
     <AssemblyName>SteamKit2</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -47,6 +47,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\SteamKit2.XML</DocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -59,6 +60,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Release\SteamKit2.xml</DocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
@@ -75,26 +77,33 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\ClientMsg.cs" />
-    <Compile Include="Base\GC\CSGO\EMsg.cs" />
     <Compile Include="Base\GC\MsgBaseGC.cs" />
     <Compile Include="Base\GC\ClientMsgGC.cs" />
     <Compile Include="Base\GC\PacketBaseGC.cs" />
-    <Compile Include="Base\GC\TF2\EMsg.cs" />
     <Compile Include="Base\Generated\ContentManifest.cs" />
     <Compile Include="Base\Generated\GC\CSGO\MsgGC.cs" />
+    <Compile Include="Base\Generated\GC\CSGO\SteamMsgBase.cs" />
+    <Compile Include="Base\Generated\GC\CSGO\SteamMsgGC.cs" />
+    <Compile Include="Base\Generated\GC\CSGO\SteamMsgGCEcon.cs" />
+    <Compile Include="Base\Generated\GC\CSGO\SteamMsgGCSDK.cs" />
+    <Compile Include="Base\Generated\GC\CSGO\SteamMsgGCSystem.cs" />
     <Compile Include="Base\Generated\GC\Dota\MsgGCClient.cs" />
     <Compile Include="Base\Generated\GC\Dota\MsgGCClientFantasy.cs" />
     <Compile Include="Base\Generated\GC\Dota\MsgGCCommon.cs" />
     <Compile Include="Base\Generated\GC\Dota\MsgGCServer.cs" />
     <Compile Include="Base\Generated\GC\Dota\NetworkConnection.cs" />
-    <Compile Include="Base\Generated\GC\SteamMsgBase.cs" />
-    <Compile Include="Base\Generated\GC\SteamMsgGC.cs" />
-    <Compile Include="Base\Generated\GC\SteamMsgGCEcon.cs" />
-    <Compile Include="Base\Generated\GC\SteamMsgGCSDK.cs" />
-    <Compile Include="Base\Generated\GC\SteamMsgGCSystem.cs" />
+    <Compile Include="Base\Generated\GC\Dota\SteamMsgBase.cs" />
+    <Compile Include="Base\Generated\GC\Dota\SteamMsgGC.cs" />
+    <Compile Include="Base\Generated\GC\Dota\SteamMsgGCEcon.cs" />
+    <Compile Include="Base\Generated\GC\Dota\SteamMsgGCSDK.cs" />
+    <Compile Include="Base\Generated\GC\Dota\SteamMsgGCSystem.cs" />
+    <Compile Include="Base\Generated\GC\MsgBaseGC.cs" />
     <Compile Include="Base\Generated\GC\TF2\MsgGC.cs" />
     <Compile Include="Base\Generated\GC\TF2\SteamMsgBase.cs" />
-    <Compile Include="Base\Generated\IClientObjects.cs" />
+    <Compile Include="Base\Generated\GC\TF2\SteamMsgGC.cs" />
+    <Compile Include="Base\Generated\GC\TF2\SteamMsgGCEcon.cs" />
+    <Compile Include="Base\Generated\GC\TF2\SteamMsgGCSDK.cs" />
+    <Compile Include="Base\Generated\GC\TF2\SteamMsgGCSystem.cs" />
     <Compile Include="Base\Generated\SteamLanguageInternal.cs" />
     <Compile Include="Base\Generated\SteamMsgClientServer2.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgBroadcast.cs" />
@@ -102,22 +111,25 @@
     <Compile Include="Base\Generated\Unified\SteamMsgCredentials.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgDepotBuilder.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgDeviceAuth.cs" />
+    <Compile Include="Base\Generated\Unified\SteamMsgEcon.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgGameNotifications.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgGameServers.cs" />
+    <Compile Include="Base\Generated\Unified\SteamMsgInventory.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgLinkFilter.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgOffline.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgParental.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgPartnerApps.cs" />
+    <Compile Include="Base\Generated\Unified\SteamMsgPhysicalGoods.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgPlayer.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgPublishedFile.cs" />
+    <Compile Include="Base\Generated\Unified\SteamMsgSecrets.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgTwoFactor.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgUnifiedBase.cs" />
     <Compile Include="Base\Generated\Unified\SteamMsgVideo.cs" />
-    <Compile Include="Base\Generated\Unified\Steamworks\SteamMsgCloudSteamworks.cs" />
     <Compile Include="Base\Generated\Unified\Steamworks\SteamMsgOAuthSteamworks.cs" />
-    <Compile Include="Base\Generated\Unified\Steamworks\SteamMsgPublishedFileSteamworks.cs" />
     <Compile Include="Base\MsgBase.cs" />
     <Compile Include="Base\PacketBase.cs" />
+    <Compile Include="Networking\Steam3\CMServerList.cs" />
     <Compile Include="Steam\CDNClient.cs" />
     <Compile Include="Steam\Handlers\SteamCloud\Callbacks.cs" />
     <Compile Include="Steam\Handlers\SteamCloud\SteamCloud.cs" />
@@ -135,15 +147,20 @@
     <Compile Include="Steam\Handlers\SteamWorkshop\Callbacks.cs" />
     <Compile Include="Steam\Handlers\SteamWorkshop\SteamWorkshop.cs" />
     <Compile Include="Steam\Handlers\SteamUserStats\SteamUserStats.cs" />
+    <Compile Include="Steam\SteamClient\AsyncJobManager.cs" />
     <Compile Include="Steam\SteamClient\CallbackMgr\CallbackMgr.cs" />
     <Compile Include="Steam\UFSClient\Callbacks.cs" />
     <Compile Include="Steam\UFSClient\UFSClient.cs" />
+    <Compile Include="Steam\WebAPI\SteamDirectory.cs" />
     <Compile Include="Steam\WebAPI\WebAPI.cs" />
     <Compile Include="Types\GlobalID.cs" />
     <Compile Include="Types\DepotManifest.cs" />
+    <Compile Include="Types\JobID.cs" />
+    <Compile Include="Types\MessageObject.cs" />
     <Compile Include="Types\PubFile.cs" />
     <Compile Include="Util\AsnKeyParser.cs" />
     <Compile Include="Util\Crc32.cs" />
+    <Compile Include="Util\HardwareUtils.cs" />
     <Compile Include="Util\LZMA\Common\CRC.cs" />
     <Compile Include="Util\LZMA\Common\InBuffer.cs" />
     <Compile Include="Util\LZMA\Common\OutBuffer.cs" />
@@ -158,6 +175,7 @@
     <Compile Include="Util\LZMA\Compress\RangeCoder\RangeCoderBit.cs" />
     <Compile Include="Util\LZMA\Compress\RangeCoder\RangeCoderBitTree.cs" />
     <Compile Include="Util\LZMA\ICoder.cs" />
+    <Compile Include="Util\DebugNetworkListener.cs" />
     <Compile Include="Util\StreamHelpers.cs" />
     <Compile Include="Networking\Steam3\UdpPacket.cs" />
     <Compile Include="Steam\Handlers\SteamApps\Callbacks.cs" />
@@ -194,6 +212,7 @@
     <Compile Include="Base\Generated\SteamMsgAppTicket.cs" />
     <Compile Include="Base\Generated\SteamMsgBase.cs" />
     <Compile Include="Base\Generated\SteamMsgClientServer.cs" />
+    <Compile Include="Util\MacHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="3rd party.txt">
@@ -233,7 +252,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

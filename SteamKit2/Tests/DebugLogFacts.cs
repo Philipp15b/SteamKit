@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using SteamKit2;
+using Xunit.Sdk;
 
 namespace Tests
 {
@@ -16,6 +17,12 @@ namespace Tests
     {
         public override void Before( System.Reflection.MethodInfo methodUnderTest )
         {
+            DebugLog.ClearListeners();
+        }
+
+        public override void After( System.Reflection.MethodInfo methodUnderTest )
+        {
+            DebugLog.Enabled = false;
             DebugLog.ClearListeners();
         }
     }
@@ -85,6 +92,19 @@ namespace Tests
             DebugLog.ClearListeners();
 
             Assert.DoesNotContain( testListener, DebugLog.listeners );
+        }
+
+        [Fact, DebugLogSetupTeardown]
+        public void DebugLogCanWriteSafelyWithoutParams()
+        {
+            DebugLog.Enabled = true;
+            DebugLog.AddListener( ( category, msg ) =>
+            {
+                Assert.Equal( "category", category );
+                Assert.Equal( "msg{0}msg", msg);
+            } );
+
+            DebugLog.WriteLine( "category", "msg{0}msg" );
         }
     }
 }

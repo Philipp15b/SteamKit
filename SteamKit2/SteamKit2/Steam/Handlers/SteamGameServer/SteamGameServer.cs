@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using SteamKit2.Internal;
@@ -73,8 +74,15 @@ namespace SteamKit2
         }
 
 
+        Dictionary<EMsg, Action<IPacketMsg>> dispatchMap;
+
         internal SteamGameServer()
         {
+            dispatchMap = new Dictionary<EMsg, Action<IPacketMsg>>
+            {
+                { EMsg.GSStatusReply, HandleStatusReply },
+                { EMsg.ClientTicketAuthComplete, HandleAuthComplete },
+            };
         }
 
 
@@ -118,7 +126,7 @@ namespace SteamKit2
 
             logon.Body.client_os_type = ( uint )Utils.GetOSType();
             logon.Body.game_server_app_id = ( int )details.AppID;
-            logon.Body.machine_id = Utils.GenerateMachineID();
+            logon.Body.machine_id = HardwareUtils.GetMachineID();
 
             logon.Body.game_server_token = details.Token;
 
@@ -153,18 +161,19 @@ namespace SteamKit2
 
             logon.Body.client_os_type = ( uint )Utils.GetOSType();
             logon.Body.game_server_app_id = ( int )appId;
-            logon.Body.machine_id = Utils.GenerateMachineID();
+            logon.Body.machine_id = HardwareUtils.GetMachineID();
 
             this.Client.Send( logon );
         }
 
         /// <summary>
-        /// Logs the game server off of the Steam3 network.
-        /// This method does not disconnect the client.
-        /// Results are returned in a <see cref="SteamUser.LoggedOffCallback"/>.
+        /// Informs the Steam servers that this client wishes to log off from the network.
+        /// The Steam server will disconnect the client, and a <see cref="SteamClient.DisconnectedCallback"/> will be posted.
         /// </summary>
         public void LogOff()
         {
+            ExpectDisconnection = true;
+
             var logOff = new ClientMsgProtobuf<CMsgClientLogOff>( EMsg.ClientLogOff );
             this.Client.Send( logOff );
         }
@@ -208,16 +217,16 @@ namespace SteamKit2
         /// <param name="packetMsg">The packet message that contains the data.</param>
         public override void HandleMsg( IPacketMsg packetMsg )
         {
-            switch ( packetMsg.MsgType )
-            {
-                case EMsg.GSStatusReply:
-                    HandleStatusReply( packetMsg );
-                    break;
+            Action<IPacketMsg> handlerFunc;
+            bool haveFunc = dispatchMap.TryGetValue( packetMsg.MsgType, out handlerFunc );
 
-                case EMsg.ClientTicketAuthComplete:
-                    HandleAuthComplete( packetMsg );
-                    break;
+            if ( !haveFunc )
+            {
+                // ignore messages that we don't have a handler function for
+                return;
             }
+
+            handlerFunc( packetMsg );
         }
 
 

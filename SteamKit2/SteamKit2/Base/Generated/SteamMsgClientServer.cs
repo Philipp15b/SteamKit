@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------
 #pragma warning disable 1591
 
-// Generated from: steammessages_clientserver_asbytes.proto
+// Generated from: steammessages_clientserver.proto
 // Note: requires additional types generated from: steammessages_base.proto
 // Note: requires additional types generated from: encrypted_app_ticket.proto
 namespace SteamKit2.Internal
@@ -679,6 +679,15 @@ namespace SteamKit2.Internal
     {
       get { return _two_factor_code; }
       set { _two_factor_code = value; }
+    }
+
+    private bool _supports_rate_limit_response = default(bool);
+    [global::ProtoBuf.ProtoMember(102, IsRequired = false, Name=@"supports_rate_limit_response", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool supports_rate_limit_response
+    {
+      get { return _supports_rate_limit_response; }
+      set { _supports_rate_limit_response = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
@@ -2132,6 +2141,42 @@ namespace SteamKit2.Internal
       get { return _owner_id; }
       set { _owner_id = value; }
     }
+
+    private uint _initial_period = default(uint);
+    [global::ProtoBuf.ProtoMember(13, IsRequired = false, Name=@"initial_period", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint initial_period
+    {
+      get { return _initial_period; }
+      set { _initial_period = value; }
+    }
+
+    private uint _initial_time_unit = default(uint);
+    [global::ProtoBuf.ProtoMember(14, IsRequired = false, Name=@"initial_time_unit", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint initial_time_unit
+    {
+      get { return _initial_time_unit; }
+      set { _initial_time_unit = value; }
+    }
+
+    private uint _renewal_period = default(uint);
+    [global::ProtoBuf.ProtoMember(15, IsRequired = false, Name=@"renewal_period", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint renewal_period
+    {
+      get { return _renewal_period; }
+      set { _renewal_period = value; }
+    }
+
+    private uint _renewal_time_unit = default(uint);
+    [global::ProtoBuf.ProtoMember(16, IsRequired = false, Name=@"renewal_time_unit", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint renewal_time_unit
+    {
+      get { return _renewal_time_unit; }
+      set { _renewal_time_unit = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -2603,24 +2648,6 @@ namespace SteamKit2.Internal
       set { _ip_country = value; }
     }
 
-    private byte[] _salt_password = null;
-    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"salt_password", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue(null)]
-    public byte[] salt_password
-    {
-      get { return _salt_password; }
-      set { _salt_password = value; }
-    }
-
-    private byte[] _sha_digest_Password = null;
-    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"sha_digest_Password", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue(null)]
-    public byte[] sha_digest_Password
-    {
-      get { return _sha_digest_Password; }
-      set { _sha_digest_Password = value; }
-    }
-
     private int _count_authed_computers = default(int);
     [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"count_authed_computers", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     [global::System.ComponentModel.DefaultValue(default(int))]
@@ -2628,15 +2655,6 @@ namespace SteamKit2.Internal
     {
       get { return _count_authed_computers; }
       set { _count_authed_computers = value; }
-    }
-
-    private bool _locked_with_ipt = default(bool);
-    [global::ProtoBuf.ProtoMember(6, IsRequired = false, Name=@"locked_with_ipt", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue(default(bool))]
-    public bool locked_with_ipt
-    {
-      get { return _locked_with_ipt; }
-      set { _locked_with_ipt = value; }
     }
 
     private uint _account_flags = default(uint);
@@ -2664,42 +2682,6 @@ namespace SteamKit2.Internal
     {
       get { return _facebook_name; }
       set { _facebook_name = value; }
-    }
-
-    private int _steam_guard_provider = default(int);
-    [global::ProtoBuf.ProtoMember(10, IsRequired = false, Name=@"steam_guard_provider", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(int))]
-    public int steam_guard_provider
-    {
-      get { return _steam_guard_provider; }
-      set { _steam_guard_provider = value; }
-    }
-
-    private bool _steamguard_require_code_default = default(bool);
-    [global::ProtoBuf.ProtoMember(11, IsRequired = false, Name=@"steamguard_require_code_default", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue(default(bool))]
-    public bool steamguard_require_code_default
-    {
-      get { return _steamguard_require_code_default; }
-      set { _steamguard_require_code_default = value; }
-    }
-
-    private bool _steamguard_show_providers = default(bool);
-    [global::ProtoBuf.ProtoMember(12, IsRequired = false, Name=@"steamguard_show_providers", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue(default(bool))]
-    public bool steamguard_show_providers
-    {
-      get { return _steamguard_show_providers; }
-      set { _steamguard_show_providers = value; }
-    }
-
-    private bool _steamguard_can_use_mobile_provider = default(bool);
-    [global::ProtoBuf.ProtoMember(13, IsRequired = false, Name=@"steamguard_can_use_mobile_provider", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.ComponentModel.DefaultValue(default(bool))]
-    public bool steamguard_can_use_mobile_provider
-    {
-      get { return _steamguard_can_use_mobile_provider; }
-      set { _steamguard_can_use_mobile_provider = value; }
     }
 
     private bool _steamguard_notify_newmachines = default(bool);
@@ -7124,6 +7106,15 @@ namespace SteamKit2.Internal
     {
       get { return _currency; }
       set { _currency = value; }
+    }
+
+    private int _balance_delayed = default(int);
+    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"balance_delayed", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(int))]
+    public int balance_delayed
+    {
+      get { return _balance_delayed; }
+      set { _balance_delayed = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)

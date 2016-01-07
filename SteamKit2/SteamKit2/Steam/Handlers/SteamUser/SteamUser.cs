@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using SteamKit2.Internal;
 
 namespace SteamKit2
@@ -30,6 +31,23 @@ namespace SteamKit2
             /// <value>The password.</value>
             public string Password { get; set; }
 
+            /// <summary>
+            /// Gets or sets the CellID.
+            /// </summary>
+            /// <value>The CellID.</value>
+            public uint CellID { get; set; }
+
+            /// <summary>
+            /// Gets or sets the LoginID. This number is used for identifying logon session.
+            /// The purpose of this field is to allow multiple sessions to the same steam account from the same machine.
+            /// This is because Steam Network doesn't allow more than one session with the same LoginID to access given account at the same time.
+            /// If you want to establish more than one active session to given account, you must make sure that every session (to that account) has unique LoginID.
+            /// By default LoginID is automatically generated based on machine's primary bind address, which is the same for all sessions.
+            /// Null value will cause this property to be automatically generated based on default behaviour.
+            /// If in doubt, set this property to null.
+            /// </summary>
+            /// <value>The LoginID.</value>
+            public uint? LoginID { get; set; }
 
             /// <summary>
             /// Gets or sets the Steam Guard auth code used to login. This is the code sent to the user's email.
@@ -41,6 +59,16 @@ namespace SteamKit2
             /// </summary>
             /// <value>The two factor auth code.</value>
             public string TwoFactorCode { get; set; }
+            /// <summary>
+            /// Gets or sets the login key used to login. This is a key that has been recieved in a previous Steam sesson by a <see cref="LoginKeyCallback"/>.
+            /// </summary>
+            /// <value>The login key.</value>
+            public string LoginKey { get; set; }
+            /// <summary>
+            /// Gets or sets the 'Should Remember Password' flag. This is used in combination with the login key and <see cref="LoginKeyCallback"/> for password-less login.
+            /// </summary>
+            /// <value>The 'Should Remember Password' flag.</value>
+            public bool ShouldRememberPassword { get; set; }
             /// <summary>
             /// Gets or sets the sentry file hash for this logon attempt, or null if no sentry file is available.
             /// </summary>
@@ -72,6 +100,16 @@ namespace SteamKit2
             /// </value>
             public bool RequestSteam2Ticket { get; set; }
 
+            /// <summary>
+            /// Gets or sets the client operating system type.
+            /// </summary>
+            /// <value>The client operating system type.</value>
+            public EOSType ClientOSType { get; set; }
+            /// <summary>
+            /// Gets or sets the client language.
+            /// </summary>
+            /// <value>The client language.</value>
+            public string ClientLanguage { get; set; }
 
             /// <summary>
             /// Initializes a new instance of the <see cref="LogOnDetails"/> class.
@@ -80,6 +118,41 @@ namespace SteamKit2
             {
                 AccountInstance = SteamID.DesktopInstance; // use the default pc steam instance
                 AccountID = 0;
+
+                ClientOSType = Utils.GetOSType();
+                ClientLanguage = "english";
+            }
+        }
+
+        /// <summary>
+        /// Represents the details required to log into Steam3 as an anonymous user.
+        /// </summary>
+        public sealed class AnonymousLogOnDetails
+        {
+            /// <summary>
+            /// Gets or sets the CellID.
+            /// </summary>
+            /// <value>The CellID.</value>
+            public uint CellID { get; set; }
+
+            /// <summary>
+            /// Gets or sets the client operating system type.
+            /// </summary>
+            /// <value>The client operating system type.</value>
+            public EOSType ClientOSType { get; set; }
+            /// <summary>
+            /// Gets or sets the client language.
+            /// </summary>
+            /// <value>The client language.</value>
+            public string ClientLanguage { get; set; }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="AnonymousLogOnDetails"/> class.
+            /// </summary>
+            public AnonymousLogOnDetails()
+            {
+                ClientOSType = Utils.GetOSType();
+                ClientLanguage = "english";
             }
         }
 
@@ -181,8 +254,27 @@ namespace SteamKit2
         }
 
 
+        Dictionary<EMsg, Action<IPacketMsg>> dispatchMap;
+
         internal SteamUser()
         {
+            dispatchMap = new Dictionary<EMsg, Action<IPacketMsg>>
+            {
+                { EMsg.ClientLogOnResponse, HandleLogOnResponse },
+                { EMsg.ClientLoggedOff, HandleLoggedOff },
+                { EMsg.ClientNewLoginKey, HandleLoginKey },
+                { EMsg.ClientSessionToken, HandleSessionToken },
+                { EMsg.ClientUpdateMachineAuth, HandleUpdateMachineAuth },
+                { EMsg.ClientAccountInfo, HandleAccountInfo },
+                { EMsg.ClientWalletInfoUpdate, HandleWalletInfo },
+                { EMsg.ClientRequestWebAPIAuthenticateUserNonceResponse, HandleWebAPIUserNonce },
+                { EMsg.ClientMarketingMessageUpdate2, HandleMarketingMessageUpdate },
+            };
+        }
+
+        static SteamUser()
+        {
+            HardwareUtils.Init();
         }
 
 
@@ -200,9 +292,16 @@ namespace SteamKit2
             {
                 throw new ArgumentNullException( "details" );
             }
-            if ( string.IsNullOrEmpty( details.Username ) || string.IsNullOrEmpty( details.Password ) )
+            if ( string.IsNullOrEmpty( details.Username ) || ( string.IsNullOrEmpty( details.Password ) && string.IsNullOrEmpty( details.LoginKey ) ) )
             {
                 throw new ArgumentException( "LogOn requires a username and password to be set in 'details'." );
+            }
+            if ( !string.IsNullOrEmpty( details.LoginKey ) && !details.ShouldRememberPassword )
+            {
+                // Prevent consumers from screwing this up.
+                // If should_remember_password is false, the login_key is ignored server-side.
+                // The inverse is not applicable (you can log in with should_remember_password and no login_key).
+                throw new ArgumentException( "ShouldRememberPassword is required to be set to true in order to use LoginKey." );
             }
             if ( !this.Client.IsConnected )
             {
@@ -214,33 +313,39 @@ namespace SteamKit2
 
             SteamID steamId = new SteamID( details.AccountID, details.AccountInstance, Client.ConnectedUniverse, EAccountType.Individual );
 
-            uint localIp = NetHelpers.GetIPAddress( this.Client.LocalIP );
+            if ( details.LoginID.HasValue )
+            {
+                logon.Body.obfustucated_private_ip = details.LoginID.Value;
+            }
+            else
+            {
+                uint localIp = NetHelpers.GetIPAddress( this.Client.LocalIP );
+                logon.Body.obfustucated_private_ip = localIp ^ MsgClientLogon.ObfuscationMask;
+            }
 
             logon.ProtoHeader.client_sessionid = 0;
             logon.ProtoHeader.steamid = steamId.ConvertToUInt64();
 
-            logon.Body.obfustucated_private_ip = localIp ^ MsgClientLogon.ObfuscationMask;
-
             logon.Body.account_name = details.Username;
             logon.Body.password = details.Password;
+            logon.Body.should_remember_password = details.ShouldRememberPassword;
 
             logon.Body.protocol_version = MsgClientLogon.CurrentProtocol;
-            logon.Body.client_os_type = ( uint )Utils.GetOSType();
-            logon.Body.client_language = "english";
+            logon.Body.client_os_type = ( uint )details.ClientOSType;
+            logon.Body.client_language = details.ClientLanguage;
+            logon.Body.cell_id = details.CellID;
 
             logon.Body.steam2_ticket_request = details.RequestSteam2Ticket;
 
             // we're now using the latest steamclient package version, this is required to get a proper sentry file for steam guard
             logon.Body.client_package_version = 1771; // todo: determine if this is still required
-
-            // this is not a proper machine id that Steam accepts
-            // but it's good enough for identifying a machine
-            logon.Body.machine_id = Utils.GenerateMachineID();
-
+            logon.Body.machine_id = HardwareUtils.GetMachineID();
 
             // steam guard 
             logon.Body.auth_code = details.AuthCode;
             logon.Body.two_factor_code = details.TwoFactorCode;
+
+            logon.Body.login_key = details.LoginKey;
 
             logon.Body.sha_sentryfile = details.SentryFileHash;
             logon.Body.eresult_sentryfile = ( int )( details.SentryFileHash != null ? EResult.OK : EResult.FileNotFound );
@@ -248,12 +353,23 @@ namespace SteamKit2
 
             this.Client.Send( logon );
         }
+
         /// <summary>
         /// Logs the client into the Steam3 network as an anonymous user.
         /// The client should already have been connected at this point.
         /// Results are returned in a <see cref="LoggedOnCallback"/>.
         /// </summary>
         public void LogOnAnonymous()
+        {
+            LogOnAnonymous( new AnonymousLogOnDetails() );
+        }
+        /// <summary>
+        /// Logs the client into the Steam3 network as an anonymous user.
+        /// The client should already have been connected at this point.
+        /// Results are returned in a <see cref="LoggedOnCallback"/>.
+        /// </summary>
+        /// <param name="details">The details to use for logging on.</param>
+        public void LogOnAnonymous( AnonymousLogOnDetails details )
         {
             if ( !this.Client.IsConnected )
             {
@@ -269,22 +385,23 @@ namespace SteamKit2
             logon.ProtoHeader.steamid = auId.ConvertToUInt64();
 
             logon.Body.protocol_version = MsgClientLogon.CurrentProtocol;
-            logon.Body.client_os_type = ( uint )Utils.GetOSType();
+            logon.Body.client_os_type = ( uint )details.ClientOSType;
+            logon.Body.client_language = details.ClientLanguage;
+            logon.Body.cell_id = details.CellID;
 
-            // this is not a proper machine id that Steam accepts
-            // but it's good enough for identifying a machine
-            logon.Body.machine_id = Utils.GenerateMachineID();
+            logon.Body.machine_id = HardwareUtils.GetMachineID();
 
             this.Client.Send( logon );
         }
 
         /// <summary>
-        /// Logs the user off of the Steam3 network.
-        /// This method does not disconnect the client.
-        /// Results are returned in a <see cref="LoggedOffCallback"/>.
+        /// Informs the Steam servers that this client wishes to log off from the network.
+        /// The Steam server will disconnect the client, and a <see cref="SteamClient.DisconnectedCallback"/> will be posted.
         /// </summary>
         public void LogOff()
         {
+            ExpectDisconnection = true;
+
             var logOff = new ClientMsgProtobuf<CMsgClientLogOff>( EMsg.ClientLogOff );
             this.Client.Send( logOff );
         }
@@ -321,20 +438,32 @@ namespace SteamKit2
         }
 
         /// <summary>
-        /// Requests a new WebAPI authentication user nonce. This is used if initial loginkey authentication fails.
+        /// Requests a new WebAPI authentication user nonce.
         /// Results are returned in a <see cref="WebAPIUserNonceCallback"/>.
+        /// The returned <see cref="AsyncJob{T}"/> can also be awaited to retrieve the callback result.
         /// </summary>
         /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="WebAPIUserNonceCallback"/>.</returns>
-        public JobID RequestWebAPIUserNonce()
+        public AsyncJob<WebAPIUserNonceCallback> RequestWebAPIUserNonce()
         {
             var reqMsg = new ClientMsgProtobuf<CMsgClientRequestWebAPIAuthenticateUserNonce>( EMsg.ClientRequestWebAPIAuthenticateUserNonce );
             reqMsg.SourceJobID = Client.GetNextJobID();
 
             this.Client.Send( reqMsg );
 
-            return reqMsg.SourceJobID;
+            return new AsyncJob<WebAPIUserNonceCallback>( this.Client, reqMsg.SourceJobID );
         }
 
+        /// <summary>
+        /// Accepts the new Login Key provided by a <see cref="LoginKeyCallback"/>.
+        /// </summary>
+        /// <param name="callback">The callback containing the new Login Key.</param>
+        public void AcceptNewLoginKey( LoginKeyCallback callback )
+        {
+            var acceptance = new ClientMsgProtobuf<CMsgClientNewLoginKeyAccepted>( EMsg.ClientNewLoginKeyAccepted );
+            acceptance.Body.unique_id = callback.UniqueID;
+
+            this.Client.Send( acceptance );
+        }
 
         /// <summary>
         /// Handles a client message. This should not be called directly.
@@ -342,44 +471,16 @@ namespace SteamKit2
         /// <param name="packetMsg">The packet message that contains the data.</param>
         public override void HandleMsg( IPacketMsg packetMsg )
         {
-            switch ( packetMsg.MsgType )
+            Action<IPacketMsg> handlerFunc;
+            bool haveFunc = dispatchMap.TryGetValue( packetMsg.MsgType, out handlerFunc );
+
+            if ( !haveFunc )
             {
-                case EMsg.ClientLogOnResponse:
-                    HandleLogOnResponse( packetMsg );
-                    break;
-
-                case EMsg.ClientNewLoginKey:
-                    HandleLoginKey( packetMsg );
-                    break;
-
-                case EMsg.ClientSessionToken:
-                    HandleSessionToken( packetMsg );
-                    break;
-
-                case EMsg.ClientLoggedOff:
-                    HandleLoggedOff( packetMsg );
-                    break;
-
-                case EMsg.ClientUpdateMachineAuth:
-                    HandleUpdateMachineAuth( packetMsg );
-                    break;
-
-                case EMsg.ClientAccountInfo:
-                    HandleAccountInfo( packetMsg );
-                    break;
-
-                case EMsg.ClientWalletInfoUpdate:
-                    HandleWalletInfo( packetMsg );
-                    break;
-
-                case EMsg.ClientRequestWebAPIAuthenticateUserNonceResponse:
-                    HandleWebAPIUserNonce( packetMsg );
-                    break;
-
-                case EMsg.ClientMarketingMessageUpdate2:
-                    HandleMarketingMessageUpdate( packetMsg );
-                    break;
+                // ignore messages that we don't have a handler function for
+                return;
             }
+
+            handlerFunc( packetMsg );
         }
 
         
@@ -418,11 +519,6 @@ namespace SteamKit2
         void HandleLoginKey( IPacketMsg packetMsg )
         {
             var loginKey = new ClientMsgProtobuf<CMsgClientNewLoginKey>( packetMsg );
-
-            var resp = new ClientMsgProtobuf<CMsgClientNewLoginKeyAccepted>( EMsg.ClientNewLoginKeyAccepted );
-            resp.Body.unique_id = loginKey.Body.unique_id;
-
-            this.Client.Send( resp );
 
             var callback = new LoginKeyCallback( loginKey.Body );
             this.Client.PostCallback( callback );

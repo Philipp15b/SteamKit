@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using NetHookAnalyzer2.Specializations;
 using ProtoBuf;
 using ProtoBuf.Meta;
 using SteamKit2;
@@ -21,7 +22,18 @@ namespace NetHookAnalyzer2
 			}
 			else
 			{
-				header = new ExtendedClientMsgHdr();
+				switch (rawEMsg)
+				{
+					case (uint)EMsg.ChannelEncryptRequest:
+					case (uint)EMsg.ChannelEncryptResponse:
+					case (uint)EMsg.ChannelEncryptResult:
+						header = new MsgHdr();
+						break;
+
+					default:
+						header = new ExtendedClientMsgHdr();
+						break;
+				}
 			}
 
 			header.Deserialize(stream);
@@ -40,7 +52,7 @@ namespace NetHookAnalyzer2
 			// Unified Notifications
 			if (isProto && eMsg == EMsg.ServiceMethod && !string.IsNullOrEmpty(targetJobName.Value))
 			{
-				body = ReadServiceMethodBody(targetJobName.Value, stream, x => x.GetParameters().First().ParameterType);
+				body = UnifiedMessagingHelpers.ReadServiceMethodBody(targetJobName.Value, stream, x => x.GetParameters().First().ParameterType);
 			}
 			else
 			{
@@ -60,47 +72,6 @@ namespace NetHookAnalyzer2
 			return payloadData;
 		}
 
-		static object ReadServiceMethodBody(string methodName, Stream stream, Func<MethodInfo, Type> typeSelector)
-		{
-			var methodInfo = FindMethodInfo(methodName);
-			if (methodInfo != null)
-			{
-				var requestType = typeSelector(methodInfo);
-				var request = RuntimeTypeModel.Default.Deserialize(stream, null, requestType);
-				return request;
-			}
-
-			return null;
-		}
-
-		static MethodInfo FindMethodInfo(string serviceMethodName)
-		{
-			var splitByDot = serviceMethodName.Split('.');
-			var interfaceName = "I" + splitByDot[0];
-			var methodName = splitByDot[1].Split('#').First();
-
-			var namespaces = new[]
-			{
-				"SteamKit2.Unified.Internal",
-				"SteamKit2.Unified.Internal.Steamworks"
-			};
-
-			foreach (var ns in namespaces)
-			{
-				var interfaceType = Type.GetType(ns + "." + interfaceName + ", SteamKit2");
-				if (interfaceType != null)
-				{
-					var method = interfaceType.GetMethod(methodName);
-					if (method != null)
-					{
-						return method;
-					}
-				}
-			}
-
-			return null;
-		}
-
 		static uint PeekUInt(Stream stream)
 		{
 			var data = new byte[sizeof(uint)];
@@ -109,7 +80,7 @@ namespace NetHookAnalyzer2
 			return BitConverter.ToUInt32(data, 0);
 		}
 
-		static object ReadMessageBody(uint rawEMsg, Stream stream, uint gcAppId = 0)
+		static object ReadMessageBody(uint rawEMsg, Stream stream)
 		{
 			var eMsg = MsgUtil.GetMsg(rawEMsg);
 
@@ -146,22 +117,6 @@ namespace NetHookAnalyzer2
 				return Serializer.NonGeneric.Deserialize(msgType, stream);
 			}
 
-			if (gcAppId != 0)
-			{
-				foreach (var type in MessageTypeFinder.GetGCMessageBodyTypeCandidates(rawEMsg, gcAppId))
-				{
-					var streamPos = stream.Position;
-					try
-					{
-						return Serializer.NonGeneric.Deserialize(type, stream);
-					}
-					catch (Exception)
-					{
-						stream.Position = streamPos;
-					}
-				}
-			}
-
 			// Last resort for protobufs
 			if (MsgUtil.IsProtoBuf(rawEMsg))
 			{
@@ -170,23 +125,6 @@ namespace NetHookAnalyzer2
 			}
 
 			return null;
-		}
-
-		static IGCSerializableHeader ReadGameCoordinatorHeader(uint rawEMsg, Stream stream)
-		{
-			IGCSerializableHeader header = null;
-
-			if (MsgUtil.IsProtoBuf(rawEMsg))
-			{
-				header = new MsgGCHdrProtoBuf();
-			}
-			else
-			{
-				header = new MsgGCHdr();
-			}
-
-			header.Deserialize(stream);
-			return header;
 		}
 	}
 }
