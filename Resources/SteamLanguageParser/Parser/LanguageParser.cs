@@ -42,7 +42,7 @@ namespace SteamLanguageParser
         public int EndColumnNumber { get; }
     }
 
-    class LanguageParser
+    public class LanguageParser
     {
         public static string pattern =
         @"(?<whitespace>\s+)|" +
