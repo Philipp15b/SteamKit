@@ -1,4 +1,155 @@
 ------------------------------------------------------------------------------
+v 2.2.0 	 	Jun 27, 2019
+------------------------------------------------------------------------------
+* Added an overload of `SteamDirectory.LoadAsync` that accepts a maximum number of servers to return.
+* Added `ServerRecord.TryCreateSocketServer` to try parse a record from a string.
+* Added support for initializing a `GameID` for mods and shortcuts.
+* Added response details for some failed WebAPI responses. WebAPI can now throw a `WebAPIRequestException` with further details.
+* Added customization options to SteamKit's underlying HTTP stack.
+* Added `WalletInfoCallback.Balance64` for large Steam Wallet balances.
+* Added more details to `DepotManifest`.
+* Added SteamKit version to default HTTP user agent.
+* Added overloads for `CDNClient.DownloadManifestAsync` and `CDNClient.DownloadDepotChunkAsync` for advanced consumers that perform their own server and key management.
+* Added `ContentServerDirectoryService` for the discovery of ContentServers.
+* The dynamic interface for WebAPI can now take a single un-named argument of `IDictionary<string, object>` instead of having to pass each argument as a named parameter. 
+* Fixed concurrency issues with UDP connections.
+* Fixed final fallback connection to Steam when server list is unavailable.
+* Fixed thread safety issues in message deserialization.
+* Fixed a crash on logon when network adapter information is not available from the underlying runtime.
+* Fixed downloaded content silently ignoring a length mismatch. An exception will now be thrown in this case.
+* Fixed WebSocket CM servers not being marked as bad by the server list, and thus not being ignored on subsequent connection attempts.
+* Updated Steam protocol version.
+* Updated Steam enums and protobufs.
+
+BREAKING CHANGES
+* WebAPI now takes a arguments dictionary as `Dictionary<string, object>`, rather than `Dictionary<string, string>`.
+	* Arguments of type `byte[]` are converted to their Base-64 representation.
+	* Arguments of value `null` are treated as empty strings.
+	* All other arguments are converted to `string` by calling `object.ToString()` and encoded to a URL safe representation.
+
+
+------------------------------------------------------------------------------
+v 2.1.0			Jun 13, 2018
+------------------------------------------------------------------------------
+* Added `SimpleConsoleDebugListener`.
+* Added helper methods to convert between Clan (Group) SteamIDs and their corresponding Chat SteamIDs.
+* Added SourceLink to enable consumers to step through SteamKit's source code when debugging.
+  * This requires Visual Studio v15.3 or higher.
+* Fixed several possible crashes.
+* Fixed NuGet package description.
+* Fixed `UFSClient` sending an extra `DisconnectedCallback` when connecting.
+* Updated Steam enums and protobufs.
+
+BREAKING CHANGES
+* `SteamFriends.SetPersonaName()` and `SteamFriends.SetPersonaState()` are no longer Job-based.
+
+
+------------------------------------------------------------------------------
+v 2.0.0			Dec 17, 2017
+------------------------------------------------------------------------------
+* SteamKit 2.0 now targets .NET Standard 2.0. This means it now requires .NET Framework 4.6.1 or higher, .NET Core 2.0 or higher, or any other .NET Standard 2.0-compatible runtime.
+* Added support for WebSocket client connections.
+	* Server List treats WebSocket, TCP and UDP independently, even for the same server.
+	* If a server is not reachable on TCP, SteamKit will still attempt UDP and vice-versa.
+* Added `SteamConfiguration`, which replaces the previous assortment of individual configuration properties and parameters.
+	* If the `SteamConfiguration` permits both TCP and UDP, both can now be used (depending on server ranking).
+	* See the Breaking Changes section below for further details.
+* Added `ArgumentNullException` to the public API surface when passing null into methods that would have previously triggered a `NullReferenceException`.
+* Added HTTPS support to `CDNClient`.
+* Updated Protobuf message classes to expose a property indicating if any wire value was specified or not, and a method to clear the value.
+* Updated game-related GC messages and protobufs.
+* Updated Steam enums and protobufs.
+* Fixed no callback being fired when calling `SteamUserStats.GetLeaderboardEntries` .
+* Fixed a crash if we encountered a message that's too small to actually contain a message.
+* Fixed user's name being changed to `[unassigned]` if `SteamFriends.SetPersonaState()` is called too early.
+* Fixed order of handlers being non-deterministic.
+* Fixed exception when using `SteamUnifiedMessages.UnifiedService<>.SendMessage`.
+* Fixed a potential deadlock when awaiting an `AsyncJob`.
+* Fixed TCP connections not being correctly flagged in the server list.
+* Fixed TCP disconnections not being correctly flagged as user-initiated.
+
+BREAKING CHANGES
+
+* Removed all methods and properties that were marked as `[Obsolete]`.
+* The `SteamClient` constructor now accepts a `SteamConfiguration` object, which is a container for various configuration settings.
+	* If you were using the `SteamClient` constructor to specify a specific protocol type (TCP or UDP), use `SteamConfiguration` instead.
+	* If you were using various properties to modify timeouts etc., use `SteamConfiguration` instead.
+	* If you do not provide a `SteamConfiguration` when constructing a `SteamClient`, the server list will be private to that `SteamClient` instance.
+	* If you create multiple clients from a single configuration, the server list will be shared among those clients.
+	* `SteamClient.ConnectedUniverse` is now `SteamClient.Universe`. This is now set from the configuration, and is no longer `EUniverse.Invalid` when not connected.
+	* `SteamClient.ConnectionTimeout` is now read-only. Setting this property is now performed on `SteamConfiguration`.
+* Removed `SteamClient.ConnectedCallback.EResult`, as it could only ever be `EResult.OK`.
+* Servers are now represented by `ServerRecord` objects, not IP addresses.
+	* `CMListCallback` now returns a collection of `ServerRecord` objects, not IP addresses.
+	* `CMListCallback` now also includes WebSocket servers.
+	* `SteamClient.Connect` now optionally accepts a `ServerRecord` instead of optionally accepting an `IPEndPoint`. You can create a `ServerRecord` for a particular protocol type or set of protocol types.
+	* `IServerListProvider` now deals with `ServerRecord`s instead of `IPEndPoint`s.
+* Disabling server list fetching from the directory is now done via `SteamConfiguration` instead of `SmartCMServerList`.
+* `SteamDirectory` helper methods now accept a `SteamConfiguration` rather than just a cellid.
+* `SteamFriends.GetPersonaName()`, `SteamFriends.GetFriendPersonaName` and `SteamFriends.GetClanName` can all now return null if the value is unknown.
+* `WebAPI` used to throw a `WebException` on non-success status code, or other failure. It now throws `HttpRequestException`.
+* `CDNClient` and `WebAPI` now expose `Task`-based asynchronous methods. This replaces the previous synchronous methods.
+* `SteamID.ToString()` now prints a Steam3 string by default. For the older Steam2 `STEAM_X:Y:Z` format, use `SteamID.Render()`.
+* The default argument of `SteamID.Render(bool)` has been changed to render Steam3 by default instead of Steam2.\
+* Async job continuations are no longer invoked on the `CallbackMgr` thread.
+
+
+------------------------------------------------------------------------------
+v 1.8.3			Mar 28, 2017
+------------------------------------------------------------------------------
+* Obsoleted `TradeProposedCallback.OtherName`.
+
+This is the final release to support .NET Framework 4.5.
+
+
+------------------------------------------------------------------------------
+v 1.8.2			Mar 23, 2017
+------------------------------------------------------------------------------
+* Added support for Binary KeyValues field type 10 (`Int64`) (#376)
+* Obsoleted `SteamApps.GetAppInfo`, `SteamApps.GetPackageInfo`, and `SteamApps.GetAppChanges`. Use the PICS equivalents instead.
+* Updated game-related GC messages and protobufs.
+
+
+------------------------------------------------------------------------------
+v 1.8.1			Feb 22, 2017
+------------------------------------------------------------------------------
+* Added support for using CS servers that have (CDN) `usetokenauth` specified.
+* Added support for newer branch passwords with `SteamApps.CheckAppBetaPassword` and `CryptoHelper.SymmetricDecryptECB`.
+* Added `LastSeen` to the default info flags used by `SteamFriends.RequestFriendInfo`. (pr #313)
+* Tell Steam that we support the `RateLimitExceeded` logon response. (pr #307)
+* Fixed timeouts not being set for sending/receiving when using TCP. (pr #317)
+* Fixed more possible crashes when querying WMI on Windows.
+* Fixed concurrent calls to Disconnect possibly blocking connectLock indefinitely.
+* Fixed not escaping backslashes and newlines when serializing KeyValues to text. (bug #334)
+* Fixed KeyValues float parsing in cultures where comma is used as decimal separator. (bug #355)
+* Updated `SteamApps.GetCDNAuthToken` to populate `depot_id`.
+* Updated Steam enums and protobufs. (pr #323) (pr #326) (pr #327) (pr #328) (pr #329) (pr #330) (pr #361)
+* Updated game-related GC messages and protobufs.
+
+
+------------------------------------------------------------------------------
+v 1.8.0			Jul 8, 2016
+------------------------------------------------------------------------------
+* Added `CallbackManager.RunWaitAllCallbacks` (pr #292)
+* Added `KeyValue.AsUnsignedByte`. (pr #270)
+* Added `KeyValue.AsUnsignedInteger`. (pr #255)
+* Added `KeyValue.AsUnsignedShort`. (pr #270)
+* Added `SteamUserStats.GetNumberOfCurrentPlayers(GameID)`. (pr #234)
+* Added the ability to persist the server list to Isolated Storage. (pr #293)
+* Added the ability to persist the server list to a file. (pr #293)
+* Added support for fetching server list from the Steam Directory API. (pr #293)
+* Fixed a crash on Windows if WMI is unavailable.
+* Fixed a memory leak when reconnecting to Steam with the same `SteamClient` instance (pr #292)
+* Updated `SteamUserStats.GetNumberOfCurrentPlayers` to use messages that Steam continues to respond to. (pr #234)
+* Updated Steam enums and protobufs. (pr #271, pr #274, pr #296)
+* Updated game-related GC messages and protobufs.
+* Removed the hardcoded list of Steam server addresses. (pr #293)
+
+BREAKING CHANGES
+* `SmartCMServerList` APIs have changed to accomodate new server management behaviour.
+
+
+------------------------------------------------------------------------------
 v 1.7.0			Dec 21, 2015
 ------------------------------------------------------------------------------
 * Added awaitable API for job-based messages. APIs which returned a `JobID` now return an `AsyncJob<>`, which can be used to asynchronously await for results. (pr #170)

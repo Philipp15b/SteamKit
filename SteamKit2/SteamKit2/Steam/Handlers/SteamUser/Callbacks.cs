@@ -246,28 +246,9 @@ namespace SteamKit2
             public string Country { get; private set; }
 
             /// <summary>
-            /// Gets the salt used for the password.
-            /// </summary>
-            [Obsolete( "This field is no longer sent by Steam" )]
-            public byte[] PasswordSalt { get; private set; }
-            /// <summary>
-            /// Gets the SHA-1 disgest of the password.
-            /// </summary>
-            [Obsolete( "This field is no longer sent by Steam" )]
-            public byte[] PasswordSHADisgest { get; private set; }
-
-            /// <summary>
             /// Gets the count of SteamGuard authenticated computers.
             /// </summary>
             public int CountAuthedComputers { get; private set; }
-            /// <summary>
-            /// Gets a value indicating whether this account is locked with IPT.
-            /// </summary>
-            /// <value>
-            ///   <c>true</c> if this account is locked with IPT; otherwise, <c>false</c>.
-            /// </value>
-            [Obsolete( "This field is no longer sent by Steam" )]
-            public bool LockedWithIPT { get; private set; }
 
             /// <summary>
             /// Gets the account flags for this account.
@@ -315,10 +296,16 @@ namespace SteamKit2
             /// Gets the currency code for this wallet.
             /// </summary>
             public ECurrencyCode Currency { get; private set; }
+
             /// <summary>
-            /// Gets the balance of the wallet, in cents.
+            /// Gets the balance of the wallet as a 32-bit integer, in cents.
             /// </summary>
             public int Balance { get; private set; }
+
+            /// <summary>
+            /// Gets the balance of the wallet as a 64-bit integer, in cents.
+            /// </summary>
+            public long LongBalance { get; private set; }
 
 
             internal WalletInfoCallback( CMsgClientWalletInfoUpdate wallet )
@@ -327,6 +314,7 @@ namespace SteamKit2
 
                 Currency = ( ECurrencyCode )wallet.currency;
                 Balance = wallet.balance;
+                LongBalance = wallet.balance64;
             }
         }
 

@@ -1,8 +1,7 @@
-﻿using System;
+﻿using SteamKit2;
+using SteamKit2.Discovery;
+using System;
 using System.IO;
-using System.Net;
-using SteamKit2;
-using SteamKit2.Internal;
 
 //
 // Sample 7: ServerList
@@ -36,8 +35,28 @@ namespace Sample7_ServerList
             user = args[ 0 ];
             pass = args[ 1 ];
 
+            var cellid = 0u;
+
+            // if we've previously connected and saved our cellid, load it.
+            if ( File.Exists( "cellid.txt" ) )
+            {
+                if ( !uint.TryParse( File.ReadAllText( "cellid.txt"), out cellid ) )
+                {
+                    Console.WriteLine( "Error parsing cellid from cellid.txt. Continuing with cellid 0." );
+                    cellid = 0;
+                }
+                else
+                {
+                    Console.WriteLine( $"Using persisted cell ID {cellid}" );
+                }
+            }
+
+            var configuration = SteamConfiguration.Create( b =>
+                b.WithCellID( cellid )
+                 .WithServerListProvider( new FileStorageServerListProvider("servers_list.bin") ) );
+
             // create our steamclient instance
-            steamClient = new SteamClient();
+            steamClient = new SteamClient( configuration );
             // create the callback manager which will route callbacks to function calls
             manager = new CallbackManager( steamClient );
 
@@ -61,60 +80,6 @@ namespace Sample7_ServerList
                 steamUser.LogOff();
             };
 
-            var cellid = 0u;
-
-            // if we've previously connected and saved our cellid, load it.
-            if ( File.Exists( "cellid.txt" ) )
-            {
-                if ( !uint.TryParse( File.ReadAllText( "cellid.txt"), out cellid ) )
-                {
-                    Console.WriteLine( "Error parsing cellid from cellid.txt. Continuing with cellid 0." );
-                }
-                else
-                {
-                    Console.WriteLine( $"Using persisted cell ID {cellid}" );
-                }
-            }
-
-            if ( File.Exists( "servers.bin" ) )
-            {
-                // last time we connected to Steam, we got a list of servers. that list is persisted below.
-                // load that list of servers into the server list.
-                // this is a very simplistic serialization, you're free to serialize the server list however
-                // you like (json, xml, whatever).
-
-                using ( var fs = File.OpenRead( "servers.bin" ) )
-                using ( var reader = new BinaryReader( fs ) )
-                {
-                    while ( fs.Position < fs.Length )
-                    {
-                        var numAddressBytes = reader.ReadInt32();
-                        var addressBytes = reader.ReadBytes( numAddressBytes );
-                        var port = reader.ReadInt32();
-
-                        var ipaddress = new IPAddress( addressBytes );
-                        var endPoint = new IPEndPoint( ipaddress, port );
-
-                        CMClient.Servers.TryAdd( endPoint );
-                    }
-                }
-
-                Console.WriteLine($"Loaded {CMClient.Servers.GetAllEndPoints().Length} servers from server list cache.");
-            }
-            else
-            {
-                // since we don't have a list of servers saved, load the latest list of Steam servers
-                // from the Steam Directory.
-                var loadServersTask = SteamDirectory.Initialize( cellid );
-                loadServersTask.Wait();
-
-                if ( loadServersTask.IsFaulted )
-                {
-                    Console.WriteLine( "Error loading server list from directory: {0}", loadServersTask.Exception.Message );
-                    return;
-                }
-            }
-
             isRunning = true;
 
             Console.WriteLine( "Connecting to Steam..." );
@@ -128,33 +93,10 @@ namespace Sample7_ServerList
                 // in order for the callbacks to get routed, they need to be handled by the manager
                 manager.RunWaitCallbacks( TimeSpan.FromSeconds( 1 ) );
             }
-
-            // before we exit, save our current server list to disk.
-            // this is a very simplistic serialization, you're free to serialize the server list however
-            // you like (json, xml, whatever).
-            using ( var fs = File.OpenWrite( "servers.bin" ) )
-            using ( var writer = new BinaryWriter( fs ) )
-            {
-                foreach ( var endPoint in CMClient.Servers.GetAllEndPoints() )
-                {
-                    var addressBytes = endPoint.Address.GetAddressBytes();
-                    writer.Write( addressBytes.Length );
-                    writer.Write( addressBytes );
-                    writer.Write( endPoint.Port );
-                }
-            }
         }
 
         static void OnConnected( SteamClient.ConnectedCallback callback )
         {
-            if ( callback.Result != EResult.OK )
-            {
-                Console.WriteLine( "Unable to connect to Steam: {0}", callback.Result );
-
-                isRunning = false;
-                return;
-            }
-
             Console.WriteLine( "Connected to Steam! Logging in '{0}'...", user );
 
             steamUser.LogOn( new SteamUser.LogOnDetails

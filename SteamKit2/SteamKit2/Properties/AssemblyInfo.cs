@@ -12,12 +12,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle( "SteamKit2" )]
-[assembly: AssemblyDescription( "Steam Networking Library" )]
+[assembly: AssemblyTitle( "SteamKit2 ")]
+[assembly: AssemblyDescription( ".NET library that aims to interoperate with the Steam network." )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "SteamRE Team" )]
 [assembly: AssemblyProduct( "SteamKit2" )]
-[assembly: AssemblyCopyright( "Copyright © SteamRE Team 2015" )]
+[assembly: AssemblyCopyright( "Copyright © SteamRE Team 2018" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 
@@ -29,17 +29,10 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid( "cd42d0bc-72e4-451e-bcd0-5d09c4bca2a9" )]
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion( "1.7.0.*" )]
+// These are automatically modified by AppVeyor for CI builds and automated deployment.
+[assembly: AssemblyVersion( "2.0.0.0" )]
+[assembly: AssemblyFileVersion( "2.0.0.0" )]
+[assembly: AssemblyInformationalVersion( "2.0.0 - Development" )]
 
 #if DEBUG
 [assembly: InternalsVisibleTo( "Tests" )]

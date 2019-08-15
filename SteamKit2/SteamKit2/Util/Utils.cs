@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -73,7 +74,7 @@ namespace SteamKit2
                                 switch ( ver.Minor )
                                 {
                                     case 0:
-                                        return EOSType.Win200;
+                                        return EOSType.Win2000;
 
                                     case 1:
                                         return EOSType.WinXP;
@@ -93,19 +94,22 @@ namespace SteamKit2
                                         return EOSType.WinVista; // Also Server 2008
 
                                     case 1:
-                                        return EOSType.Win7; // Also Server 2008 R2
+                                        return EOSType.Windows7; // Also Server 2008 R2
 
                                     case 2:
-                                        return EOSType.Win8; // Also Server 2012
+                                        return EOSType.Windows8; // Also Server 2012
 
                                     // Note: The OSVersion property reports the same version number (6.2.0.0) for both Windows 8 and Windows 8.1.- http://msdn.microsoft.com/en-us/library/system.environment.osversion(v=vs.110).aspx
                                     // In practice, this will only get hit if the application targets Windows 8.1 in the app manifest.
                                     // See http://msdn.microsoft.com/en-us/library/windows/desktop/dn481241(v=vs.85).aspx for more info.
                                     case 3:
-                                        return EOSType.Win81; // Also Server 2012 R2
+                                        return EOSType.Windows81; // Also Server 2012 R2
                                 }
 
                                 goto default;
+
+                            case 10:
+                                return EOSType.Windows10;
 
                             default:
                                 return EOSType.WinUnknown;
@@ -114,7 +118,7 @@ namespace SteamKit2
 
                 case PlatformID.Unix:
                     {
-                        if ( IsRunningOnDarwin() )
+                        if ( IsMacOS() )
                         {
                             switch ( ver.Major )
                             {
@@ -130,6 +134,12 @@ namespace SteamKit2
                                 case 14:
                                    return EOSType.MacOS1010; // "Yosemite"
 
+                                case 15:
+                                    return EOSType.MacOS1011; // El Capitan
+
+                                case 16:
+                                    return EOSType.MacOS1012; // Sierra
+
                                 default:
                                     return EOSType.MacOSUnknown;
                             }
@@ -140,51 +150,18 @@ namespace SteamKit2
                         }
                     }
 
-                // Not currently used by Mono. Maybe .NET Core will use this someday?
-                case PlatformID.MacOSX:
-                    return EOSType.MacOSUnknown;
-
                 default:
                     return EOSType.Unknown;
             }
         }
 
-        public static bool IsRunningOnDarwin()
-        {
-            // Replace with a safer way if one exists in the future, such as if
-            // Mono actually decides to use PlatformID.MacOSX
-            var buffer = IntPtr.Zero;
-            try
-            {
-                buffer = Marshal.AllocHGlobal( 8192 );
-                if ( uname( buffer ) == 0 )
-                {
-                    var kernelName = Marshal.PtrToStringAnsi( buffer );
-                    if ( kernelName == "Darwin" )
-                    {
-                        return true;
-                    }
-                }
-            }
-            catch
-            {
-            }
-            finally
-            {
-                if ( buffer != IntPtr.Zero )
-                    Marshal.FreeHGlobal( buffer );
-            }
-
-            return false;
-        }
-
-        [DllImport ("libc")]
-        static extern int uname (IntPtr buf);
+        public static bool IsMacOS()
+            => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
         public static T[] GetAttributes<T>( this Type type, bool inherit = false )
             where T : Attribute
         {
-            return type.GetCustomAttributes( typeof( T ), inherit ) as T[];
+            return type.GetTypeInfo().GetCustomAttributes( typeof( T ), inherit ) as T[];
         }
     }
 
@@ -364,7 +341,7 @@ namespace SteamKit2
             IPEndPoint ipEndPoint = activeSocket.LocalEndPoint as IPEndPoint;
 
             if ( ipEndPoint == null || ipEndPoint.Address == IPAddress.Any )
-                throw new Exception( "Socket not connected" );
+                throw new InvalidOperationException( "Socket not connected" );
 
             return ipEndPoint.Address;
         }
@@ -406,15 +383,13 @@ namespace SteamKit2
                 return false;
             }
 
-            IPAddress address;
-            if (!IPAddress.TryParse(endpointParts[0], out address))
+            if (!IPAddress.TryParse(endpointParts[0], out var address))
             {
                 endPoint = null;
                 return false;
             }
 
-            int port;
-            if (!int.TryParse(endpointParts[1], out port))
+            if (!ushort.TryParse(endpointParts[1], out var port))
             {
                 endPoint = null;
                 return false;

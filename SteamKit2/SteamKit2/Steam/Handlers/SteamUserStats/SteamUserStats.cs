@@ -22,25 +22,24 @@ namespace SteamKit2
         {
             dispatchMap = new Dictionary<EMsg, Action<IPacketMsg>>
             {
-                { EMsg.ClientGetNumberOfCurrentPlayersResponse, HandleNumberOfPlayersResponse },
+                { EMsg.ClientGetNumberOfCurrentPlayersDPResponse, HandleNumberOfPlayersResponse },
                 { EMsg.ClientLBSFindOrCreateLBResponse, HandleFindOrCreateLBResponse },
                 { EMsg.ClientLBSGetLBEntriesResponse, HandleGetLBEntriesRespons },
             };
         }
 
-
         /// <summary>
-        /// Retrieves the number of current players for a given <see cref="GameID"/>.
+        /// Retrieves the number of current players for a given app id.
         /// Results are returned in a <see cref="NumberOfPlayersCallback"/>.
         /// </summary>
-        /// <param name="gameId">The GameID to request the number of players for.</param>
+        /// <param name="appId">The app id to request the number of players for.</param>
         /// <returns>The Job ID of the request. This can be used to find the appropriate <see cref="NumberOfPlayersCallback"/>.</returns>
-        public AsyncJob<NumberOfPlayersCallback> GetNumberOfCurrentPlayers( GameID gameId )
+        public AsyncJob<NumberOfPlayersCallback> GetNumberOfCurrentPlayers( uint appId )
         {
-            var msg = new ClientMsg<MsgClientGetNumberOfCurrentPlayers>();
+            var msg = new ClientMsgProtobuf<CMsgDPGetNumberOfCurrentPlayers>( EMsg.ClientGetNumberOfCurrentPlayersDP );
             msg.SourceJobID = Client.GetNextJobID();
 
-            msg.Body.GameID = gameId;
+            msg.Body.appid = appId;
 
             Client.Send( msg );
 
@@ -136,8 +135,12 @@ namespace SteamKit2
         /// <param name="packetMsg">The <see cref="SteamKit2.IPacketMsg"/> instance containing the event data.</param>
         public override void HandleMsg( IPacketMsg packetMsg )
         {
-            Action<IPacketMsg> handlerFunc;
-            bool haveFunc = dispatchMap.TryGetValue( packetMsg.MsgType, out handlerFunc );
+            if ( packetMsg == null )
+            {
+                throw new ArgumentNullException( nameof(packetMsg) );
+            }
+
+            bool haveFunc = dispatchMap.TryGetValue( packetMsg.MsgType, out var handlerFunc );
 
             if ( !haveFunc )
             {
@@ -152,9 +155,9 @@ namespace SteamKit2
         #region ClientMsg Handlers
         void HandleNumberOfPlayersResponse( IPacketMsg packetMsg )
         {
-            var msg = new ClientMsg<MsgClientGetNumberOfCurrentPlayersResponse>( packetMsg );
+            var msg = new ClientMsgProtobuf<CMsgDPGetNumberOfCurrentPlayersResponse>( packetMsg );
 
-            var callback = new NumberOfPlayersCallback( msg.Header.TargetJobID, msg.Body );
+            var callback = new NumberOfPlayersCallback( msg.TargetJobID, msg.Body );
             Client.PostCallback( callback );
         }
         void HandleFindOrCreateLBResponse( IPacketMsg packetMsg )

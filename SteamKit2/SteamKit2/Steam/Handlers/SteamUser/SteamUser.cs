@@ -40,8 +40,8 @@ namespace SteamKit2
             /// <summary>
             /// Gets or sets the LoginID. This number is used for identifying logon session.
             /// The purpose of this field is to allow multiple sessions to the same steam account from the same machine.
-            /// This is because Steam Network doesn't allow more than one session with the same LoginID to access given account at the same time.
-            /// If you want to establish more than one active session to given account, you must make sure that every session (to that account) has unique LoginID.
+            /// This is because Steam Network doesn't allow more than one session with the same LoginID to access given account at the same time from the same public IP.
+            /// If you want to establish more than one active session to given account, you must make sure that every session (to that account) from the same public IP has a unique LoginID.
             /// By default LoginID is automatically generated based on machine's primary bind address, which is the same for all sessions.
             /// Null value will cause this property to be automatically generated based on default behaviour.
             /// If in doubt, set this property to null.
@@ -290,7 +290,7 @@ namespace SteamKit2
         {
             if ( details == null )
             {
-                throw new ArgumentNullException( "details" );
+                throw new ArgumentNullException( nameof(details) );
             }
             if ( string.IsNullOrEmpty( details.Username ) || ( string.IsNullOrEmpty( details.Password ) && string.IsNullOrEmpty( details.LoginKey ) ) )
             {
@@ -311,7 +311,7 @@ namespace SteamKit2
 
             var logon = new ClientMsgProtobuf<CMsgClientLogon>( EMsg.ClientLogon );
 
-            SteamID steamId = new SteamID( details.AccountID, details.AccountInstance, Client.ConnectedUniverse, EAccountType.Individual );
+            SteamID steamId = new SteamID( details.AccountID, details.AccountInstance, Client.Universe, EAccountType.Individual );
 
             if ( details.LoginID.HasValue )
             {
@@ -339,6 +339,7 @@ namespace SteamKit2
 
             // we're now using the latest steamclient package version, this is required to get a proper sentry file for steam guard
             logon.Body.client_package_version = 1771; // todo: determine if this is still required
+            logon.Body.supports_rate_limit_response = true;
             logon.Body.machine_id = HardwareUtils.GetMachineID();
 
             // steam guard 
@@ -371,6 +372,11 @@ namespace SteamKit2
         /// <param name="details">The details to use for logging on.</param>
         public void LogOnAnonymous( AnonymousLogOnDetails details )
         {
+            if ( details == null )
+            {
+                throw new ArgumentNullException( nameof(details) );
+            }
+
             if ( !this.Client.IsConnected )
             {
                 this.Client.PostCallback( new LoggedOnCallback( EResult.NoConnection ) );
@@ -379,7 +385,7 @@ namespace SteamKit2
 
             var logon = new ClientMsgProtobuf<CMsgClientLogon>( EMsg.ClientLogon );
 
-            SteamID auId = new SteamID( 0, 0, Client.ConnectedUniverse, EAccountType.AnonUser );
+            SteamID auId = new SteamID( 0, 0, Client.Universe, EAccountType.AnonUser );
 
             logon.ProtoHeader.client_sessionid = 0;
             logon.ProtoHeader.steamid = auId.ConvertToUInt64();
@@ -413,6 +419,11 @@ namespace SteamKit2
         /// <param name="details">The details pertaining to the response.</param>
         public void SendMachineAuthResponse( MachineAuthDetails details )
         {
+            if ( details == null )
+            {
+                throw new ArgumentNullException( nameof(details) );
+            }
+
             var response = new ClientMsgProtobuf<CMsgClientUpdateMachineAuthResponse>( EMsg.ClientUpdateMachineAuthResponse );
 
             // so we respond to the correct message
@@ -459,6 +470,11 @@ namespace SteamKit2
         /// <param name="callback">The callback containing the new Login Key.</param>
         public void AcceptNewLoginKey( LoginKeyCallback callback )
         {
+            if ( callback == null )
+            {
+                throw new ArgumentNullException( nameof(callback) );
+            }
+
             var acceptance = new ClientMsgProtobuf<CMsgClientNewLoginKeyAccepted>( EMsg.ClientNewLoginKeyAccepted );
             acceptance.Body.unique_id = callback.UniqueID;
 
@@ -471,8 +487,12 @@ namespace SteamKit2
         /// <param name="packetMsg">The packet message that contains the data.</param>
         public override void HandleMsg( IPacketMsg packetMsg )
         {
-            Action<IPacketMsg> handlerFunc;
-            bool haveFunc = dispatchMap.TryGetValue( packetMsg.MsgType, out handlerFunc );
+            if ( packetMsg == null )
+            {
+                throw new ArgumentNullException( nameof(packetMsg) );
+            }
+
+            bool haveFunc = dispatchMap.TryGetValue( packetMsg.MsgType, out var handlerFunc );
 
             if ( !haveFunc )
             {

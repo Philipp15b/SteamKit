@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Management;
+using System.Threading.Tasks;
 using System.Net.NetworkInformation;
 using System.Text;
-using Microsoft.Win32;
+using SteamKit2.Util;
 using SteamKit2.Util.MacHelpers;
+using Microsoft.Win32;
 
 using static SteamKit2.Util.MacHelpers.LibC;
 using static SteamKit2.Util.MacHelpers.CoreFoundation;
 using static SteamKit2.Util.MacHelpers.DiskArbitration;
 using static SteamKit2.Util.MacHelpers.IOKit;
-using System.Threading.Tasks;
 
 namespace SteamKit2
 {
@@ -27,7 +26,7 @@ namespace SteamKit2
                     return new WindowsInfoProvider();
 
                 case PlatformID.Unix:
-                    if ( Utils.IsRunningOnDarwin() )
+                    if ( Utils.IsMacOS() )
                     {
                         return new OSXInfoProvider();
                     }
@@ -57,17 +56,23 @@ namespace SteamKit2
             // mono seems to have a pretty solid implementation of NetworkInterface for our platforms
             // if it turns out to be buggy we can always roll our own and poke into /sys/class/net on nix
 
-            var firstEth = NetworkInterface.GetAllNetworkInterfaces()
-                .Where( i => i.NetworkInterfaceType == NetworkInterfaceType.Ethernet || i.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 )
-                .FirstOrDefault();
-
-            if ( firstEth == null )
+            try
             {
-                // well...
-                return Encoding.UTF8.GetBytes( "SteamKit-MacAddress" );
-            }
+                var firstEth = NetworkInterface.GetAllNetworkInterfaces()
+                    .Where( i => i.NetworkInterfaceType == NetworkInterfaceType.Ethernet || i.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 )
+                    .FirstOrDefault();
 
-            return firstEth.GetPhysicalAddress().GetAddressBytes();
+                if ( firstEth != null )
+                {
+                    return firstEth.GetPhysicalAddress().GetAddressBytes();
+                }
+            }
+            catch ( NetworkInformationException )
+            {
+                // See: https://github.com/SteamRE/SteamKit/issues/629
+            }
+            // well...
+            return Encoding.UTF8.GetBytes( "SteamKit-MacAddress" );
         }
 
         public override byte[] GetDiskId()
@@ -101,29 +106,7 @@ namespace SteamKit2
 
         public override byte[] GetDiskId()
         {
-            var activePartition = WmiQuery(
-                @"SELECT DiskIndex FROM Win32_DiskPartition
-                  WHERE Bootable = 1"
-                ).FirstOrDefault();
-
-            if ( activePartition == null )
-            {
-                return base.GetDiskId();
-            }
-
-            uint index = (uint)activePartition["DiskIndex"];
-
-            var bootableDisk = WmiQuery(
-                @"SELECT SerialNumber FROM Win32_DiskDrive
-                  WHERE Index = {0}", index
-                ).FirstOrDefault();
-
-            if ( bootableDisk == null )
-            {
-                return base.GetDiskId();
-            }
-
-            string serialNumber = (string)bootableDisk["SerialNumber"];
+            var serialNumber = Win32Helpers.GetBootDiskSerialNumber();
 
             if ( string.IsNullOrEmpty( serialNumber ) )
             {
@@ -131,16 +114,6 @@ namespace SteamKit2
             }
 
             return Encoding.UTF8.GetBytes( serialNumber );
-        }
-
-
-        IEnumerable<ManagementObject> WmiQuery( string queryFormat, params object[] args )
-        {
-            string query = string.Format( queryFormat, args );
-
-            var searcher = new ManagementObjectSearcher( query );
-
-            return searcher.Get().Cast<ManagementObject>();
         }
     }
 

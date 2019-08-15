@@ -1,7 +1,7 @@
 # SteamKit2
 
-[![Build Status (Mono)](https://img.shields.io/travis/SteamRE/SteamKit.svg?style=flat-square&label=Mono)](https://travis-ci.org/SteamRE/SteamKit)
-[![Build Status (Windows)](https://img.shields.io/appveyor/ci/SteamRE/SteamKit.svg?style=flat-square&label=Windows)](https://ci.appveyor.com/project/SteamRE/SteamKit)
+[![Build Status (Linux)](https://img.shields.io/travis/SteamRE/SteamKit/master.svg?style=flat-square&label=Linux)](https://travis-ci.org/SteamRE/SteamKit)
+[![Build Status (Windows)](https://img.shields.io/appveyor/ci/SteamRE/SteamKit/master.svg?style=flat-square&label=Windows)](https://ci.appveyor.com/project/SteamRE/SteamKit)
 [![NuGet](https://img.shields.io/nuget/v/SteamKit2.svg?style=flat-square)](https://www.nuget.org/packages/SteamKit2/)
 [![Code Coverage](https://img.shields.io/badge/Code-Coverage-007ec6.svg?style=flat-square)](https://codecov.io/github/SteamRE/SteamKit)
 
@@ -39,11 +39,16 @@ SteamKit2 is released under the [LGPL-2.1 license](http://www.tldrlegal.com/lice
 
 In order to use SteamKit2 at runtime, the following dependencies are required:
 
-  - .NET 4.5 or [Mono ≥3.0](http://mono-project.com)
+  - A [.NET Standard 2.0](https://github.com/dotnet/standard/blob/master/docs/versions.md)-compatible runtime. At the time of writing, this is:
+      - .NET Framework 4.6.1
+      - .NET Core 2.0
+      - [Mono ≥5.4](http://mono-project.com)
 
 To compile SteamKit2, the following is required:
 
-  - C# 6.0 compiler &mdash; [Visual Studio 2015](https://www.visualstudio.com/en-us/products/vs-2015-product-editions.aspx) or [Mono ≥4.0](http://www.mono-project.com/docs/about-mono/releases/4.0.0/)
+  - C# 7.0 compiler &mdash; [.NET Core 2.0 SDK](https://www.microsoft.com/net/core).
+      - On Windows, [Visual Studio 2017 (≥15.3)](https://www.visualstudio.com/vs/whatsnew/) is optional but recommended.
+      - On macOS, [Visual Studio for Mac (≥7.1)](https://www.visualstudio.com/vs/visual-studio-mac/) is optional but recommended.
   - [protobuf-net](http://code.google.com/p/protobuf-net/) ([NuGet package](http://nuget.org/packages/protobuf-net))
 
 Note: If you're using the NuGet package, the protobuf-net dependency _should_ be resolved for you. See the [Installation Guide](https://github.com/SteamRE/SteamKit/wiki/Installation) for more information.

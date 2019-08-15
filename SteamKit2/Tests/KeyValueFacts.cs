@@ -26,8 +26,8 @@ namespace Tests
 
             kv.Children.Add( new KeyValue( "exists", "value" ) );
 
-            Assert.Equal( kv["exists"].Value, "value" );
-            Assert.Equal( kv["thiskeydoesntexist"], KeyValue.Invalid );
+            Assert.Equal( "value", kv["exists"].Value );
+            Assert.Equal( KeyValue.Invalid, kv["thiskeydoesntexist"] );
         }
 
         [Fact]
@@ -37,15 +37,15 @@ namespace Tests
 
             kv["key"] = new KeyValue();
 
-            Assert.Equal( kv.Children.Count, 1 );
+            Assert.Single( kv.Children );
 
             kv["key"] = new KeyValue();
 
-            Assert.Equal( kv.Children.Count, 1 );
+            Assert.Single( kv.Children );
 
             kv["key2"] = new KeyValue();
 
-            Assert.Equal( kv.Children.Count, 2 );
+            Assert.Equal( 2, kv.Children.Count );
         }
 
         [Fact]
@@ -59,8 +59,8 @@ namespace Tests
 
             kv["subkey"] = subkey;
 
-            Assert.Equal( subkey.Name, "subkey" );
-            Assert.Equal( kv["subkey"].Name, "subkey" );
+            Assert.Equal( "subkey", subkey.Name );
+            Assert.Equal( "subkey", kv["subkey"].Name );
         }
 
         [Fact]
@@ -85,7 +85,7 @@ namespace Tests
 
             KeyValue subKey = kv[ "subkey" ];
 
-            Assert.Equal( 1, subKey.Children.Count );
+            Assert.Single( subKey.Children );
 
             Assert.Equal( "name2", subKey[ "name2" ].Name );
             Assert.Equal( "value2", subKey[ "name2" ].Value );
@@ -283,47 +283,6 @@ namespace Tests
             }
         }
 
-#pragma warning disable 0618
-
-        [Fact]
-        public void KeyValueBinarySerialization_LoadAsBinaryPreservesBuggyBehavior()
-        {
-            var kv = new KeyValue( "MessageObject" );
-            kv.Children.Add( new KeyValue( "key", "value" ) );
-
-            KeyValue deserializedKv;
-
-            var temporaryFile = Path.GetTempFileName();
-            try
-            {
-                kv.SaveToFile( temporaryFile, asBinary: true );
-                deserializedKv = KeyValue.LoadAsBinary( temporaryFile );
-            }
-            finally
-            {
-                File.Delete( temporaryFile );
-            }
-
-            Assert.Null( deserializedKv.Name );
-            Assert.Equal(1, deserializedKv.Children.Count );
-
-            var actualKv = deserializedKv.Children[ 0 ];
-
-            Assert.Equal( kv.Name, actualKv.Name );
-            Assert.Equal( kv.Children.Count, actualKv.Children.Count );
-
-            for ( int i = 0; i < kv.Children.Count; i++ )
-            {
-                var originalChild = kv.Children[ i ];
-                var deserializedChild = actualKv.Children[ i ];
-                
-                Assert.Equal( originalChild.Name, deserializedChild.Name );
-                Assert.Equal( originalChild.Value, deserializedChild.Value );
-            }
-        }
-
-#pragma warning restore 0618
-
         [Fact]
         public void KeyValues_TryReadAsBinary_ReadsBinary()
         {
@@ -338,37 +297,10 @@ namespace Tests
 
             Assert.True( success, "Should have read test object." );
             Assert.Equal( "TestObject", kv.Name );
-            Assert.Equal( 1, kv.Children.Count );
+            Assert.Single( kv.Children );
             Assert.Equal( "key", kv.Children[0].Name );
             Assert.Equal( "value", kv.Children[0].Value );
         }
-
-#pragma warning disable 0618
-
-        [Fact]
-        public void KeyValuesReadsBinary_ReadAsBinary_PreservesBuggyBehavior()
-        {
-            var binary = Utils.DecodeHexString( TestObjectHex );
-            var kv = new KeyValue();
-            bool success;
-            using ( var ms = new MemoryStream( binary ) )
-            {
-                success = kv.ReadAsBinary( ms );
-                Assert.Equal( ms.Length, ms.Position );
-            }
-
-            Assert.True( success, "Should have read test object." );
-            Assert.Null( kv.Name );
-            Assert.Equal( 1, kv.Children.Count );
-
-            var actualKv = kv.Children[ 0 ];
-            Assert.Equal( "TestObject", actualKv.Name );
-            Assert.Equal( 1, actualKv.Children.Count );
-            Assert.Equal( "key", actualKv.Children[0].Name );
-            Assert.Equal( "value", actualKv.Children[0].Value );
-        }
-
-#pragma warning restore 0618
 
         [Fact]
         public void KeyValuesReadsBinaryWithLeftoverData()
@@ -385,7 +317,7 @@ namespace Tests
 
             Assert.True( success, "Should have read test object." );
             Assert.Equal( "TestObject", kv.Name );
-            Assert.Equal( 1, kv.Children.Count );
+            Assert.Single( kv.Children );
             Assert.Equal( "key", kv.Children[0].Name );
             Assert.Equal( "value", kv.Children[0].Value );
         }
@@ -498,6 +430,67 @@ namespace Tests
             }
 
             Assert.Equal( expected, text );
+        }
+
+        [Fact]
+        public void KeyValuesUnsignedByteConversion()
+        {
+            byte expectedValue = 37;
+
+            var kv = new KeyValue( "key", "37" );
+            Assert.Equal( expectedValue, kv.AsUnsignedByte() );
+
+            kv.Value = "256";
+            Assert.Equal( expectedValue, kv.AsUnsignedByte(expectedValue) );
+        }
+
+        [Fact]
+        public void KeyValuesUnsignedShortConversion()
+        {
+            ushort expectedValue = 1337;
+
+            var kv = new KeyValue( "key", "1337" );
+            Assert.Equal( expectedValue, kv.AsUnsignedShort() );
+
+            kv.Value = "123456";
+            Assert.Equal( expectedValue, kv.AsUnsignedShort(expectedValue) );
+        }
+
+        [Fact]
+        public void KeyValuesEscapesTextWhenSerializing()
+        {
+            var kv = new KeyValue( "key" );
+            kv.Children.Add( new KeyValue( "slashes", @"\o/" ) );
+            kv.Children.Add( new KeyValue( "newline", "\r\n" ) );
+
+            string text;
+            using ( var ms = new MemoryStream() )
+            {
+                kv.SaveToStream( ms, asBinary: false );
+                ms.Seek( 0, SeekOrigin.Begin );
+                using ( var reader = new StreamReader( ms ) )
+                {
+                    text = reader.ReadToEnd();
+                }
+            }
+
+            var expectedValue = "\"key\"\n{\n\t\"slashes\"\t\t\"\\\\o/\"\n\t\"newline\"\t\t\"\\r\\n\"\n}\n";
+            Assert.Equal( expectedValue, text );
+        }
+
+        [Fact]
+        public void DecodesBinaryWithFieldType10()
+        {
+            var hex = "00546573744F626A656374000A6B65790001020304050607080808";
+            var binary = Utils.DecodeHexString( hex );
+            var kv = new KeyValue();
+            using (var ms = new MemoryStream(binary))
+            {
+                var read = kv.TryReadAsBinary(ms);
+                Assert.True(read);
+            }
+
+            Assert.Equal( 0x0807060504030201, kv["key"].AsLong() );
         }
 
         const string TestObjectHex = "00546573744F626A65637400016B65790076616C7565000808";

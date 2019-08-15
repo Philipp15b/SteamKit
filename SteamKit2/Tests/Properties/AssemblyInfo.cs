@@ -1,16 +1,16 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Xunit;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SteamKit2Tests")]
+[assembly: AssemblyTitle("SteamKit2 Tests")]
 [assembly: AssemblyDescription("SteamKit2 Tests")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("SteamRE Team")]
 [assembly: AssemblyProduct("SteamKit2Tests")]
-[assembly: AssemblyCopyright("Copyright © SteamRE Team 2013")]
+[assembly: AssemblyCopyright("Copyright © SteamRE Team 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -34,3 +34,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]

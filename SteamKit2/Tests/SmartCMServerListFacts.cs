@@ -1,5 +1,7 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using SteamKit2;
+using SteamKit2.Discovery;
 using Xunit;
 
 namespace Tests
@@ -8,304 +10,195 @@ namespace Tests
     {
         public SmartCMServerListFacts()
         {
-            serverList = new SmartCMServerList();
+            var configuration = SteamConfiguration.Create(b => b.WithDirectoryFetch(false));
+            serverList = new SmartCMServerList(configuration);
         }
 
         readonly SmartCMServerList serverList;
         
         [Fact]
-        public void TryAdd_ReturnsTrue_WhenAdded()
-        {
-            var endPoint = new IPEndPoint( IPAddress.Loopback, 27015 );
-            var added = serverList.TryAdd( endPoint );
-            Assert.True( added, "TryAdd should have added the IPEndPoint to the list." );
-
-            var addresses = serverList.GetAllEndPoints();
-            Assert.Equal( 1, addresses.Length );
-            Assert.Equal( endPoint, addresses[ 0 ] );
-        }
-
-        [Fact]
-        public void TryAddRange_ReturnsTrue_WhenAdded()
-        {
-            var endPoint = new IPEndPoint( IPAddress.Loopback, 27015 );
-            var added = serverList.TryAddRange( new[] { endPoint } );
-            Assert.True( added, "TryAddRange should have added the IPEndPoint to the list." );
-
-            var addresses = serverList.GetAllEndPoints();
-            Assert.Equal( 1, addresses.Length );
-            Assert.Equal( endPoint, addresses[ 0 ] );
-        }
-
-        [Fact]
-        public void TryAdd_ReturnsFalse_WhenEqualEndPointAlreadyAdded()
-        {
-            var endPoint = new IPEndPoint( IPAddress.Loopback, 27015 );
-            serverList.TryAdd( endPoint );
-
-            var added = serverList.TryAdd( new IPEndPoint( IPAddress.Loopback, 27015 ) );
-            Assert.False( added, "TryAdd should not have added the equal IPEndPoint to the list." );
-
-            var addresses = serverList.GetAllEndPoints();
-            Assert.Equal( 1, addresses.Length );
-            Assert.Equal( endPoint, addresses[ 0 ] );
-        }
-
-        [Fact]
-        public void TryAddRange_ReturnsFalse_WhenAnyEqualEndPointAlreadyAdded()
-        {
-            var endPoint = new IPEndPoint( IPAddress.Loopback, 27015 );
-            serverList.TryAdd( endPoint );
-
-            var added = serverList.TryAddRange( new[] { new IPEndPoint( IPAddress.Loopback, 27015 ), new IPEndPoint( IPAddress.Loopback, 27016 ) } );
-            Assert.False( added, "TryAddRange should not have added the equal IPEndPoint to the list." );
-
-            var addresses = serverList.GetAllEndPoints();
-            Assert.Equal( 1, addresses.Length );
-            Assert.Equal( endPoint, addresses[ 0 ] );
-        }
-
-        [Fact]
-        public void TryAdd_ReturnsTrue_AddingEndPointWithDifferentAddress()
-        {
-            serverList.TryAdd( new IPEndPoint( IPAddress.Loopback, 27015 ) );
-
-            var endPoint = new IPEndPoint( IPAddress.Parse( "192.168.0.1" ), 27015 );
-
-            var added = serverList.TryAdd( endPoint );
-            Assert.True( added, "TryAdd should have added the IPEndPoint to the list." );
-
-            var addresses = serverList.GetAllEndPoints();
-            Assert.Equal( 2, addresses.Length );
-            Assert.Equal( endPoint, addresses[ 1 ] );
-        }
-        
-        [Fact]
-        public void TryAddRange_ReturnsTrue_AddingEndPointWithDifferentAddress()
-        {
-            serverList.TryAdd( new IPEndPoint( IPAddress.Loopback, 27015 ) );
-
-            var endPoint = new IPEndPoint( IPAddress.Parse( "192.168.0.1" ), 27015 );
-
-            var added = serverList.TryAddRange( new[] { endPoint } );
-            Assert.True( added, "TryAddRange should have added the IPEndPoint to the list." );
-
-            var addresses = serverList.GetAllEndPoints();
-            Assert.Equal( 2, addresses.Length );
-            Assert.Equal( endPoint, addresses[ 1 ] );
-        }
-
-        [Fact]
-        public void TryAdd_ReturnsTrue_AddingEndPointWithDifferentPort()
-        {
-            serverList.TryAdd( new IPEndPoint( IPAddress.Loopback, 27015 ) );
-
-            var endPoint = new IPEndPoint( IPAddress.Loopback, 27016 );
-
-            var added = serverList.TryAdd( endPoint );
-            Assert.True( added, "TryAdd should have added the IPEndPoint to the list." );
-
-            var addresses = serverList.GetAllEndPoints();
-            Assert.Equal( 2, addresses.Length );
-            Assert.Equal( endPoint, addresses[ 1 ] );
-        }
-
-        [Fact]
-        public void TryAddRange_ReturnsTrue_AddingEndPointWithDifferentPort()
-        {
-            serverList.TryAdd( new IPEndPoint( IPAddress.Loopback, 27015 ) );
-
-            var endPoint = new IPEndPoint( IPAddress.Loopback, 27016 );
-
-            var added = serverList.TryAddRange( new[] { endPoint } );
-            Assert.True( added, "TryAddRange should have added the IPEndPoint to the list." );
-
-            var addresses = serverList.GetAllEndPoints();
-            Assert.Equal( 2, addresses.Length );
-            Assert.Equal( endPoint, addresses[ 1 ] );
-        }
-
-        [Fact]
-        public void TryAdd_ReturnsTrue_AddingEndPointWithDifferentAddressAndPort()
-        {
-            serverList.TryAdd( new IPEndPoint( IPAddress.Loopback, 27015 ) );
-
-            var endPoint = new IPEndPoint( IPAddress.Parse( "192.168.0.1" ), 27016 );
-
-            var added = serverList.TryAdd( endPoint );
-            Assert.True( added, "TryAdd should have added the IPEndPoint to the list." );
-
-            var addresses = serverList.GetAllEndPoints();
-            Assert.Equal( 2, addresses.Length );
-            Assert.Equal( endPoint, addresses[ 1 ] );
-        }
-
-        [Fact]
-        public void TryAddRange_ReturnsTrue_AddingEndPointWithDifferentAddressAndPort()
-        {
-            serverList.TryAdd( new IPEndPoint( IPAddress.Loopback, 27015 ) );
-
-            var endPoint = new IPEndPoint( IPAddress.Parse( "192.168.0.1" ), 27016 );
-
-            var added = serverList.TryAddRange( new[] { endPoint } );
-            Assert.True( added, "TryAddRange should have added the IPEndPoint to the list." );
-
-            var addresses = serverList.GetAllEndPoints();
-            Assert.Equal( 2, addresses.Length );
-            Assert.Equal( endPoint, addresses[ 1 ] );
-        }
-
-        [Fact]
-        public void TryAdd_ReturnsTrue_AddingAVarietyOfEndPointsWithDifferentAddressAndPort()
-        {
-            serverList.TryAdd(new IPEndPoint(IPAddress.Loopback, 27015));
-            Assert.Equal(1, serverList.GetAllEndPoints().Length);
-
-            var endPoints = new[]
-            {
-                new IPEndPoint( IPAddress.Parse( "192.168.0.1" ), 27015 ),
-                new IPEndPoint( IPAddress.Parse( "192.168.0.1" ), 27016 ),
-                new IPEndPoint( IPAddress.Parse( "192.168.1.1" ), 27017 ),
-                new IPEndPoint( IPAddress.Parse( "10.10.0.1" ), 27017 )
-            };
-
-            var added = serverList.TryAddRange(endPoints);
-            Assert.True(added, "TryAddRange should have added the IPEndPoints to the list.");
-            Assert.Equal( 5, serverList.GetAllEndPoints().Length );
-        }
-
-        [Fact]
-        public void TryAddRange_ReturnsTrue_AddingDuplicateEndPointsInSingleRange()
-        {
-            serverList.TryAdd( new IPEndPoint( IPAddress.Loopback, 27015 ) );
-
-            var endPoints = new[]
-            {
-                new IPEndPoint( IPAddress.Parse( "192.168.0.1" ), 27015 ),
-                new IPEndPoint( IPAddress.Parse( "192.168.0.1" ), 27015 )
-            };
-
-            var added = serverList.TryAddRange( endPoints );
-            Assert.True( added, "TryAddRange should have added the IPEndPoints to the list." );
-            Assert.Equal( 2, serverList.GetAllEndPoints().Length );
-        }
-        
-        [Fact]
         public void TryMergeWithList_AddsToHead_AndMovesExisting()
         {
+            serverList.GetAllEndPoints();
+
             var seedList = new[]
             {
-                new IPEndPoint( IPAddress.Loopback, 27025 ),
-                new IPEndPoint( IPAddress.Loopback, 27035 ),
-                new IPEndPoint( IPAddress.Loopback, 27045 ),
-                new IPEndPoint( IPAddress.Loopback, 27105 ),
+                ServerRecord.CreateSocketServer(new IPEndPoint( IPAddress.Loopback, 27025 )),
+                ServerRecord.CreateSocketServer(new IPEndPoint( IPAddress.Loopback, 27035 )),
+                ServerRecord.CreateSocketServer(new IPEndPoint( IPAddress.Loopback, 27045 )),
+                ServerRecord.CreateSocketServer(new IPEndPoint( IPAddress.Loopback, 27105 )),
             };
-            var seeded = serverList.TryAddRange( seedList );
-            Assert.True( seeded, "Sanity check" );
+            serverList.ReplaceList( seedList );
+            Assert.Equal( 4, seedList.Length );
 
-            var listToMerge = new[]
+            var listToReplace = new[]
             {
-                new IPEndPoint( IPAddress.Loopback, 27015 ),
-                new IPEndPoint( IPAddress.Loopback, 27035 ),
-                new IPEndPoint( IPAddress.Loopback, 27105 ),
+                ServerRecord.CreateSocketServer(new IPEndPoint( IPAddress.Loopback, 27015 )),
+                ServerRecord.CreateSocketServer(new IPEndPoint( IPAddress.Loopback, 27035 )),
+                ServerRecord.CreateSocketServer(new IPEndPoint( IPAddress.Loopback, 27105 )),
             };
 
-            serverList.MergeWithList( listToMerge );
+            serverList.ReplaceList( listToReplace );
 
             var addresses = serverList.GetAllEndPoints();
-            Assert.Equal( 5, addresses.Length );
-            Assert.Equal( listToMerge[ 0 ], addresses[ 0 ] );
-            Assert.Equal( listToMerge[ 1 ], addresses[ 1 ] );
-            Assert.Equal( seedList[ 1 ], addresses[ 1 ] );
-            Assert.Equal( listToMerge[ 2 ], addresses[ 2 ] );
-            Assert.Equal( seedList[ 3 ], addresses[ 2 ] );
-            Assert.Equal( seedList[ 0 ], addresses[ 3 ] );
-            Assert.Equal( seedList[ 2 ], addresses[ 4 ] );
+            Assert.Equal( 3, addresses.Length );
+            Assert.Equal( listToReplace[ 0 ], addresses[ 0 ] );
+            Assert.Equal( listToReplace[ 1 ], addresses[ 1 ] );
+            Assert.Equal( listToReplace[ 2 ], addresses[ 2 ] );
         }
 
         [Fact]
         public void GetNextServerCandidate_ReturnsNull_IfListIsEmpty()
         {
-            var endPoint = serverList.GetNextServerCandidate();
+            var endPoint = serverList.GetNextServerCandidate( ProtocolTypes.Tcp );
             Assert.Null( endPoint );
         }
 
         [Fact]
         public void GetNextServerCandidate_ReturnsServer_IfListHasServers()
         {
-            var endPoint = new IPEndPoint( IPAddress.Loopback, 27015 );
-            serverList.TryAdd( endPoint );
+            serverList.GetAllEndPoints();
 
-            var nextEndPoint = serverList.GetNextServerCandidate();
-            Assert.Equal( endPoint, nextEndPoint );
+            var record = ServerRecord.CreateSocketServer( new IPEndPoint( IPAddress.Loopback, 27015 ) );
+            serverList.ReplaceList( new List<ServerRecord>() { record } );
+
+            var nextRecord = serverList.GetNextServerCandidate( ProtocolTypes.Tcp );
+            Assert.Equal( record.EndPoint, nextRecord.EndPoint );
+            Assert.Equal( ProtocolTypes.Tcp, nextRecord.ProtocolTypes );
         }
 
         [Fact]
         public void GetNextServerCandidate_ReturnsServer_IfListHasServers_EvenIfAllServersAreBad()
         {
-            var endPoint = new IPEndPoint( IPAddress.Loopback, 27015 );
-            serverList.TryAdd( endPoint );
-            serverList.TryMark( endPoint, ServerQuality.Bad );
+            serverList.GetAllEndPoints();
 
-            var nextEndPoint = serverList.GetNextServerCandidate();
-            Assert.Equal( endPoint, nextEndPoint );
+            var record = ServerRecord.CreateSocketServer( new IPEndPoint( IPAddress.Loopback, 27015 ) );
+            serverList.ReplaceList( new List<ServerRecord>() { record } );
+            serverList.TryMark( record.EndPoint, record.ProtocolTypes, ServerQuality.Bad );
+
+            var nextRecord = serverList.GetNextServerCandidate( ProtocolTypes.Tcp );
+            Assert.Equal( record.EndPoint, nextRecord.EndPoint );
+            Assert.Equal( ProtocolTypes.Tcp, nextRecord.ProtocolTypes );
         }
 
         [Fact]
         public void GetNextServerCandidate_IsBiasedTowardsServerOrdering()
         {
-            var goodEndPoint = new IPEndPoint(IPAddress.Loopback, 27015);
-            var neutralEndPoint = new IPEndPoint(IPAddress.Loopback, 27016);
-            var badEndPoint = new IPEndPoint(IPAddress.Loopback, 27017);
+            serverList.GetAllEndPoints();
+            
+            var goodRecord = ServerRecord.CreateSocketServer( new IPEndPoint( IPAddress.Loopback, 27015 ) );
+            var neutralRecord = ServerRecord.CreateSocketServer( new IPEndPoint( IPAddress.Loopback, 27016 ) );
+            var badRecord = ServerRecord.CreateSocketServer( new IPEndPoint( IPAddress.Loopback, 27017 ) );
 
-            serverList.TryAdd( badEndPoint );
-            serverList.TryAdd( neutralEndPoint );
-            serverList.TryAdd( goodEndPoint );
+            serverList.ReplaceList( new List<ServerRecord>() { badRecord, neutralRecord, goodRecord } );
 
-            serverList.TryMark( badEndPoint, ServerQuality.Bad );
-            serverList.TryMark( goodEndPoint, ServerQuality.Good );
+            serverList.TryMark( badRecord.EndPoint, badRecord.ProtocolTypes, ServerQuality.Bad );
+            serverList.TryMark( goodRecord.EndPoint, goodRecord.ProtocolTypes, ServerQuality.Good );
 
-            var nextServerCandidate = serverList.GetNextServerCandidate();
-            Assert.Equal( neutralEndPoint, nextServerCandidate );
+            var nextRecord = serverList.GetNextServerCandidate( ProtocolTypes.Tcp );
+            Assert.Equal( neutralRecord.EndPoint, nextRecord.EndPoint );
+            Assert.Equal( ProtocolTypes.Tcp, nextRecord.ProtocolTypes );
 
-            serverList.TryMark( badEndPoint, ServerQuality.Good);
+            serverList.TryMark( badRecord.EndPoint, badRecord.ProtocolTypes, ServerQuality.Good);
 
-            nextServerCandidate = serverList.GetNextServerCandidate();
-            Assert.Equal( badEndPoint, nextServerCandidate );
+            nextRecord = serverList.GetNextServerCandidate( ProtocolTypes.Tcp );
+            Assert.Equal( badRecord.EndPoint, nextRecord.EndPoint );
+            Assert.Equal( ProtocolTypes.Tcp, nextRecord.ProtocolTypes );
         }
-        
+
+        [Fact]
+        public void GetNextServerCandidate_OnlyReturnsMatchingServerOfType()
+        {
+            var record = ServerRecord.CreateWebSocketServer( "localhost:443" );
+            serverList.ReplaceList( new List<ServerRecord>() { record } );
+
+            var endPoint = serverList.GetNextServerCandidate( ProtocolTypes.Tcp );
+            Assert.Null( endPoint );
+            endPoint = serverList.GetNextServerCandidate( ProtocolTypes.Udp );
+            Assert.Null( endPoint );
+            endPoint = serverList.GetNextServerCandidate( ProtocolTypes.Tcp | ProtocolTypes.Udp);
+            Assert.Null( endPoint );
+
+            endPoint = serverList.GetNextServerCandidate( ProtocolTypes.WebSocket );
+            Assert.Equal( record.EndPoint, endPoint.EndPoint );
+            Assert.Equal( ProtocolTypes.WebSocket, endPoint.ProtocolTypes );
+
+            endPoint = serverList.GetNextServerCandidate( ProtocolTypes.All );
+            Assert.Equal( record.EndPoint, endPoint.EndPoint );
+            Assert.Equal( ProtocolTypes.WebSocket, endPoint.ProtocolTypes );
+
+            record = ServerRecord.CreateSocketServer( new IPEndPoint( IPAddress.Loopback, 27015 ) );
+            serverList.ReplaceList( new List<ServerRecord>() { record } );
+
+            endPoint = serverList.GetNextServerCandidate( ProtocolTypes.WebSocket );
+            Assert.Null( endPoint );
+
+            endPoint = serverList.GetNextServerCandidate( ProtocolTypes.Tcp );
+            Assert.Equal( record.EndPoint, endPoint.EndPoint );
+            Assert.Equal( ProtocolTypes.Tcp, endPoint.ProtocolTypes );
+
+            endPoint = serverList.GetNextServerCandidate( ProtocolTypes.Udp);
+            Assert.Equal( record.EndPoint, endPoint.EndPoint );
+            Assert.Equal( ProtocolTypes.Udp, endPoint.ProtocolTypes );
+
+            endPoint = serverList.GetNextServerCandidate( ProtocolTypes.Tcp | ProtocolTypes.Udp );
+            Assert.Equal( record.EndPoint, endPoint.EndPoint );
+            Assert.Equal( ProtocolTypes.Tcp, endPoint.ProtocolTypes );
+
+            endPoint = serverList.GetNextServerCandidate( ProtocolTypes.All );
+            Assert.Equal( record.EndPoint, endPoint.EndPoint );
+            Assert.Equal( ProtocolTypes.Tcp, endPoint.ProtocolTypes );
+        }
+
         [Fact]
         public void TryMark_ReturnsTrue_IfServerInList()
         {
-            var endPoint = new IPEndPoint( IPAddress.Loopback, 27015 );
-            serverList.TryAdd( endPoint );
+            var record = ServerRecord.CreateSocketServer( new IPEndPoint( IPAddress.Loopback, 27015 ));
+            serverList.ReplaceList( new List<ServerRecord>() { record } );
 
-            var marked = serverList.TryMark( endPoint, ServerQuality.Good );
+            var marked = serverList.TryMark( record.EndPoint, record.ProtocolTypes, ServerQuality.Good );
             Assert.True( marked );
         }
 
         [Fact]
         public void TryMark_ReturnsFalse_IfServerNotInList()
         {
-            var endPoint = new IPEndPoint( IPAddress.Loopback, 27015 );
-            serverList.TryAdd( endPoint );
+            var record = ServerRecord.CreateSocketServer( new IPEndPoint( IPAddress.Loopback, 27015 ) );
+            serverList.ReplaceList( new List<ServerRecord>() { record } );
 
-            var marked = serverList.TryMark( new IPEndPoint( IPAddress.Loopback, 27016 ), ServerQuality.Good );
+            var marked = serverList.TryMark( new IPEndPoint( IPAddress.Loopback, 27016 ), record.ProtocolTypes, ServerQuality.Good );
             Assert.False( marked );
         }
 
         [Fact]
-        public void Clear_RemovesAllServers()
+        public void TreatsProtocolsForSameServerIndividiaully()
         {
-            for (int i = 0; i < 20; i++)
-            {
-                serverList.TryAdd(new IPEndPoint(IPAddress.Loopback, 27015 + i));
-            }
-            Assert.Equal(20, serverList.GetAllEndPoints().Length);
+            var record1 = ServerRecord.CreateServer( IPAddress.Loopback.ToString(), 27015, ProtocolTypes.Tcp | ProtocolTypes.Udp );
+            var record2 = ServerRecord.CreateServer( IPAddress.Loopback.ToString(), 27016, ProtocolTypes.Tcp | ProtocolTypes.Udp );
 
-            serverList.Clear();
+            serverList.ReplaceList( new[] { record1, record2 } );
+            
+            var nextTcp = serverList.GetNextServerCandidate( ProtocolTypes.Tcp );
+            var nextUdp = serverList.GetNextServerCandidate( ProtocolTypes.Udp );
+            
+            Assert.Equal( record1.EndPoint, nextTcp.EndPoint );
+            Assert.Equal( record1.EndPoint, nextUdp.EndPoint );
 
-            Assert.Equal(0, serverList.GetAllEndPoints().Length);
+            serverList.TryMark( record1.EndPoint, ProtocolTypes.Tcp, ServerQuality.Bad );
+            
+            nextTcp = serverList.GetNextServerCandidate( ProtocolTypes.Tcp );
+            nextUdp = serverList.GetNextServerCandidate( ProtocolTypes.Udp );
+            
+            Assert.Equal( record2.EndPoint, nextTcp.EndPoint );
+            Assert.Equal( record1.EndPoint, nextUdp.EndPoint );
+
+            serverList.TryMark( record1.EndPoint, ProtocolTypes.Udp, ServerQuality.Bad );
+            
+            nextTcp = serverList.GetNextServerCandidate( ProtocolTypes.Tcp );
+            nextUdp = serverList.GetNextServerCandidate( ProtocolTypes.Udp );
+            
+            Assert.Equal( record2.EndPoint, nextTcp.EndPoint );
+            Assert.Equal( record2.EndPoint, nextUdp.EndPoint );
         }
     }
 }

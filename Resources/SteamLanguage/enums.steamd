@@ -2,7 +2,7 @@
 enum EUniverse
 {
 	Invalid = 0;
-	
+
 	Public = 1;
 	Beta = 2;
 	Internal = 3;
@@ -14,12 +14,12 @@ enum EUniverse
 enum EChatEntryType
 {
 	Invalid = 0;
-	
+
 	ChatMsg = 1;
 	Typing = 2;
 	InviteGame = 3;
-	Emote = 4; obsolete "No longer supported by clients"
-	LobbyGameStart = 5; obsolete "Listen for LobbyGameCreated_t callback instead"
+	Emote = 4; removed "No longer supported by clients"
+	LobbyGameStart = 5; removed "Listen for LobbyGameCreated_t callback instead"
 	LeftConversation = 6;
 	Entered = 7;
 	WasKicked = 8;
@@ -41,8 +41,9 @@ enum EPersonaState
 	Snooze = 4;
 	LookingToTrade = 5;
 	LookingToPlay = 6;
+	Invisible = 7;
 
-	Max = 7;
+	Max = 8;
 };
 
 enum EAccountType
@@ -66,14 +67,14 @@ enum EAccountType
 enum EFriendRelationship
 {
 	None = 0;
-	
+
 	Blocked = 1;
 	RequestRecipient = 2;
 	Friend = 3;
 	RequestInitiator = 4;
 	Ignored = 5;
 	IgnoredFriend = 6;
-	SuggestedFriend = 7;
+	SuggestedFriend = 7; removed "was used by the original implementation of the facebook linking feature; but now unused."
 
 	Max = 8;
 };
@@ -81,7 +82,7 @@ enum EFriendRelationship
 enum EAccountFlags flags
 {
 	NormalUser = 0;
-	
+
 	PersonaNameSet = 1;
 	Unbannable = 2;
 	PasswordSet = 4;
@@ -110,12 +111,15 @@ enum EAccountFlags flags
 	BannedFromWebAPI = 33554432;
 	ClansOnlyFromFriends = 67108864;
 	GlobalModerator = 134217728;
+	ParentalSettings = 268435456;
+	ThirdPartySupport = 536870912;
+	NeedsSSANextSteamLogon = 1073741824;
 };
 
 enum EClanPermission flags
 {
 	Nobody = 0;
-	
+
 	Owner = 1;
 	Officer = 2;
 	OwnerAndOfficer = 3;
@@ -173,6 +177,7 @@ enum EFriendFlags flags
 	Ignored = 512;
 	IgnoredFriend = 1024;
 	Suggested = 2048;
+	ChatMember = 4096;
 
 	FlagAll = 65535;
 };
@@ -181,10 +186,18 @@ enum EPersonaStateFlag flags
 {
 	HasRichPresence = 1;
 	InJoinableGame = 2;
-	
-	OnlineUsingWeb = 256;
-	OnlineUsingMobile = 512;
-	OnlineUsingBigPicture = 1024;
+	Golden = 4;
+
+	OnlineUsingWeb = 256; removed "renamed to ClientTypeWeb"
+	ClientTypeWeb = 256;
+	OnlineUsingMobile = 512; removed "renamed to ClientTypeMobile"
+	ClientTypeMobile = 512;
+	OnlineUsingBigPicture = 1024; removed "renamed to ClientTypeTenfoot"
+	ClientTypeTenfoot = 1024;
+	OnlineUsingVR = 2048; removed "renamed to ClientTypeVR"
+	ClientTypeVR = 2048;
+	LaunchTypeGamepad = 4096;
+	LaunchTypeCompatTool = 8192;
 };
 
 enum EClientPersonaStateFlag flags
@@ -194,13 +207,18 @@ enum EClientPersonaStateFlag flags
 	QueryPort = 4;
 	SourceID = 8;
 	Presence = 16;
-	Metadata = 32;
+	Metadata = 32; removed
 	LastSeen = 64;
-	ClanInfo = 128;
+	ClanInfo = 128; obsolete "renamed to UserClanRank"
+	UserClanRank = 128;
 	GameExtraInfo = 256;
 	GameDataBlob = 512;
-	ClanTag = 1024;
+	ClanTag = 1024; obsolete "renamed to ClanData"
+	ClanData = 1024;
 	Facebook = 2048;
+	RichPresence = 4096;
+	Broadcast = 8192;
+	Watching = 16384;
 };
 
 enum EAppUsageEvent
@@ -226,6 +244,10 @@ enum ELicenseFlags flags
 	CancelledByAdmin = 0x20;
 	LowViolenceContent = 0x40;
 	ImportedFromSteam2 = 0x80;
+	ForceRunRestriction = 0x100;
+	RegionRestrictionExpired = 0x200;
+	CancelledByFriendlyFraudLock = 0x400;
+	NotActivated = 0x800;
 };
 
 enum ELicenseType
@@ -237,6 +259,7 @@ enum ELicenseType
 	RecurringChargeLimitedUse = 4;
 	RecurringChargeLimitedUseWithOverages = 5;
 	RecurringOption = 6;
+	LimitedUseDelayedActivation = 7;
 };
 
 enum EPaymentMethod
@@ -279,7 +302,8 @@ enum EPaymentMethod
 	EClubPoints = 35;
 	CreditCardJapan = 36;
 	BankTransferJapan = 37;
-	PayEasyJapan = 38;
+	PayEasyJapan = 38; removed "renamed to PayEasy"
+	PayEasy = 38;
 	Zong = 39;
 	CultureVoucher = 40;
 	BookVoucher = 41;
@@ -288,7 +312,8 @@ enum EPaymentMethod
 	GameVoucher = 44;
 	Multibanco = 45;
 	Payshop = 46;
-	Maestro = 47;
+	Maestro = 47; removed "renamed to MaestroBoaCompra"
+	MaestroBoaCompra = 47;
 	OXXO = 48;
 	ToditoCash = 49;
 	Carnet = 50;
@@ -304,22 +329,108 @@ enum EPaymentMethod
 	DenizBank = 60;
 	PTT = 61;
 	CashU = 62;
-	OneCard = 63;
 	AutoGrant = 64;
 	WebMoneyJapan = 65;
-	Smart2PayTest = 66;
+	OneCard = 66;
+	PSE = 67;
+	Exito = 68;
+	Efecty = 69;
+	Paloto = 70;
+	PinValidda = 71;
+	MangirKart = 72;
+	BancoCreditoDePeru = 73;
+	BBVAContinental = 74;
+	SafetyPay = 75;
+	PagoEfectivo = 76;
+	Trustly = 77;
+	UnionPay = 78;
+	BitCoin = 79;
 	Wallet = 128;
 	Valve = 129;
-	SteamPressMaster = 130;
-	StorePromotion = 131;
+	SteamPressMaster = 130; removed "renamed to MasterComp"
+	MasterComp = 130;
+	StorePromotion = 131; removed "renamed to Promotional"
+	Promotional = 131;
 	OEMTicket = 256;
 	Split = 512;
 	Complimentary = 1024;
 };
 
+enum EPurchaseResultDetail
+{
+	NoDetail = 0;
+	AVSFailure = 1;
+	InsufficientFunds = 2;
+	ContactSupport = 3;
+	Timeout = 4;
+	InvalidPackage = 5;
+	InvalidPaymentMethod = 6;
+	InvalidData = 7;
+	OthersInProgress = 8;
+	AlreadyPurchased = 9;
+	WrongPrice = 10;
+	FraudCheckFailed = 11;
+	CancelledByUser = 12;
+	RestrictedCountry = 13;
+	BadActivationCode = 14;
+	DuplicateActivationCode = 15;
+	UseOtherPaymentMethod = 16;
+	UseOtherFunctionSource = 17;
+	InvalidShippingAddress = 18;
+	RegionNotSupported = 19;
+	AcctIsBlocked = 20;
+	AcctNotVerified = 21;
+	InvalidAccount = 22;
+	StoreBillingCountryMismatch = 23;
+	DoesNotOwnRequiredApp = 24;
+	CanceledByNewTransaction = 25;
+	ForceCanceledPending = 26;
+	FailCurrencyTransProvider = 27;
+	FailedCyberCafe = 28;
+	NeedsPreApproval = 29;
+	PreApprovalDenied = 30;
+	WalletCurrencyMismatch = 31;
+	EmailNotValidated = 32;
+	ExpiredCard = 33;
+	TransactionExpired = 34;
+	WouldExceedMaxWallet = 35;
+	MustLoginPS3AppForPurchase = 36;
+	CannotShipToPOBox = 37;
+	InsufficientInventory = 38;
+	CannotGiftShippedGoods = 39;
+	CannotShipInternationally = 40;
+	BillingAgreementCancelled = 41;
+	InvalidCoupon = 42;
+	ExpiredCoupon = 43;
+	AccountLocked = 44;
+	OtherAbortableInProgress = 45;
+	ExceededSteamLimit = 46;
+	OverlappingPackagesInCart = 47;
+	NoWallet = 48;
+	NoCachedPaymentMethod = 49;
+	CannotRedeemCodeFromClient = 50;
+	PurchaseAmountNoSupportedByProvider = 51;
+	OverlappingPackagesInPendingTransaction = 52;
+	RateLimited = 53;
+	OwnsExcludedApp = 54;
+	CreditCardBinMismatchesType = 55;
+	CartValueTooHigh = 56;
+	BillingAgreementAlreadyExists = 57;
+	POSACodeNotActivated = 58;
+	CannotShipToCountry = 59;
+	HungTransactionCancelled = 60;
+	PaypalInternalError = 61;
+	UnknownGlobalCollectError = 62;
+	InvalidTaxAddress = 63;
+	PhysicalProductLimitExceeded = 64;
+	PurchaseCannotBeReplayed = 65;
+	DelayedCompletion = 66;
+	BundleTypeCannotBeGifted = 67;
+};
+
 enum EIntroducerRouting
 {
-	FileShare = 0; obsolete
+	FileShare = 0; removed
 	P2PVoiceChat = 1;
 	P2PNetworking = 2;
 };
@@ -371,6 +482,8 @@ enum EClanRelationship
 	Member = 3;
 	Kicked = 4;
 	KickAcknowledged = 5;
+	PendingApproval = 6;
+	RequestDenied = 7;
 };
 
 enum EAuthSessionResponse
@@ -402,9 +515,9 @@ enum EChatRoomEnterResponse
 	YouBlockedMember = 11;
 
 	// these appear to have been removed
-	NoRankingDataLobby = 12; obsolete
-	NoRankingDataUser = 13; obsolete
-	RankOutOfRange = 14; obsolete
+	NoRankingDataLobby = 12; removed
+	NoRankingDataUser = 13; removed
+	RankOutOfRange = 14; removed
 };
 
 enum EChatRoomType
@@ -467,18 +580,22 @@ enum EAppInfoSection
 	Stats = 5;
 	Install = 6;
 	Depots = 7;
-	VAC = 8;
-	DRM = 9;
+	VAC = 8; removed
+	VAC_UNUSED = 8; removed
+	DRM = 9; removed
+	DRM_UNUSED = 9; removed
 	UFS = 10;
 	OGG = 11;
-	Items = 12; obsolete
-	ItemsUNUSED = 12; obsolete
+	Items = 12; removed
+	ItemsUNUSED = 12; removed
 	Policies = 13;
 	SysReqs = 14;
 	Community = 15;
 	Store = 16;
+	Localization = 17;
+	Broadcastgamedata = 18;
 
-	Max = 17;
+	Max = 19;
 };
 
 enum EContentDownloadSourceType
@@ -489,8 +606,12 @@ enum EContentDownloadSourceType
 	CDN = 2;
 	LCS = 3;
 	ProxyCache = 4;
+	LANPeer = 5;
+	SLS = 6;
+	SteamCache = 7;
+	OpenCache = 8;
 
-	Max = 5;
+	Max = 9;
 };
 
 enum EPlatformType
@@ -499,16 +620,57 @@ enum EPlatformType
 
 	Win32 = 1;
 	Win64 = 2;
-	Linux = 3;
+	Linux = 3; removed "split to Linux64 and Linux32"
+	Linux64 = 3;
 	OSX = 4;
 	PS3 = 5;
+	Linux32 = 6;
 
-	Max = 6;
+	Max = 7;
 };
 
 enum EOSType
 {
 	Unknown = -1;
+
+	Web = -700;
+
+	IOSUnknown = -600;
+	IOS1 = -599;
+	IOS2 = -598;
+	IOS3 = -597;
+	IOS4 = -596;
+	IOS5 = -595;
+	IOS6 = -594;
+	IOS6_1 = -593;
+	IOS7 = -592;
+	IOS7_1 = -591;
+	IOS8 = -590;
+	IOS8_1 = -589;
+	IOS8_2 = -588;
+	IOS8_3 = -587;
+	IOS8_4 = -586;
+	IOS9 = -585;
+	IOS9_1 = -584;
+	IOS9_2 = -583;
+	IOS9_3 = -582;
+	IOS10 = -581;
+	IOS10_1 = -580;
+	IOS10_2 = -579;
+	IOS10_3 = -578;
+	IOS11 = -577;
+	IOS11_1 = -576;
+	IOS11_2 = -575;
+	IOS11_3 = -574;
+	IOS11_4 = -573;
+	IOS12 = -572;
+	IOS12_1 = -571;
+
+	AndroidUnknown = -500;
+	Android6 = -499;
+	Android7 = -498;
+	Android8 = -497;
+	Android9 = -496;
 
 	UMQ = -400;
 
@@ -526,6 +688,11 @@ enum EOSType
 	MacOS108 = -89;
 	MacOS109 = -88;
 	MacOS1010 = -87;
+	MacOS1011 = -86;
+	MacOS1012 = -85;
+	Macos1013 = -84;
+	Macos1014 = -83;
+	MacOSMax = -1;
 
 	LinuxUnknown = -203;
 	Linux22 = -202;
@@ -535,6 +702,17 @@ enum EOSType
 	Linux35 = -198;
 	Linux36 = -197;
 	Linux310 = -196;
+	Linux316 = -195;
+	Linux318 = -194;
+	Linux3x = -193;
+	Linux4x = -192;
+	Linux41 = -191;
+	Linux44 = -190;
+	Linux49 = -189;
+	Linux414 = -188;
+	Linux419 = -187;
+	Linux5x = -186;
+	LinuxMax = -101;
 
 	WinUnknown = 0;
 	Win311 = 1;
@@ -542,84 +720,98 @@ enum EOSType
 	Win98 = 3;
 	WinME = 4;
 	WinNT = 5;
-	Win200 = 6;
+	Win200 = 6; removed "renamed to Win2000"
+	Win2000 = 6;
 	WinXP = 7;
 	Win2003 = 8;
 	WinVista = 9;
-	Win7 = 10;
-	Windows7 = 10; obsolete "renamed to Win7"
+	Win7 = 10; removed "renamed to Windows7"
+	Windows7 = 10;
 	Win2008 = 11;
 	Win2012 = 12;
-	Win8 = 13;
-	Windows8 = 13; obsolete "renamed to Win8"
-	Win81 = 14;
-	Windows81 = 14; obsolete "renamed to Win81"
+	Win8 = 13; removed "renamed to Windows8"
+	Windows8 = 13;
+	Win81 = 14; removed "renamed to Windows81"
+	Windows81 = 14;
 	Win2012R2 = 15;
-	Win10 = 16;
+	Win10 = 16; removed "renamed to Windows10"
+	Windows10 = 16;
+	Win2016 = 17;
 
-	WinMAX = 15;
+	WinMAX = 18;
 
 	Max = 26;
 };
 
 enum EServerType
 {
+	Util = -2;
+	Client = -3;
+	CServer = -4;
+	CEconBase = -5;
+	
 	Invalid = -1;
 	First = 0;
 
 	Shell = 0;
 	GM = 1;
-	BUM = 2;
+	BUM = 2; removed
+	BUMOBOSOLETE = 2; removed
 	AM = 3;
-	BS = 4;	
+	BS = 4;
 	VS = 5;
-	ATS = 6;	
-	CM = 7;	
-	FBS = 8;	
-	FG = 9;	obsolete "renamed to BoxMonitor"
+	ATS = 6;
+	CM = 7;
+	FBS = 8;
+	FG = 9; removed "renamed to BoxMonitor"
 	BoxMonitor = 9;
-	SS = 10;	
-	DRMS = 11;	
-	HubOBSOLETE = 12; obsolete
-	Console = 13;	
-	ASBOBSOLETE = 14; obsolete
+	SS = 10;
+	DRMS = 11;
+	HubOBSOLETE = 12; removed
+	Console = 13;
+	ASBOBSOLETE = 14; removed
 	PICS = 14;
-	Client = 15;	
-	BootstrapOBSOLETE = 16; obsolete;
+	Client = 15; removed
+	BootstrapOBSOLETE = 16; removed
+	ContentStats = 16;
 	DP = 17;
-	WG = 18;	
-	SM = 19;	
-	UFS = 21;	
-	Util = 23;	
-	DSS = 24; obsolete "renamed to Community"
+	WG = 18;
+	SM = 19;
+	SLC = 20;
+	UFS = 21;
+	Util = 23; removed
+	DSS = 24; removed "renamed to Community"
 	Community = 24;
-	P2PRelayOBSOLETE = 25; obsolete
-	AppInformation = 26;	
-	Spare = 27;	
-	FTS = 28;	
-	EPM = 29;
-	PS = 30;	
-	IS = 31;	
-	CCS = 32;	
-	DFS = 33;	
-	LBS = 34;	
-	MDS = 35;	
-	CS = 36;	
-	GC = 37;	
-	NS = 38;	
-	OGS = 39;	
-	WebAPI = 40;	
-	UDS = 41;	
-	MMS = 42;	
-	GMS = 43;	
-	KGS = 44;	
-	UCM = 45;	
-	RM = 46;	
-	FS = 47;	
+	P2PRelayOBSOLETE = 25; removed
+	AppInformation = 26;
+	Spare = 27;
+	FTS = 28;
+	EPM = 29; removed
+	EPMOBSOLETE = 29; removed
+	SiteLicense = 29;
+	PS = 30;
+	IS = 31;
+	CCS = 32;
+	DFS = 33;
+	LBS = 34;
+	MDS = 35;
+	CS = 36;
+	GC = 37;
+	NS = 38;
+	OGS = 39;
+	WebAPI = 40;
+	UDS = 41;
+	MMS = 42;
+	GMS = 43;
+	KGS = 44;
+	UCM = 45;
+	RM = 46;
+	FS = 47;
 	Econ = 48;
 	Backpack = 49;
 	UGS = 50;
-	Store = 51;
+	Store = 51; removed "renamed to StoreFeature"
+	StoreFeature = 51;
 	MoneyStats = 52;
 	CRE = 53;
 	UMQ = 54;
@@ -635,8 +827,55 @@ enum EServerType
 	WDS = 64;
 	ACS = 65;
 	PNP = 66;
+	TaxForm = 67;
+	ExternalMonitor = 68;
+	Parental = 69;
+	PartnerUpload = 70;
+	Partner = 71;
+	ES = 72;
+	DepotWebContent = 73;
+	ExternalConfig = 74;
+	GameNotifications = 75;
+	MarketRepl = 76;
+	MarketSearch = 77;
+	Localization = 78;
+	Steam2Emulator = 79;
+	PublicTest = 80;
+	SolrMgr = 81;
+	BroadcastRelay = 82;
+	BroadcastDirectory = 83;
+	VideoManager = 84;
+	TradeOffer = 85;
+	BroadcastChat = 86;
+	Phone = 87;
+	AccountScore = 88;
+	Support = 89;
+	LogRequest = 90;
+	LogWorker = 91;
+	EmailDelivery = 92;
+	InventoryManagement = 93;
+	Auth = 94;
+	StoreCatalog = 95;
+	HLTVRelay = 96;
+	IDLS = 97;
+	Perf = 98;
+	ItemInventory = 99;
+	Watchdog = 100;
+	AccountHistory = 101;
+	Chat = 102;
+	Shader = 103;
+	AccountHardware = 104;
+	WebRTC = 105;
+	Giveaway = 106;
+	ChatRoom = 107;
+	VoiceChat = 108;
+	QMS = 109;
+	Trust = 110;
+	TimeMachine = 111;
+	VACDBMaster = 112;
+	ContentServerConfig = 113;
 
-	Max = 67;
+	Max = 114;
 };
  
 enum EBillingType
@@ -651,8 +890,14 @@ enum EBillingType
 	AutoGrant = 7;
 	OEMTicket = 8;
 	RecurringOption = 9;
+	BillOnceOrCDKey = 10;
+	Repurchaseable = 11;
+	FreeOnDemand = 12;
+	Rental = 13;
+	CommercialLicense = 14;
+	FreeCommercialLicense = 15;
 
-	NumBillingTypes = 10;
+	NumBillingTypes = 16;
 };
 
 enum EActivationCodeClass<uint>
@@ -729,8 +974,16 @@ enum ECurrencyCode
 	TWD = 30;
 	SAR = 31;
 	AED = 32;
+	ARS = 34;
+	ILS = 35;
+	BYN = 36;
+	KZT = 37;
+	KWD = 38;
+	QAR = 39;
+	CRC = 40;
+	UYU = 41;
 
-	Max = 33;
+	Max = 42;
 };
 
 enum EDepotFileFlag flags
@@ -744,6 +997,7 @@ enum EDepotFileFlag flags
 	Directory = 64;
 	CustomExecutable = 128;
 	InstallScript = 256;
+	Symlink = 512;
 };
 
 enum EWorkshopEnumerationType
@@ -821,13 +1075,21 @@ enum EEconTradeResponse
 	InitiatorSteamGuardDuration = 23;
 	InitiatorPasswordResetProbation = 24;
 	InitiatorNewDeviceCooldown = 25;
+	InitiatorSentInvalidCookie = 26;
+	NeedsEmailConfirmation = 27;
+	InitiatorRecentEmailChange = 28;
+	NeedsMobileConfirmation = 29;
+	TradingHoldForClearedTradeOffersInitiator = 30;
+	WouldExceedMaxAssetCount = 31;
+	DisabledInRegion = 32;
+	DisabledInPartnerRegion = 33;
 	OKToDeliver = 50;
 };
 
 enum EMarketingMessageFlags flags
 {
 	None = 0;
-	
+
 	HighPriority = 1;
 	PlatformWindows = 2;
 	PlatformMac = 4;
@@ -871,13 +1133,14 @@ enum EChatFlags flags
 enum ERemoteStoragePlatform flags
 {
 	None = 0;
-	
+
 	Windows = 1;
 	OSX = 2;
 	PS3 = 4;
 	Linux = 8;
-	Reserved1 = 8; obsolete
 	Reserved2 = 16;
+	Android = 32;
+	IPhoneOS = 64;
 
 	All = -1;
 };
@@ -885,7 +1148,7 @@ enum ERemoteStoragePlatform flags
 enum EDRMBlobDownloadType flags
 {
 	Error = 0;
-	
+
 	File = 1;
 	Parts = 2;
 	Compressed = 4;
@@ -899,7 +1162,7 @@ enum EDRMBlobDownloadType flags
 enum EDRMBlobDownloadErrorDetail
 {
 	None = 0;
-	
+
 	DownloadFailed = 1;
 	TargetLocked = 2;
 	OpenZip = 3;
@@ -919,10 +1182,10 @@ enum EDRMBlobDownloadErrorDetail
 	ApplyValveSignatureHeader = 17;
 	UnzipValveSignatureHeader = 18;
 	PathManipulationError = 19;
-	
+
 	TargetLocked_Base = 65536;
 	TargetLocked_Max = 131071;
-	
+
 	NextBase = 131072;
 };
 
@@ -933,7 +1196,7 @@ enum EClientStat
 	P2PGameConnections = 2;
 	P2PVoiceConnections = 3;
 	BytesDownloaded = 4;
-	
+
 	Max = 5;
 };
 
@@ -956,7 +1219,7 @@ enum ELeaderboardDataRequest
 enum ELeaderboardSortMethod
 {
 	None = 0;
-	
+
 	Ascending = 1;
 	Descending = 2;
 };
@@ -972,7 +1235,7 @@ enum ELeaderboardDisplayType
 enum ELeaderboardUploadScoreMethod
 {
 	None = 0;
-	
+
 	KeepBest = 1;
 	ForceUpdate = 2;
 };
@@ -983,6 +1246,230 @@ enum EUCMFilePrivacyState flags
 	Private = 2;
 	FriendsOnly = 4;
 	Public = 8;
-	
+
 	All = Public | FriendsOnly | Private; // 14
+};
+
+enum EPublishedFileQueryType
+{
+	RankedByVote = 0;
+	RankedByPublicationDate = 1;
+	AcceptedForGameRankedByAcceptanceDate = 2;
+	RankedByTrend = 3;
+	FavoritedByFriendsRankedByPublicationDate = 4;
+	CreatedByFriendsRankedByPublicationDate = 5;
+	RankedByNumTimesReported = 6;
+	CreatedByFollowedUsersRankedByPublicationDate = 7;
+	NotYetRated = 8;
+	RankedByTotalUniqueSubscriptions = 9;
+	RankedByTotalVotesAsc = 10;
+	RankedByVotesUp = 11;
+	RankedByTextSearch = 12;
+	RankedByPlaytimeTrend = 13;
+	RankedByTotalPlaytime = 14;
+	RankedByAveragePlaytimeTrend = 15;
+	RankedByLifetimeAveragePlaytime = 16;
+	RankedByPlaytimeSessionsTrend = 17;
+	RankedByLifetimePlaytimeSessions = 18;
+	RankedByInappropriateContentRating = 19;
+};
+
+enum EPublishedFileInappropriateProvider
+{
+	Invalid = 0;
+	Google = 1;
+	Amazon = 2;
+};
+
+enum EPublishedFileInappropriateResult
+{
+	NotScanned = 0;
+	VeryUnlikely = 1;
+	Possible = 50;
+	Likely = 75;
+	VeryLikely = 100;
+};
+
+enum EDisplayStatus
+{
+	Invalid = 0;
+	Launching = 1;
+	Uninstalling = 2;
+	Installing = 3;
+	Running = 4;
+	Validating = 5;
+	Updating = 6;
+	Downloading = 7;
+	Synchronizing = 8;
+	ReadyToInstall = 9;
+	ReadyToPreload = 10;
+	ReadyToLaunch = 11;
+	RegionRestricted = 12;
+	PresaleOnly = 13;
+	InvalidPlatform = 14;
+	ParentalBlocked = 15;
+	PreloadOnly = 16;
+	BorrowerLocked = 17;
+	UpdatePaused = 18;
+	UpdateQueued = 19;
+	UpdateRequired = 20;
+	UpdateDisabled = 21;
+	DownloadPaused = 22;
+	DownloadQueued = 23;
+	DownloadRequired = 24;
+	DownloadDisabled = 25;
+	LicensePending = 26;
+	LicenseExpired = 27;
+	AvailForFree = 28;
+	AvailToBorrow = 29;
+	AvailGuestPass = 30;
+	Purchase = 31;
+};
+
+enum EAppType flags
+{
+	Invalid = 0;
+	Game = 1;
+	Application = 2;
+	Tool = 4;
+	Demo = 8;
+	Deprected = 16;
+	DLC = 32;
+	Guide = 64;
+	Driver = 128;
+	Config = 256;
+	Hardware = 512;
+	Franchise = 1024;
+	Video = 2048;
+	Plugin = 4096;
+	Music = 8192;
+	Series = 16384;
+	Comic = 32768;
+	Beta = 65536;
+
+	Shortcut = 1073741824;
+	DepotOnly = -2147483648;
+};
+
+enum EChatRoomGroupType
+{
+	Default = 0;
+	Unmoderated = 1;
+};
+
+enum EChatroomNotificationLevel
+{
+	Invalid = 0;
+	None = 1;
+	MentionMe = 2;
+	MentionAll = 3;
+	AllMessages = 4;
+};
+
+enum EChatRoomMemberStateChange
+{
+	Invalid = 0;
+	Joined = 1;
+	Parted = 2;
+	Kicked = 3;
+	Invited = 4;
+	RankChanged = 7;
+	InviteDismissed = 8;
+	Muted = 9;
+	Banned = 10;
+	RolesChanged = 12;
+};
+
+enum EChatRoomServerMsg
+{
+	Invalid = 0;
+	RenameChatRoom = 1;
+	Joined = 2;
+	Parted = 3;
+	Kicked = 4;
+	Invited = 5;
+	InviteDismissed = 8;
+	ChatRoomTaglineChanged = 9;
+	ChatRoomAvatarChanged = 10;
+	AppCustom = 11;
+};
+
+enum EChatRoomGroupRank
+{
+	Default = 0;
+	Viewer = 10;
+	Guest = 15;
+	Member = 20;
+	Moderator = 30;
+	Officer = 40;
+	Owner = 50;
+};
+
+enum EChatRoomGroupPermissions flags
+{
+	Default = 0;
+	Valid = 1;
+	CanInvite = 2;
+	CanKick = 4;
+	CanBan = 8;
+	CanAdminChannel = 16;
+};
+
+enum EChatRoomGroupAction
+{
+	Default = 0;
+	CreateRenameDeleteChannel = 1;
+	Kick = 2;
+	Ban = 3;
+	Invite = 4;
+	ChangeTaglineAvatarName = 5;
+	Chat = 6;
+	ViewHistory = 7;
+	ChangeGroupRoles = 8;
+	ChangeUserRoles = 9;
+	MentionAll = 10;
+	SetWatchingBroadcast = 11;
+};
+
+enum EChatRoomJoinState
+{
+	Default = 0;
+	None = 1;
+	Joined = 2;
+};
+
+enum EVoiceCallState
+{
+	None = 0;
+	ScheduledInitiate = 1;
+	RequestedMicAccess = 2;
+	LocalMicOnly = 3;
+	CreatePeerConnection = 4;
+	InitatedWebRTCSession = 5;
+	WebRTCConnectedWaitingOnIceConnected = 6;
+	RequestedPermission = 7;
+	NotifyingVoiceChatOfWebRTCSession = 8;
+	Connected = 9;
+};
+
+enum ETradeOfferState
+{
+	Invalid = 1;
+	Active = 2;
+	Accepted = 3;
+	Countered = 4;
+	Expired = 5;
+	Canceled = 6;
+	Declined = 7;
+	InvalidItems = 8;
+	CreatedNeedsConfirmation = 9;
+	CanceledBySecondFactor = 10;
+	InEscrow = 11;
+};
+
+enum ETradeOfferConfirmationMethod
+{
+	Invalid = 0;
+	Email = 1;
+	MobileApp = 2;
 };

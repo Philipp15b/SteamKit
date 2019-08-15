@@ -70,7 +70,7 @@ void CLogger::DeleteFile( const char *szFileName, bool bSession )
 	DeleteFileA( outputFile.c_str() );
 }
 
-void CLogger::LogNetMessage( ENetDirection eDirection, uint8 *pData, uint32 cubData )
+void CLogger::LogNetMessage( ENetDirection eDirection, const uint8 *pData, uint32 cubData )
 {
 	EMsg eMsg = (EMsg)*(uint16*)pData;
 	eMsg = (EMsg)((int)eMsg & (~0x80000000));
@@ -84,28 +84,42 @@ void CLogger::LogNetMessage( ENetDirection eDirection, uint8 *pData, uint32 cubD
 	this->LogSessionData( eDirection, pData, cubData );
 }
 
-void CLogger::LogSessionData( ENetDirection eDirection, uint8 *pData, uint32 cubData )
+void CLogger::LogSessionData( ENetDirection eDirection, const uint8 *pData, uint32 cubData )
 {
 	std::string fullFile = m_LogDir;
 
-	const char *outFile = GetFileName( eDirection, (EMsg)*(uint16*)pData );
+	const char *outFile = GetFileNameBase( eDirection, (EMsg)*(uint16*)pData );
 	fullFile += outFile;
 
-	HANDLE hFile = CreateFile( fullFile.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	std::string fullFileTmp = fullFile + ".tmp";
+	std::string fullFileFinal = fullFile + ".bin";
+	HANDLE hFile = CreateFile( fullFileTmp.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
 
 	DWORD numBytes = 0;
 	WriteFile( hFile, pData, cubData, &numBytes, NULL );
 
 	CloseHandle( hFile );
 
+	MoveFile( fullFileTmp.c_str(), fullFileFinal.c_str() );
+
 	this->LogConsole( "Wrote %d bytes to %s\n", cubData, outFile );
 }
 
-void CLogger::LogFile( const char *szFileName, bool bSession, const char *szFmt, ... )
+HANDLE CLogger::OpenFile( const char *szFileName, bool bSession )
 {
 	std::string outputFile = ( bSession ? m_LogDir : m_RootDir );
 	outputFile += szFileName;
 
+	return CreateFile( outputFile.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+}
+
+void CLogger::CloseFile( HANDLE hFile )
+{
+	CloseHandle( hFile );
+}
+
+void CLogger::LogOpenFile( HANDLE hFile, const char *szFmt, ... )
+{
 	va_list args;
 	va_start( args, szFmt );
 
@@ -121,25 +135,21 @@ void CLogger::LogFile( const char *szFileName, bool bSession, const char *szFmt,
 
 	szBuff[ buffSize - 1 ] = 0;
 
-	HANDLE hFile = CreateFile( outputFile.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
-
 	SetFilePointer( hFile, 0, NULL, FILE_END );
 
 	DWORD numBytes = 0;
 	WriteFile( hFile, szBuff, len, &numBytes, NULL );
 
-	CloseHandle( hFile );
-
 	delete [] szBuff;
 }
 
-const char *CLogger::GetFileName( ENetDirection eDirection, EMsg eMsg, uint8 serverType )
+const char *CLogger::GetFileNameBase( ENetDirection eDirection, EMsg eMsg, uint8 serverType )
 {
 	static char szFileName[MAX_PATH];
 
 	sprintf_s(
 		szFileName, sizeof( szFileName ),
-		"%03d_%s_%d_%s.bin",
+		"%03d_%s_%d_%s",
 		++m_uiMsgNum,
 		( eDirection == k_eNetIncoming ? "in" : "out" ),
 		eMsg,
@@ -149,7 +159,7 @@ const char *CLogger::GetFileName( ENetDirection eDirection, EMsg eMsg, uint8 ser
 	return szFileName;
 }
 
-void CLogger::MultiplexMulti( ENetDirection eDirection, uint8 *pData, uint32 cubData )
+void CLogger::MultiplexMulti( ENetDirection eDirection, const uint8 *pData, uint32 cubData )
 {
 	struct ProtoHdr 
 	{

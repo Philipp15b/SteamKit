@@ -3,10 +3,6 @@
  * file 'license.txt', which is part of this source code package.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using SteamKit2.Internal;
 
 namespace SteamKit2
@@ -18,21 +14,8 @@ namespace SteamKit2
         /// </summary>
         public sealed class ConnectedCallback : CallbackMsg
         {
-            /// <summary>
-            /// Gets the result of the connection attempt.
-            /// </summary>
-            /// <value>The result.</value>
-            public EResult Result { get; private set; }
-
-
-            internal ConnectedCallback( MsgChannelEncryptResult result )
-                : this( result.Result )
+            internal ConnectedCallback()
             {
-            }
-
-            internal ConnectedCallback( EResult result )
-            {
-                this.Result = result;
             }
         }
 
@@ -42,7 +25,7 @@ namespace SteamKit2
         public sealed class DisconnectedCallback : CallbackMsg
         {
             /// <summary>
-            /// If true, the disconnection was initiated by calling <see cref="UFSClient.Disconnect"/>.
+            /// If true, the disconnection was initiated by calling <see cref="UFSClient.Disconnect()"/>.
             /// If false, the disconnection was the cause of something not user-controlled, such as a network failure or
             /// a forcible disconnection by the remote server.
             /// </summary>

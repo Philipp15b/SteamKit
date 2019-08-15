@@ -355,7 +355,7 @@ namespace SteamKit2.Internal
 			bw.Write( HeaderLength );
 			bw.Write( msProto.ToArray() );
 
-			msProto.Close();
+			msProto.Dispose();
 		}
 
 		public void Deserialize( Stream stream )
@@ -399,7 +399,7 @@ namespace SteamKit2.Internal
 			bw.Write( HeaderLength );
 			bw.Write( msProto.ToArray() );
 
-			msProto.Close();
+			msProto.Dispose();
 		}
 
 		public void Deserialize( Stream stream )
@@ -662,7 +662,7 @@ namespace SteamKit2.Internal
 		public EMsg GetEMsg() { return EMsg.ClientLogon; }
 
 		public static readonly uint ObfuscationMask = 0xBAADF00D;
-		public static readonly uint CurrentProtocol = 65579;
+		public static readonly uint CurrentProtocol = 65580;
 		public static readonly uint ProtocolVerMajorMask = 0xFFFF0000;
 		public static readonly uint ProtocolVerMinorMask = 0xFFFF;
 		public static readonly ushort ProtocolVerMinorMinGameServers = 4;
@@ -683,7 +683,11 @@ namespace SteamKit2.Internal
 		public static readonly ushort ProtocolVerMinorMinForMachineAuth = 33;
 		public static readonly ushort ProtocolVerMinorMinForSessionIDLastAnon = 36;
 		public static readonly ushort ProtocolVerMinorMinForEnhancedAppList = 40;
+		public static readonly ushort ProtocolVerMinorMinForSteamGuardNotificationUI = 41;
+		public static readonly ushort ProtocolVerMinorMinForProtoBufServiceModuleCalls = 42;
 		public static readonly ushort ProtocolVerMinorMinForGzipMultiMessages = 43;
+		public static readonly ushort ProtocolVerMinorMinForNewVoiceCallAuthorize = 44;
+		public static readonly ushort ProtocolVerMinorMinForClientInstanceIDs = 44;
 
 		public MsgClientLogon()
 		{
@@ -1785,68 +1789,6 @@ namespace SteamKit2.Internal
 		}
 	}
 
-	public class MsgClientGetNumberOfCurrentPlayers : ISteamSerializableMessage
-	{
-		public EMsg GetEMsg() { return EMsg.ClientGetNumberOfCurrentPlayers; }
-
-		// Static size: 8
-		private ulong gameID;
-		public GameID GameID { get { return new GameID( gameID ); } set { gameID = value.ToUInt64(); } }
-
-		public MsgClientGetNumberOfCurrentPlayers()
-		{
-			gameID = 0;
-		}
-
-		public void Serialize(Stream stream)
-		{
-			BinaryWriter bw = new BinaryWriter( stream );
-
-			bw.Write( gameID );
-
-		}
-
-		public void Deserialize( Stream stream )
-		{
-			BinaryReader br = new BinaryReader( stream );
-
-			gameID = br.ReadUInt64();
-		}
-	}
-
-	public class MsgClientGetNumberOfCurrentPlayersResponse : ISteamSerializableMessage
-	{
-		public EMsg GetEMsg() { return EMsg.ClientGetNumberOfCurrentPlayersResponse; }
-
-		// Static size: 4
-		public EResult Result { get; set; }
-		// Static size: 4
-		public uint NumPlayers { get; set; }
-
-		public MsgClientGetNumberOfCurrentPlayersResponse()
-		{
-			Result = 0;
-			NumPlayers = 0;
-		}
-
-		public void Serialize(Stream stream)
-		{
-			BinaryWriter bw = new BinaryWriter( stream );
-
-			bw.Write( (int)Result );
-			bw.Write( NumPlayers );
-
-		}
-
-		public void Deserialize( Stream stream )
-		{
-			BinaryReader br = new BinaryReader( stream );
-
-			Result = (EResult)br.ReadInt32();
-			NumPlayers = br.ReadUInt32();
-		}
-	}
-
 	public class MsgClientSetIgnoreFriend : ISteamSerializableMessage
 	{
 		public EMsg GetEMsg() { return EMsg.ClientSetIgnoreFriend; }
@@ -1892,13 +1834,14 @@ namespace SteamKit2.Internal
 		public EMsg GetEMsg() { return EMsg.ClientSetIgnoreFriendResponse; }
 
 		// Static size: 8
-		public ulong Unknown { get; set; }
+		private ulong friendId;
+		public SteamID FriendId { get { return new SteamID( friendId ); } set { friendId = value.ConvertToUInt64(); } }
 		// Static size: 4
 		public EResult Result { get; set; }
 
 		public MsgClientSetIgnoreFriendResponse()
 		{
-			Unknown = 0;
+			friendId = 0;
 			Result = 0;
 		}
 
@@ -1906,7 +1849,7 @@ namespace SteamKit2.Internal
 		{
 			BinaryWriter bw = new BinaryWriter( stream );
 
-			bw.Write( Unknown );
+			bw.Write( friendId );
 			bw.Write( (int)Result );
 
 		}
@@ -1915,7 +1858,7 @@ namespace SteamKit2.Internal
 		{
 			BinaryReader br = new BinaryReader( stream );
 
-			Unknown = br.ReadUInt64();
+			friendId = br.ReadUInt64();
 			Result = (EResult)br.ReadInt32();
 		}
 	}
@@ -2009,74 +1952,6 @@ namespace SteamKit2.Internal
 			clientSuppliedSteamId = br.ReadUInt64();
 			IpPublic = br.ReadUInt32();
 			ServerRealTime = br.ReadUInt32();
-		}
-	}
-
-	public class MsgClientSendGuestPass : ISteamSerializableMessage
-	{
-		public EMsg GetEMsg() { return EMsg.ClientSendGuestPass; }
-
-		// Static size: 8
-		public ulong GiftId { get; set; }
-		// Static size: 1
-		public byte GiftType { get; set; }
-		// Static size: 4
-		public uint AccountId { get; set; }
-
-		public MsgClientSendGuestPass()
-		{
-			GiftId = 0;
-			GiftType = 0;
-			AccountId = 0;
-		}
-
-		public void Serialize(Stream stream)
-		{
-			BinaryWriter bw = new BinaryWriter( stream );
-
-			bw.Write( GiftId );
-			bw.Write( GiftType );
-			bw.Write( AccountId );
-
-		}
-
-		public void Deserialize( Stream stream )
-		{
-			BinaryReader br = new BinaryReader( stream );
-
-			GiftId = br.ReadUInt64();
-			GiftType = br.ReadByte();
-			AccountId = br.ReadUInt32();
-		}
-	}
-
-	public class MsgClientSendGuestPassResponse : ISteamSerializableMessage
-	{
-		#pragma warning disable 0612
-		public EMsg GetEMsg() { return EMsg.ClientSendGuestPassResponse; }
-		#pragma warning restore 0612
-
-		// Static size: 4
-		public EResult Result { get; set; }
-
-		public MsgClientSendGuestPassResponse()
-		{
-			Result = 0;
-		}
-
-		public void Serialize(Stream stream)
-		{
-			BinaryWriter bw = new BinaryWriter( stream );
-
-			bw.Write( (int)Result );
-
-		}
-
-		public void Deserialize( Stream stream )
-		{
-			BinaryReader br = new BinaryReader( stream );
-
-			Result = (EResult)br.ReadInt32();
 		}
 	}
 

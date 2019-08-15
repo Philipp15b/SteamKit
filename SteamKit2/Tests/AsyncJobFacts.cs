@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using SteamKit2;
 using Xunit;
@@ -55,7 +56,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void AsyncJobClearsOnTimeout()
+        public async Task AsyncJobClearsOnTimeout()
         {
             SteamClient client = new SteamClient();
             client.jobManager.SetTimeoutsEnabled( true );
@@ -70,7 +71,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void AsyncJobCancelsOnSetFailedTimeout()
+        public async Task AsyncJobCancelsOnSetFailedTimeout()
         {
             SteamClient client = new SteamClient();
 
@@ -83,7 +84,7 @@ namespace Tests
             Assert.True( asyncTask.IsCanceled, "Async job should be canceled on message timeout" );
             Assert.False( asyncTask.IsFaulted, "Async job should not be faulted on message timeout" );
 
-            await Assert.ThrowsAsync( typeof( TaskCanceledException ), async () => await asyncTask );
+            await Assert.ThrowsAsync<TaskCanceledException>( async () => await asyncTask );
         }
 
         [Fact]
@@ -102,7 +103,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void AsyncJobTimesout()
+        public async Task AsyncJobTimesout()
         {
             SteamClient client = new SteamClient();
             client.jobManager.SetTimeoutsEnabled( true );
@@ -118,7 +119,7 @@ namespace Tests
             Assert.True( asyncTask.IsCanceled, "Async job should be canceled after 5 seconds of a 1 second job timeout" );
             Assert.False( asyncTask.IsFaulted, "Async job should not be faulted after 5 seconds of a 1 second job timeout" );
 
-            await Assert.ThrowsAsync( typeof( TaskCanceledException ), async () => await asyncTask );
+            await Assert.ThrowsAsync<TaskCanceledException>( async () => await asyncTask );
         }
 
         [Fact]
@@ -132,7 +133,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void AsyncJobThrowsFailureExceptionOnFailure()
+        public async Task AsyncJobThrowsFailureExceptionOnFailure()
         {
             SteamClient client = new SteamClient();
 
@@ -145,7 +146,7 @@ namespace Tests
             Assert.False( asyncTask.IsCanceled, "Async job should not be canceled after job failure" );
             Assert.True( asyncTask.IsFaulted, "Async job should be faulted after job failure" );
 
-            await Assert.ThrowsAsync( typeof( AsyncJobFailedException ), async () => await asyncTask );
+            await Assert.ThrowsAsync<AsyncJobFailedException>( async () => await asyncTask );
         }
 
         [Fact]
@@ -201,7 +202,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void AsyncJobMultipleClearsOnTimeout()
+        public async Task AsyncJobMultipleClearsOnTimeout()
         {
             SteamClient client = new SteamClient();
             client.jobManager.SetTimeoutsEnabled( true );
@@ -216,7 +217,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void AsyncJobMultipleExtendsTimeoutOnMessage()
+        public async Task AsyncJobMultipleExtendsTimeoutOnMessage()
         {
             SteamClient client = new SteamClient();
             client.jobManager.SetTimeoutsEnabled( true );
@@ -254,7 +255,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void AsyncJobMultipleTimesout()
+        public async Task AsyncJobMultipleTimesout()
         {
             SteamClient client = new SteamClient();
             client.jobManager.SetTimeoutsEnabled( true );
@@ -270,11 +271,11 @@ namespace Tests
             Assert.True( asyncTask.IsCanceled, "AsyncJobMultiple should be canceled after 5 seconds of a 1 second job timeout" );
             Assert.False( asyncTask.IsFaulted, "AsyncJobMultiple should not be faulted after 5 seconds of a 1 second job timeout" );
 
-            await Assert.ThrowsAsync( typeof( TaskCanceledException ), async () => await asyncTask );
+            await Assert.ThrowsAsync<TaskCanceledException>( async () => await asyncTask );
         }
 
         [Fact]
-        public async void AsyncJobMultipleCompletesOnIncompleteResult()
+        public async Task AsyncJobMultipleCompletesOnIncompleteResult()
         {
             SteamClient client = new SteamClient();
             client.jobManager.SetTimeoutsEnabled( true );
@@ -301,7 +302,7 @@ namespace Tests
 
             Assert.False( result.Complete, "ResultSet should be incomplete" );
             Assert.False( result.Failed, "ResultSet should not be failed" );
-            Assert.Equal( result.Results.Count, 1 );
+            Assert.Single( result.Results );
             Assert.Contains( onlyResult, result.Results );
         }
 
@@ -330,7 +331,7 @@ namespace Tests
 
             Assert.False( result.Complete, "ResultSet should be incomplete" );
             Assert.True( result.Failed, "ResultSet should be failed" );
-            Assert.Equal( result.Results.Count, 1 );
+            Assert.Single( result.Results );
             Assert.Contains( onlyResult, result.Results );
         }
 
@@ -345,7 +346,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void AsyncJobMultipleThrowsFailureExceptionOnFailure()
+        public async Task AsyncJobMultipleThrowsFailureExceptionOnFailure()
         {
             SteamClient client = new SteamClient();
 
@@ -358,7 +359,53 @@ namespace Tests
             Assert.False( asyncTask.IsCanceled, "AsyncJobMultiple should not be canceled after job failure" );
             Assert.True( asyncTask.IsFaulted, "AsyncJobMultiple should be faulted after job failure" );
 
-            await Assert.ThrowsAsync( typeof( AsyncJobFailedException ), async () => await asyncTask );
+            await Assert.ThrowsAsync<AsyncJobFailedException>( async () => await asyncTask );
+        }
+
+        [Fact]
+        public async Task AsyncJobContinuesAsynchronously()
+        {
+            SteamClient client = new SteamClient();
+
+            var asyncJob = new AsyncJob<Callback>( client, 123 );
+            var asyncTask = asyncJob.ToTask();
+
+            var continuationThreadID = -1;
+            var continuation = asyncTask.ContinueWith( t =>
+            {
+                continuationThreadID = Thread.CurrentThread.ManagedThreadId;
+            }, TaskContinuationOptions.ExecuteSynchronously );
+
+            var completionThreadID = Thread.CurrentThread.ManagedThreadId;
+            asyncJob.AddResult( new Callback { JobID = 123 } );
+
+            await continuation;
+
+            Assert.NotEqual( -1, continuationThreadID );
+            Assert.NotEqual( completionThreadID, continuationThreadID );
+        }
+
+        [Fact]
+        public async Task AsyncJobMultipleContinuesAsynchronously()
+        {
+            SteamClient client = new SteamClient();
+
+            var asyncJob = new AsyncJobMultiple<Callback>( client, 123, call => true );
+            var asyncTask = asyncJob.ToTask();
+
+            var continuationThreadID = -1;
+            var continuation = asyncTask.ContinueWith( t =>
+            {
+                continuationThreadID = Thread.CurrentThread.ManagedThreadId;
+            }, TaskContinuationOptions.ExecuteSynchronously );
+
+            var completionThreadID = Thread.CurrentThread.ManagedThreadId;
+            asyncJob.AddResult( new Callback { JobID = 123 } );
+
+            await continuation;
+
+            Assert.NotEqual( -1, continuationThreadID );
+            Assert.NotEqual( completionThreadID, continuationThreadID );
         }
     }
 }

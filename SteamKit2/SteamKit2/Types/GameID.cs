@@ -64,6 +64,36 @@ namespace SteamKit2
             : this( ( UInt64 )nAppID )
         {
         }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GameID"/> class.
+        /// </summary>
+        /// <param name="nAppID">The base app id of the mod.</param>
+        /// <param name="modPath">The game folder name of the mod.</param>
+        public GameID( UInt32 nAppID, string modPath )
+            : this(0)
+        {
+            AppID = nAppID;
+            AppType = GameType.GameMod;
+            ModID = Crc32.Compute(System.Text.Encoding.UTF8.GetBytes(modPath));
+        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GameID"/> class.
+        /// </summary>
+        /// <param name="exePath">The path to the executable, usually quoted.</param>
+        /// <param name="appName">The name of the application shortcut.</param>
+        public GameID( string exePath, string appName )
+            : this(0)
+        {
+            string combined = string.Empty;
+            if (exePath != null)
+                combined += exePath;
+            if (appName != null)
+                combined += appName;
+
+            AppID = 0;
+            AppType = GameType.Shortcut;
+            ModID = Crc32.Compute(System.Text.Encoding.UTF8.GetBytes(combined));
+        }
 
 
         /// <summary>
@@ -92,6 +122,11 @@ namespace SteamKit2
         /// </returns>
         public static implicit operator string( GameID gid )
         {
+            if ( gid == null )
+            {
+                throw new ArgumentNullException( nameof(gid) );
+            }
+
             return gid.gameid.Data.ToString();
         }
 
@@ -104,6 +139,11 @@ namespace SteamKit2
         /// </returns>
         public static implicit operator UInt64( GameID gid )
         {
+            if ( gid == null )
+            {
+                throw new ArgumentNullException( nameof(gid) );
+            }
+
             return gid.gameid.Data;
         }
 
@@ -169,6 +209,7 @@ namespace SteamKit2
             set
             {
                 gameid[ 32, 0xFFFFFFFF ] = ( UInt64 )value;
+                gameid[ 63, 0xFF ] = 1;
             }
         }
 
@@ -225,11 +266,15 @@ namespace SteamKit2
         public override bool Equals( System.Object obj )
         {
             if ( obj == null )
+            {
                 return false;
+            }
 
             GameID gid = obj as GameID;
             if ( ( System.Object )gid == null )
+            {
                 return false;
+            }
 
             return gameid.Data == gid.gameid.Data;
         }
@@ -244,7 +289,9 @@ namespace SteamKit2
         public bool Equals( GameID gid )
         {
             if ( ( object )gid == null )
+            {
                 return false;
+            }
 
             return gameid.Data == gid.gameid.Data;
         }
@@ -260,10 +307,14 @@ namespace SteamKit2
         public static bool operator ==( GameID a, GameID b )
         {
             if ( System.Object.ReferenceEquals( a, b ) )
+            {
                 return true;
+            }
 
             if ( ( ( object )a == null ) || ( ( object )b == null ) )
+            {
                 return false;
+            }
 
             return a.gameid.Data == b.gameid.Data;
         }

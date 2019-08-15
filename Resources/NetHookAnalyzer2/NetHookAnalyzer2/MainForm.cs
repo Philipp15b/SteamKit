@@ -37,9 +37,21 @@ namespace NetHookAnalyzer2
 				{
 					GameCoordinatorSpecializations = new IGameCoordinatorSpecialization[]
 					{
+						new CSGOCacheSubscribedGCSpecialization(),
+						new CSGOSOMultipleObjectsGCSpecialization(),
+						new CSGOSOSingleObjectGCSpecialization(),
 						new Dota2CacheSubscribedGCSpecialization(),
 						new Dota2SOSingleObjectGCSpecialization(),
 						new Dota2SOMultipleObjectsGCSpecialization(),
+						new TF2CacheSubscribedGCSpecialization(),
+						new TF2SOMultipleObjectsGCSpecialization(),
+						new TF2SOSingleObjectGCSpecialization(),
+						new ArtifactCacheSubscribedGCSpecialization(),
+						new ArtifactSOMultipleObjectsGCSpecialization(),
+						new ArtifactSOSingleObjectGCSpecialization(),
+                        new UnderlordsCacheSubscribedGCSpecialization(),
+                        new UnderlordsSOMultipleObjectsGCSpecialization(),
+                        new UnderlordsSOSingleObjectGCSpecialization(),
 					}
 				}
 			};
@@ -179,7 +191,12 @@ namespace NetHookAnalyzer2
 			RepopulateListBox();
 		}
 
-		void searchTextBox_TextChanged(object sender, EventArgs e)
+		void OnShowAllCheckedChanged(object sender, EventArgs e)
+		{
+			RepopulateTreeView();
+		}
+
+		void SearchTextBox_TextChanged(object sender, EventArgs e)
 		{
 			RepopulateListBox();
 		}
@@ -231,6 +248,7 @@ namespace NetHookAnalyzer2
 
 			folderWatcher.Changed += OnFolderWatcherChanged;
 			folderWatcher.Created += OnFolderWatcherCreated;
+			folderWatcher.Renamed += OnFolderWatcherRenamed;
 			folderWatcher.Deleted += OnFolderWatcherDeleted;
 			folderWatcher.EnableRaisingEvents = true;
 			folderWatcher.IncludeSubdirectories = false;
@@ -269,9 +287,9 @@ namespace NetHookAnalyzer2
 			}
 		}
 
-		void OnFolderWatcherCreated(object sender, FileSystemEventArgs e)
+		void HandleFileCreated(string fullPath)
 		{
-			var item = Dump.AddItemFromPath(e.FullPath);
+			var item = Dump.AddItemFromPath(fullPath);
 			if (item == null)
 			{
 				return;
@@ -279,11 +297,21 @@ namespace NetHookAnalyzer2
 
 			var listViewItem = item.AsListViewItem();
 			itemsListView.Items.Add(listViewItem);
-
+			
 			if (automaticallySelectNewItemsToolStripMenuItem.Checked)
 			{
 				SelectLastItem();
 			}
+		}
+
+		void OnFolderWatcherCreated(object sender, FileSystemEventArgs e)
+		{
+			HandleFileCreated(e.FullPath);
+		}
+
+		void OnFolderWatcherRenamed(object sender, RenamedEventArgs e)
+		{
+			HandleFileCreated(e.FullPath);
 		}
 
 		void OnFolderWatcherDeleted(object sender, FileSystemEventArgs e)
@@ -342,7 +370,7 @@ namespace NetHookAnalyzer2
 
 		TreeNode BuildTree(NetHookItem item)
 		{
-			return new NetHookItemTreeBuilder(item) { Specializations = specializations }.BuildTree();
+			return new NetHookItemTreeBuilder(item) { Specializations = specializations }.BuildTree(showAllCheckBox.Checked);
 		}
 
 		void OnAutomaticallySelectNewItemsCheckedChanged(object sender, EventArgs e)

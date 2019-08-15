@@ -8,6 +8,8 @@
 //------------------------------------------------------------------------------
 #pragma warning disable 1591
 
+// Option: missing-value detection (*Specified/ShouldSerialize*/Reset*) enabled
+    
 // Generated from: network_connection.proto
 // Note: requires additional types generated from: google/protobuf/descriptor.proto
 namespace SteamKit2.GC.Dota.Internal
@@ -236,7 +238,106 @@ namespace SteamKit2.GC.Dota.Internal
       NETWORK_DISCONNECT_CONNECT_REQUEST_TIMEDOUT = 72,
             
       [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_SERVER_INCOMPATIBLE", Value=73)]
-      NETWORK_DISCONNECT_SERVER_INCOMPATIBLE = 73
+      NETWORK_DISCONNECT_SERVER_INCOMPATIBLE = 73,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_LOCALPROBLEM_MANYRELAYS", Value=74)]
+      NETWORK_DISCONNECT_LOCALPROBLEM_MANYRELAYS = 74,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_LOCALPROBLEM_HOSTEDSERVERPRIMARYRELAY", Value=75)]
+      NETWORK_DISCONNECT_LOCALPROBLEM_HOSTEDSERVERPRIMARYRELAY = 75,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_LOCALPROBLEM_NETWORKCONFIG", Value=76)]
+      NETWORK_DISCONNECT_LOCALPROBLEM_NETWORKCONFIG = 76,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_LOCALPROBLEM_OTHER", Value=77)]
+      NETWORK_DISCONNECT_LOCALPROBLEM_OTHER = 77,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REMOTE_TIMEOUT", Value=79)]
+      NETWORK_DISCONNECT_REMOTE_TIMEOUT = 79,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REMOTE_TIMEOUT_CONNECTING", Value=80)]
+      NETWORK_DISCONNECT_REMOTE_TIMEOUT_CONNECTING = 80,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REMOTE_OTHER", Value=81)]
+      NETWORK_DISCONNECT_REMOTE_OTHER = 81,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REMOTE_BADCRYPT", Value=82)]
+      NETWORK_DISCONNECT_REMOTE_BADCRYPT = 82,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REMOTE_CERTNOTTRUSTED", Value=83)]
+      NETWORK_DISCONNECT_REMOTE_CERTNOTTRUSTED = 83,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_UNUSUAL", Value=84)]
+      NETWORK_DISCONNECT_UNUSUAL = 84,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_INTERNAL_ERROR", Value=85)]
+      NETWORK_DISCONNECT_INTERNAL_ERROR = 85,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_BADCHALLENGE", Value=128)]
+      NETWORK_DISCONNECT_REJECT_BADCHALLENGE = 128,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_NOLOBBY", Value=129)]
+      NETWORK_DISCONNECT_REJECT_NOLOBBY = 129,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_BACKGROUND_MAP", Value=130)]
+      NETWORK_DISCONNECT_REJECT_BACKGROUND_MAP = 130,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_SINGLE_PLAYER", Value=131)]
+      NETWORK_DISCONNECT_REJECT_SINGLE_PLAYER = 131,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_HIDDEN_GAME", Value=132)]
+      NETWORK_DISCONNECT_REJECT_HIDDEN_GAME = 132,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_LANRESTRICT", Value=133)]
+      NETWORK_DISCONNECT_REJECT_LANRESTRICT = 133,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_BADPASSWORD", Value=134)]
+      NETWORK_DISCONNECT_REJECT_BADPASSWORD = 134,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_SERVERFULL", Value=135)]
+      NETWORK_DISCONNECT_REJECT_SERVERFULL = 135,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_INVALIDRESERVATION", Value=136)]
+      NETWORK_DISCONNECT_REJECT_INVALIDRESERVATION = 136,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_FAILEDCHANNEL", Value=137)]
+      NETWORK_DISCONNECT_REJECT_FAILEDCHANNEL = 137,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_CONNECT_FROM_LOBBY", Value=138)]
+      NETWORK_DISCONNECT_REJECT_CONNECT_FROM_LOBBY = 138,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_RESERVED_FOR_LOBBY", Value=139)]
+      NETWORK_DISCONNECT_REJECT_RESERVED_FOR_LOBBY = 139,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_INVALIDKEYLENGTH", Value=140)]
+      NETWORK_DISCONNECT_REJECT_INVALIDKEYLENGTH = 140,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_OLDPROTOCOL", Value=141)]
+      NETWORK_DISCONNECT_REJECT_OLDPROTOCOL = 141,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_NEWPROTOCOL", Value=142)]
+      NETWORK_DISCONNECT_REJECT_NEWPROTOCOL = 142,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_INVALIDCONNECTION", Value=143)]
+      NETWORK_DISCONNECT_REJECT_INVALIDCONNECTION = 143,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_INVALIDCERTLEN", Value=144)]
+      NETWORK_DISCONNECT_REJECT_INVALIDCERTLEN = 144,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_INVALIDSTEAMCERTLEN", Value=145)]
+      NETWORK_DISCONNECT_REJECT_INVALIDSTEAMCERTLEN = 145,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_STEAM", Value=146)]
+      NETWORK_DISCONNECT_REJECT_STEAM = 146,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_SERVERAUTHDISABLED", Value=147)]
+      NETWORK_DISCONNECT_REJECT_SERVERAUTHDISABLED = 147,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_SERVERCDKEYAUTHINVALID", Value=148)]
+      NETWORK_DISCONNECT_REJECT_SERVERCDKEYAUTHINVALID = 148,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NETWORK_DISCONNECT_REJECT_BANNED", Value=149)]
+      NETWORK_DISCONNECT_REJECT_BANNED = 149
     }
   
 }
